@@ -812,6 +812,11 @@
         </div>
       </div>
 
+      <!-- Inline ISBN Lookup Feedback Banner -->
+      <div id="isbn-lookup-banner" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-2.5 text-xs font-medium text-emerald-900 flex items-center justify-between gap-2">
+        <span id="isbn-lookup-banner-text">Searching ISBN directories...</span>
+      </div>
+
       <!-- Smart Duplicate Detection Banner ("Already in Library -> Add Copy") -->
       <div id="duplicate-book-banner" class="hidden rounded-2xl border border-amber-300 bg-amber-50 p-4 space-y-2">
         <div class="flex items-start justify-between gap-2">
@@ -2571,6 +2576,8 @@
 
       const coverBanner = document.getElementById('cover-ai-status-banner');
       if (coverBanner) coverBanner.classList.add('hidden');
+      const isbnBanner = document.getElementById('isbn-lookup-banner');
+      if (isbnBanner) isbnBanner.classList.add('hidden');
       const coverUpload = document.getElementById('book-cover-upload');
       if (coverUpload) coverUpload.value = '';
 
@@ -2972,31 +2979,28 @@
       document.getElementById('add-book-modal-title').textContent = 'Add Copy to Existing Book';
       document.getElementById('add-book-mode-badge').classList.remove('hidden');
 
-      const dupBanner = document.getElementById('duplicate-book-banner');
-      const dupDetails = document.getElementById('duplicate-book-details');
-      dupDetails.textContent = `"${existingBook.title}" by ${existingBook.author} already has ${existingBook.copies || 1} ${(existingBook.copies || 1) === 1 ? 'copy' : 'copies'} on Shelf ${existingBook.shelf}. Submitting will add more copies.`;
-      dupBanner.classList.remove('hidden');
-
-      const titleEl = document.getElementById('book-title-input');
-      const authorEl = document.getElementById('book-author-input');
-      const pubEl = document.getElementById('book-publisher-input');
-      const shelfEl = document.getElementById('book-shelf-input');
-
-      titleEl.value = existingBook.title;
-      authorEl.value = existingBook.author;
-      pubEl.value = existingBook.publisher || '';
-      if (!shelfEl.value) shelfEl.value = existingBook.shelf;
-      if (existingBook.coverUrl && !currentBookCoverUrl) {
-        setBookCoverPreview(existingBook.coverUrl, 'Existing Cover');
+      const banner = document.getElementById('duplicate-book-banner');
+      const details = document.getElementById('duplicate-book-details');
+      if (banner && details) {
+        details.textContent = `"${existingBook.title}" by ${existingBook.author} (Currently ${existingBook.copies || 1} ${(existingBook.copies || 1) === 1 ? 'copy' : 'copies'} on Shelf ${existingBook.shelf}). Submitting will add copies to this title.`;
+        banner.classList.remove('hidden');
       }
 
-      document.querySelectorAll('.book-master-field').forEach(el => {
-        el.readOnly = true;
-        el.classList.add('bg-slate-100', 'text-slate-600');
+      document.getElementById('book-title-input').value = existingBook.title;
+      document.getElementById('book-author-input').value = existingBook.author;
+      document.getElementById('book-publisher-input').value = existingBook.publisher && existingBook.publisher !== '—' ? existingBook.publisher : '';
+      document.getElementById('book-shelf-input').value = existingBook.shelf || '';
+      if (existingBook.coverUrl && !currentBookCoverUrl) {
+        setBookCoverPreview(existingBook.coverUrl, 'Existing Catalog Cover');
+      }
+
+      document.querySelectorAll('.book-master-field').forEach(field => {
+        field.readOnly = true;
+        field.classList.add('bg-slate-100', 'text-slate-500');
       });
 
       const submitBtn = document.getElementById('btn-submit-book');
-      if (submitBtn) submitBtn.textContent = '+ Add Copy';
+      if (submitBtn) submitBtn.textContent = 'Add Copy';
     }
 
     function resetDuplicateBookMode() {
@@ -3005,34 +3009,47 @@
       if (modalTitle) modalTitle.textContent = 'Add Book to Catalog';
       const badge = document.getElementById('add-book-mode-badge');
       if (badge) badge.classList.add('hidden');
-      const dupBanner = document.getElementById('duplicate-book-banner');
-      if (dupBanner) dupBanner.classList.add('hidden');
+      const banner = document.getElementById('duplicate-book-banner');
+      if (banner) banner.classList.add('hidden');
 
-      document.querySelectorAll('.book-master-field').forEach(el => {
-        el.readOnly = false;
-        el.classList.remove('bg-slate-100', 'text-slate-600');
+      document.querySelectorAll('.book-master-field').forEach(field => {
+        field.readOnly = false;
+        field.classList.remove('bg-slate-100', 'text-slate-500');
       });
 
       const submitBtn = document.getElementById('btn-submit-book');
       if (submitBtn) submitBtn.textContent = 'Add Book';
     }
 
-    // Lookup Book Metadata via Open Library & Google Books APIs (checks all ISBN-10/13 variants)
+    // Lookup Book Metadata via Open Library (Search + Books + Edition APIs) & Google Books API
     async function lookupBookByIsbn() {
       const isbnInput = document.getElementById('book-isbn-input');
       const lookupBtn = document.getElementById('btn-isbn-lookup');
+      const bannerEl = document.getElementById('isbn-lookup-banner');
+      const bannerTextEl = document.getElementById('isbn-lookup-banner-text');
       const cleanIsbn = normalizeIsbn(isbnInput ? isbnInput.value : '');
 
+      const setIsbnBanner = (msg, tone = 'info') => {
+        if (!bannerEl || !bannerTextEl) return;
+        bannerTextEl.textContent = msg;
+        bannerEl.className = tone === 'error'
+          ? 'rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs font-medium text-amber-900 flex items-center justify-between gap-2'
+          : 'rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-2.5 text-xs font-medium text-emerald-900 flex items-center justify-between gap-2';
+        bannerEl.classList.remove('hidden');
+      };
+
       if (cleanIsbn.length < 10) {
-        showToast('Please enter a valid 10- or 13-digit ISBN.');
+        setIsbnBanner('Please enter a valid 10- or 13-digit ISBN (e.g. 9780143452126).', 'error');
+        showToast('Please enter a valid 10- or 13-digit ISBN.', 'warning');
         return;
       }
 
-      // 1. Check local SPM Niwas catalog first across all ISBN-10/13 variants
+      // 1. Check local SPM NIWAS catalog first across all ISBN-10/13 variants
       const existing = catalogBooks.find(b => isSameBookIsbn(b.isbn, cleanIsbn));
       if (existing) {
         activateDuplicateCopyMode(existing);
-        showToast('Book already in library (matched ISBN variant) — switched to Add Copy mode.');
+        setIsbnBanner(`Matched existing library book "${existing.title}" — switched to Add Copy mode.`);
+        showToast('Book already in library — switched to Add Copy mode.');
         return;
       }
 
@@ -3040,6 +3057,7 @@
         lookupBtn.disabled = true;
         lookupBtn.textContent = 'Searching...';
       }
+      setIsbnBanner(`Searching Open Library & Google Books for ISBN ${cleanIsbn}...`);
 
       try {
         let foundTitle = '';
@@ -3048,7 +3066,27 @@
         let foundCoverUrl = '';
         const variantsToQuery = getAllIsbnVariants(cleanIsbn);
 
-        // 1. Query Open Library Books API across all ISBN-10/13 variants
+        // Source A: Open Library Search API (fastest, CORS-friendly, includes Indian & international editions)
+        for (const variant of variantsToQuery) {
+          if (foundTitle && foundAuthor && foundPublisher && foundCoverUrl) break;
+          try {
+            const searchRes = await fetch(`https://openlibrary.org/search.json?isbn=${variant}&limit=1`);
+            if (searchRes.ok) {
+              const searchData = await searchRes.json();
+              const doc = searchData.docs?.[0];
+              if (doc) {
+                if (!foundTitle && doc.title) foundTitle = doc.title;
+                if (!foundAuthor && Array.isArray(doc.author_name)) foundAuthor = doc.author_name.join(', ');
+                if (!foundPublisher && Array.isArray(doc.publisher)) foundPublisher = doc.publisher[0] || '';
+                if (!foundCoverUrl && doc.cover_i) {
+                  foundCoverUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+                }
+              }
+            }
+          } catch (_) {}
+        }
+
+        // Source B: Open Library Books Data API
         for (const variant of variantsToQuery) {
           if (foundTitle && foundAuthor && foundPublisher && foundCoverUrl) break;
           try {
@@ -3066,7 +3104,26 @@
           } catch (_) {}
         }
 
-        // 2. Enrich any missing fields (Title, Author, Publisher, Cover) from Google Books API
+        // Source C: Open Library Direct Edition JSON (/isbn/{isbn}.json)
+        if (!foundTitle || !foundPublisher) {
+          for (const variant of variantsToQuery) {
+            try {
+              const edRes = await fetch(`https://openlibrary.org/isbn/${variant}.json`);
+              if (edRes.ok) {
+                const ed = await edRes.json();
+                if (!foundTitle && ed.title) foundTitle = ed.title;
+                if (!foundPublisher && Array.isArray(ed.publishers) && ed.publishers.length > 0) {
+                  foundPublisher = ed.publishers.join(', ');
+                }
+                if (!foundCoverUrl && Array.isArray(ed.covers) && ed.covers[0] > 0) {
+                  foundCoverUrl = `https://covers.openlibrary.org/b/id/${ed.covers[0]}-M.jpg`;
+                }
+              }
+            } catch (_) {}
+          }
+        }
+
+        // Source D: Google Books API fallback
         for (const variant of variantsToQuery) {
           if (foundTitle && foundAuthor && foundPublisher && foundCoverUrl) break;
           try {
@@ -3086,20 +3143,9 @@
           } catch (_) {}
         }
 
-        // 3. Final fallback to Open Library direct edition JSON (/isbn/{isbn}.json)
-        if (!foundTitle || !foundPublisher) {
-          for (const variant of variantsToQuery) {
-            try {
-              const edRes = await fetch(`https://openlibrary.org/isbn/${variant}.json`);
-              if (edRes.ok) {
-                const ed = await edRes.json();
-                if (!foundTitle && ed.title) foundTitle = ed.title;
-                if (!foundPublisher && Array.isArray(ed.publishers) && ed.publishers.length > 0) {
-                  foundPublisher = ed.publishers.join(', ');
-                }
-              }
-            } catch (_) {}
-          }
+        // Source E: Direct Open Library ISBN Cover fallback if title was found without cover URL
+        if (foundTitle && !foundCoverUrl) {
+          foundCoverUrl = `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-M.jpg?default=false`;
         }
 
         if (foundTitle) {
@@ -3110,12 +3156,15 @@
             setBookCoverPreview(foundCoverUrl, 'Online ISBN Cover');
           }
           handleBookIsbnOrTitleCheck();
-          showToast(foundCoverUrl ? 'Book details & cover downloaded from ISBN directory!' : 'Book details fetched from ISBN directory!', 'success');
+          setIsbnBanner(`Found: "${foundTitle}"${foundAuthor ? ' by ' + foundAuthor : ''}. Verify Shelf ID and click Add Book.`);
+          showToast('Book details fetched from ISBN directory!', 'success');
         } else {
-          showToast('ISBN not found online — upload a cover photo or enter details manually.', 'warning');
+          setIsbnBanner(`No online record found for ISBN ${cleanIsbn}. Please enter Title & Author manually or use Cover AI.`, 'error');
+          showToast('ISBN not found online — enter details manually or use Cover AI.', 'warning');
         }
       } catch (err) {
-        showToast('Could not reach ISBN directory — enter details manually or use Cover AI.', 'warning');
+        setIsbnBanner('Could not reach ISBN directory — enter details manually or use Cover AI.', 'error');
+        showToast('Could not reach ISBN directory — enter details manually.', 'warning');
       } finally {
         if (lookupBtn) {
           lookupBtn.disabled = false;
