@@ -2516,7 +2516,7 @@
     // Show floating role switcher in Design/Preview mode, or in Production only for director@spmniwas.in with ?design=1
     window.syncDesignFloaterVisibility = function (authenticatedEmail = '') {
       const floater = document.getElementById('design-role-floater');
-      const isSuperadminInspector = IS_PRODUCTION && HAS_DESIGN_FLAG && authenticatedEmail.toLowerCase() === 'director@spmniwas.in';
+      const isSuperadminInspector = IS_PRODUCTION && HAS_DESIGN_FLAG && (authenticatedEmail || '').toLowerCase() === 'director@spmniwas.in';
       DESIGN_VIEW = !IS_PRODUCTION || isSuperadminInspector;
 
       if (floater) {
@@ -3871,11 +3871,6 @@
         circulationRecords.unshift(newLoan);
         syncBookCatalogCirculationStatus(book);
 
-        if (window.firebaseCloud) {
-          await window.firebaseCloud.saveCirculationRecord(newLoan).catch(err => console.warn(err));
-          await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
-        }
-
         const activeMemberLoans = getMemberCirculationRecords(newLoan.memberEmail)
           .filter(r => r.status === 'Issued')
           .map(r => ({
@@ -3885,6 +3880,19 @@
             issueDate: formatDisplayDate(r.issueDate),
             dueDate: formatDisplayDate(r.dueDate)
           }));
+
+        clearCirculationBookSelection();
+        clearCirculationMemberSelection();
+        renderActiveCirculationLoans();
+        searchCatalogBooks(false);
+        updateDashboardKpiCards();
+        renderDashboardCirculationActivity();
+        showToast(`Issued "${newLoan.bookTitle}" (${newLoan.copyId}) to ${newLoan.memberName} · Email sent & reminder set for ${formatDisplayDate(reminderDateIso)}.`, 'success');
+
+        if (window.firebaseCloud) {
+          window.firebaseCloud.saveCirculationRecord(newLoan).catch(err => console.warn('Cloud circulation save notice:', err));
+          window.firebaseCloud.saveBook(book).catch(err => console.warn('Cloud book sync notice:', err));
+        }
 
         triggerLibraryEmail('book_issued', {
           loanId: newLoan.id,
@@ -3913,14 +3921,6 @@
             dueDateIso: newLoan.dueDate
           }).catch(() => {});
         }
-
-        clearCirculationBookSelection();
-        clearCirculationMemberSelection();
-        renderActiveCirculationLoans();
-        searchCatalogBooks(false);
-        updateDashboardKpiCards();
-        renderDashboardCirculationActivity();
-        showToast(`Issued "${newLoan.bookTitle}" (${newLoan.copyId}) to ${newLoan.memberName} · Email sent & reminder set for ${formatDisplayDate(reminderDateIso)}.`, 'success');
       } catch (err) {
         console.error('Issue book error:', err);
         showToast('Could not complete book issue. Please try again.', 'error');
@@ -3936,96 +3936,197 @@
       if (modal) modal.classList.add('hidden');
       editingBookIndex = -1;
       editBookCoverUrl = '';
-      editRawCoverSourceDataUrl = '';
     }
 
-    async function handleEditBookSubmit(event) {
-      event.preventDefault();
+    function setEditBookCoverPreview(url, sourceLabel = 'Cover Active') {
+      editBookCoverUrl = url || '';
+      const img = document.getElementById('edit-book-cover-preview-img');
+      const placeholder = document.getElementById('edit-book-cover-placeholder');
+      const badge = document.getElementById('edit-book-cover-source-badge');
+      const removeBtn = document.getElementById('btn-remove-edit-book-cover');
+      if (!img || !placeholder) return;
+
+      if (editBookCoverUrl) {
+        img.src = editBookCoverUrl;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        if (badge) {
+          badge.textContent = sourceLabel;
+          badge.classList.remove('hidden');
+        }
+        if (removeBtn) removeBtn.classList.remove('hidden');
+      } else {
+        img.removeAttribute('src');
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        if (badge) badge.classList.add('hidden');
+        if (removeBtn) removeBtn.classList.add('hidden');
+      }
+    }
+
+    function clearEditBookCoverPhoto() {
+      const fileInput = document.getElementById('edit-book-offline-cover-input');
+      if (fileInput) fileInput.value = '';
+      setEditBookCoverPreview('');
+    }
+
+    async function handleEditOfflineCoverSelected(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        const compressedUrl = await resizeCoverImageToDataUrl(file);
+        setEditBookCoverPreview(compressedUrl, 'Uploaded Photo');
+        showToast('Cover photo attached. Click "Save Changes" to apply.', 'info');
+      } catch (err) {
+        showToast('Could not read selected cover photo.', 'error');
+      }
+    }
+
+    async function pullEditCoverFromIsbn() {
+      const rawIsbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
+      const variants = getIsbnVariants(rawIsbn);
+      if (!variants.length) {
+        showToast('Enter a valid 10- or 13-digit ISBN first to pull cover.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('btn-edit-fetch-isbn-cover');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Pulling...';
+      }
+
+      try {
+        let pulledUrl = '';
+        for (const variant of variants) {
+          try {
+            const searchRes = await fetch(`https://openlibrary.org/search.json?isbn=${variant}&limit=1`);
+            if (searchRes.ok) {
+              const data = await searchRes.json();
+              const coverId = data.docs?.[0]?.cover_i;
+              if (coverId) {
+                pulledUrl = `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`;
+                break;
+              }
+            }
+          } catch (e) { /* try next */ }
+
+          try {
+            const gbRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${variant}`);
+            if (gbRes.ok) {
+              const gbData = await gbRes.json();
+              const thumb = gbData.items?.[0]?.volumeInfo?.imageLinks?.thumbnail;
+              if (thumb) {
+                pulledUrl = thumb.replace('http://', 'https://');
+                break;
+              }
+            }
+          } catch (e) { /* try next */ }
+        }
+
+        if (pulledUrl) {
+          setEditBookCoverPreview(pulledUrl, 'ISBN Web Cover');
+          showToast('Cover pulled from ISBN directory! Click "Save Changes" to keep it.', 'success');
+        } else {
+          showToast(`No online cover image found for ISBN ${rawIsbn}.`, 'warning');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Pull Cover via ISBN';
+        }
+      }
+    }
+
+    function openEditBookModal(idx) {
       if (currentRoleKey !== 'librarian') {
         showToast('Only Librarian can edit book details.', 'warning');
         return;
       }
-      const targetIdx = editingBookIndex;
-      const book = catalogBooks[targetIdx];
-      if (!book) {
-        showToast('Book record not found. Please reopen Edit Book Details.', 'error');
+      const book = catalogBooks[idx];
+      const modal = document.getElementById('edit-book-modal');
+      if (!book || !modal) return;
+
+      editingBookIndex = idx;
+      document.getElementById('edit-book-isbn').value = book.isbn || '';
+      document.getElementById('edit-book-status').value = book.status || 'Available';
+      document.getElementById('edit-book-title').value = book.title || '';
+      document.getElementById('edit-book-author').value = book.author || '';
+      document.getElementById('edit-book-publisher').value = book.publisher || '';
+      document.getElementById('edit-book-shelf').value = book.shelf || '';
+      document.getElementById('edit-book-edition').value = book.edition || '';
+      document.getElementById('edit-book-copies').value = ensureBookCopyList(book).length;
+      document.getElementById('edit-book-procurement-mode').value = book.procurementMode || 'Purchased';
+      document.getElementById('edit-book-procurement-comments').value = book.procurementComments || '';
+      document.getElementById('edit-book-reason').value = '';
+      setEditBookCoverPreview(book.coverUrl || '', book.coverUrl ? 'Current Cover' : '');
+
+      modal.classList.remove('hidden');
+    }
+
+    function confirmAndOpenEditBook(idx) {
+      openEditBookModal(idx);
+    }
+
+    function closeBookDetailsModal() {
+      const modal = document.getElementById('book-details-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function issueBookFromDetails(idx) {
+      const book = catalogBooks[idx];
+      if (!book) return;
+      closeBookDetailsModal();
+      switchSection('circulation', 'Circulation Desk');
+      selectCirculationBook(idx);
+    }
+
+    function renderBookReviewsList(book) {
+      const listEl = document.getElementById('detail-reviews-list');
+      const countEl = document.getElementById('detail-reviews-count');
+      if (!listEl) return;
+      const reviews = Array.isArray(book?.reviews) ? book.reviews : [];
+      if (countEl) countEl.textContent = `${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}`;
+
+      if (reviews.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 italic">No reader reviews yet. Be the first SPM NIWAS reader to share your thoughts!</p>`;
         return;
       }
 
-      const submitBtn = event.target?.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Saving...';
-      }
-
-      try {
-        const previousSnapshot = {
-          isbn: book.isbn || '',
-          title: book.title || '',
-          author: book.author || '',
-          publisher: book.publisher || '',
-          shelf: book.shelf || '',
-          edition: book.edition || '',
-          copies: book.copies || 1,
-          status: book.status || 'Available',
-          coverUrl: book.coverUrl || ''
-        };
-
-        book.isbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
-        book.status = document.getElementById('edit-book-status')?.value || 'Available';
-        book.title = (document.getElementById('edit-book-title')?.value || '').trim();
-        book.author = (document.getElementById('edit-book-author')?.value || '').trim();
-        book.publisher = (document.getElementById('edit-book-publisher')?.value || '').trim();
-        book.shelf = (document.getElementById('edit-book-shelf')?.value || '').trim();
-        book.edition = (document.getElementById('edit-book-edition')?.value || '').trim();
-        book.copies = Math.max(1, parseInt(document.getElementById('edit-book-copies')?.value || '1', 10));
-        book.procurementMode = document.getElementById('edit-book-procurement-mode')?.value || 'Purchased';
-        book.procurementComments = (document.getElementById('edit-book-procurement-comments')?.value || '').trim();
-        book.coverUrl = editBookCoverUrl || '';
-        const reason = (document.getElementById('edit-book-reason')?.value || '').trim();
-
-        ensureBookCopyList(book);
-
-        if (!Array.isArray(book.editLog)) book.editLog = [];
-        book.editLog.unshift({
-          editedBy: SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian',
-          editedAt: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-          reason,
-          previousSnapshot
-        });
-
-        const updatedTitle = book.title;
-        if (window.firebaseCloud) {
-          await window.firebaseCloud.saveBook(book).catch(err => console.warn('Cloud save notice:', err));
-        }
-
-        closeEditBookModal();
-        searchCatalogBooks(false);
-        updateDashboardKpiCards();
-        renderDashboardLatestBooks();
-
-        const detailsModal = document.getElementById('book-details-modal');
-        if (detailsModal && !detailsModal.classList.contains('hidden') && activeDetailBookIndex === targetIdx) {
-          openBookDetailsModal(targetIdx);
-        }
-
-        showToast(`Saved updates for "${updatedTitle}".`, 'success');
-      } catch (err) {
-        console.error('Edit book save error:', err);
-        showToast('Could not save book changes. Please try again.', 'error');
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Save Changes';
-        }
-      }
+      listEl.innerHTML = reviews.map(r => `
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-bold text-slate-900">${r.reviewerName || 'SPM NIWAS Reader'}</span>
+            <span class="text-[11px] font-semibold text-amber-600">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
+          </div>
+          <p class="text-xs text-slate-700">${r.comment}</p>
+        </div>
+      `).join('');
     }
 
-    function closeEditBookModal() {
-      const modal = document.getElementById('edit-book-modal');
-      if (modal) modal.classList.add('hidden');
-      editingBookIndex = -1;
-      editBookCoverUrl = '';
+    async function handleAddBookReview(event) {
+      event.preventDefault();
+      const book = catalogBooks[activeDetailBookIndex];
+      const textEl = document.getElementById('detail-review-text');
+      const ratingEl = document.getElementById('detail-review-rating');
+      const comment = (textEl?.value || '').trim();
+      const rating = parseInt(ratingEl?.value || '5', 10);
+      if (!book || !comment) return;
+
+      if (!Array.isArray(book.reviews)) book.reviews = [];
+      book.reviews.unshift({
+        reviewerName: SYSTEM_ROLES[currentRoleKey]?.name || 'SPM NIWAS Reader',
+        rating,
+        comment,
+        createdAt: Date.now()
+      });
+
+      if (textEl) textEl.value = '';
+      renderBookReviewsList(book);
+      if (window.firebaseCloud) {
+        await window.firebaseCloud.saveBook(book).catch(() => {});
+      }
+      showToast('Review posted!', 'success');
     }
 
     async function handleEditBookSubmit(event) {
@@ -4143,6 +4244,11 @@
       modal.classList.remove('hidden');
     }
 
+    function closeBookEditLogModal() {
+      const modal = document.getElementById('book-edit-log-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
     let activeQrBookIndex = -1;
     function renderActiveQrStickerPreview() {
       const book = catalogBooks[activeQrBookIndex];
@@ -4207,49 +4313,6 @@
       }
 
       renderActiveQrStickerPreview();
-      modal.classList.remove('hidden');
-    }
-
-    function closeBookEditLogModal() {
-      const modal = document.getElementById('book-edit-log-modal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function openBookQrStickerModal(idx) {
-      if (currentRoleKey !== 'librarian') {
-        showToast('Only Librarian can generate QR cover stickers.', 'warning');
-        return;
-      }
-      const book = catalogBooks[idx];
-      if (!book) return;
-      const modal = document.getElementById('book-qr-modal');
-      const container = document.getElementById('book-qr-canvas-container');
-      if (!modal || !container) return;
-
-      const bookParam = encodeURIComponent(book._docId || normalizeIsbn(book.isbn) || book.title);
-      const baseUrl = window.location.origin && window.location.origin !== 'null'
-        ? `${window.location.origin}${window.location.pathname}`
-        : 'https://spm-niwas.github.io/spm-niwas-library/';
-      const deepUrl = `${baseUrl}?book=${bookParam}`;
-
-      document.getElementById('qr-sticker-title').textContent = book.title || 'Untitled Book';
-      document.getElementById('qr-sticker-author').textContent = book.author || 'Unknown Author';
-      document.getElementById('qr-sticker-shelf').textContent = `Shelf: ${book.shelf || '—'}`;
-      document.getElementById('qr-sticker-isbn').textContent = book.isbn || 'NO-ISBN';
-      document.getElementById('qr-sticker-url-preview').textContent = deepUrl;
-
-      container.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(container, {
-          text: deepUrl,
-          width: 152,
-          height: 152,
-          colorDark: '#0f172a',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      }
-
       modal.classList.remove('hidden');
     }
 
@@ -5630,44 +5693,10 @@
         addedAt: Date.now(),
         lastProcuredAt: Date.now()
       };
-      const copies = ensureBookCopyList(book);
-      if (shelfEl) shelfEl.textContent = getBookShelvesLabel(book);
-      if (copiesEl) copiesEl.textContent = `${copies.length} (${copies.filter(c => c.status === 'Available').length} available)`;
 
-      const log = Array.isArray(book.procurementLog) ? book.procurementLog : [];
-      if (procEl) {
-        if (log.length > 1) {
-          const pCount = log.filter(e => e.mode === 'Purchased').reduce((s, e) => s + (e.copies || 1), 0);
-          const dCount = log.filter(e => e.mode === 'Donated').reduce((s, e) => s + (e.copies || 1), 0);
-          const parts = [];
-          if (pCount) parts.push(`${pCount} Purchased`);
-          if (dCount) parts.push(`${dCount} Donated`);
-          procEl.textContent = parts.join(' · ') || (book.procurementMode || 'Purchased');
-        } else {
-          procEl.textContent = book.procurementMode || 'Purchased';
-        }
-      }
-
-      if (procNoteRow && procListEl) {
-        const copyBreakdownHtml = copies.map(c => `
-          <div class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200/80 text-[11px] flex items-center justify-between gap-2">
-            <span class="font-mono font-semibold text-slate-800">${c.copyId} · Shelf ${c.shelf || '—'}</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${c.status === 'Available' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}">${c.status}</span>
-          </div>
-        `).join('');
-
-        const procEntriesHtml = log.map(entry => `
-          <div class="p-2 rounded-lg bg-white border border-slate-200/80 text-[11px]">
-            <div class="flex items-center justify-between font-semibold text-slate-800">
-              <span>${entry.mode}${entry.copyId ? ` (${entry.copyId})` : ''}</span>
-              <span class="text-[10px] text-slate-400">${entry.date || ''}</span>
-            </div>
-            ${entry.comments ? `<p class="text-slate-600 mt-0.5">${entry.comments}</p>` : ''}
-          </div>
-        `).join('');
-
-        procListEl.innerHTML = copyBreakdownHtml + procEntriesHtml;
-        procNoteRow.classList.remove('hidden');
+      catalogBooks.unshift(newBook);
+      if (window.firebaseCloud) {
+        await window.firebaseCloud.saveBook(newBook).catch(err => console.warn(err));
       }
       searchCatalogBooks();
       updateDashboardKpiCards();
@@ -5721,7 +5750,7 @@
       if (publisherEl) publisherEl.textContent = book.publisher ? `Published by ${book.publisher}` : 'Publisher not recorded';
       if (descEl) {
         descEl.textContent = book.description ||
-          `"${book.title}" by ${book.author}${book.publisher ? ' (' + book.publisher + ')' : ''} — Shelved at ${book.shelf || 'Library Shelf'} in SPM NIWAS Library.`;
+          `"${book.title}" by ${book.author}${book.publisher ? ' (' + book.publisher + ')' : ''} — Shelved at ${getBookShelvesLabel(book)} in SPM NIWAS Library.`;
       }
 
       const initials = (book.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
@@ -5739,8 +5768,9 @@
         }
       }
 
-      if (shelfEl) shelfEl.textContent = book.shelf || '—';
-      if (copiesEl) copiesEl.textContent = String(book.copies || 1);
+      const copies = ensureBookCopyList(book);
+      if (shelfEl) shelfEl.textContent = getBookShelvesLabel(book);
+      if (copiesEl) copiesEl.textContent = `${copies.length} (${copies.filter(c => c.status === 'Available').length} available)`;
 
       const log = Array.isArray(book.procurementLog) ? book.procurementLog : [];
       if (procEl) {
@@ -5757,23 +5787,25 @@
       }
 
       if (procNoteRow && procListEl) {
-        if (log.length > 0) {
-          procListEl.innerHTML = log.map(entry => `
-            <div class="p-2 rounded-lg bg-white border border-slate-200/80 text-[11px]">
-              <div class="flex items-center justify-between font-semibold text-slate-800">
-                <span>${entry.mode} (${entry.copies || 1} ${(entry.copies || 1) === 1 ? 'copy' : 'copies'})</span>
-                <span class="text-[10px] text-slate-400">${entry.date || ''}</span>
-              </div>
-              ${entry.comments ? `<p class="text-slate-600 mt-0.5">${entry.comments}</p>` : ''}
+        const copyBreakdownHtml = copies.map(c => `
+          <div class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200/80 text-[11px] flex items-center justify-between gap-2">
+            <span class="font-mono font-semibold text-slate-800">${c.copyId} · Shelf ${c.shelf || '—'}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${c.status === 'Available' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}">${c.status}</span>
+          </div>
+        `).join('');
+
+        const procEntriesHtml = log.map(entry => `
+          <div class="p-2 rounded-lg bg-white border border-slate-200/80 text-[11px]">
+            <div class="flex items-center justify-between font-semibold text-slate-800">
+              <span>${entry.mode}${entry.copyId ? ` (${entry.copyId})` : ''}</span>
+              <span class="text-[10px] text-slate-400">${entry.date || ''}</span>
             </div>
-          `).join('');
-          procNoteRow.classList.remove('hidden');
-        } else if (book.procurementComments) {
-          procListEl.innerHTML = `<p class="text-[11px] text-slate-600">${book.procurementComments}</p>`;
-          procNoteRow.classList.remove('hidden');
-        } else {
-          procNoteRow.classList.add('hidden');
-        }
+            ${entry.comments ? `<p class="text-slate-600 mt-0.5">${entry.comments}</p>` : ''}
+          </div>
+        `).join('');
+
+        procListEl.innerHTML = copyBreakdownHtml + procEntriesHtml;
+        procNoteRow.classList.remove('hidden');
       }
 
       if (statusEl) {
