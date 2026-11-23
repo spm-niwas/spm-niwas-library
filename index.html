@@ -521,6 +521,14 @@
                       <div class="mt-1.5 flex items-center gap-2">
                         <span id="circ-selected-book-avail-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700">Available</span>
                       </div>
+                      <div id="circ-copy-picker-wrap" class="hidden mt-2 pt-2 border-t border-slate-200/80">
+                        <label for="circ-copy-select" class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                          Select Physical Copy &amp; Shelf Being Issued
+                        </label>
+                        <select id="circ-copy-select"
+                          class="w-full px-2.5 py-1.5 text-xs font-mono font-semibold bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600">
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -604,7 +612,6 @@
 
         <!-- SECTION: SPM NIWAS MEMBERS DIRECTORY -->
         <section id="section-members" class="hidden space-y-6">
-          <!-- Top Search Bar & Add Member Action -->
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <div class="relative flex-1 max-w-lg">
               <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -621,34 +628,29 @@
             </button>
           </div>
 
-          <!-- Members Table Card -->
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
               <div>
-                <h3 class="text-sm font-bold text-slate-900">SPM NIWAS Members Directory</h3>
-                <p class="text-xs text-slate-400">Authorized staff and resident borrowers with automatic book entitlements</p>
+                <h3 class="text-sm font-bold text-slate-900">Registered SPM NIWAS Members</h3>
+                <p class="text-xs text-slate-400">Staff and resident members eligible to borrow books</p>
               </div>
-              <span id="directory-member-count" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Member</span>
+              <span id="directory-member-count" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">0 Members</span>
             </div>
-
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                    <th class="py-3 px-5">Member Name</th>
+                    <th class="py-3 px-5">Name</th>
                     <th class="py-3 px-4">Designation</th>
                     <th class="py-3 px-4">Category</th>
                     <th class="py-3 px-4">Google Email</th>
                     <th class="py-3 px-4 text-center">Books Allowed</th>
-                    <th class="member-action-col py-3 px-5 text-right">Action</th>
+                    <th class="member-action-col hidden py-3 px-5 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody id="directory-members-table-body" class="divide-y divide-slate-100 text-sm">
-                </tbody>
+                <tbody id="directory-members-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
               </table>
             </div>
-
-            <!-- Auto Pagination Footer (Appears automatically when > 25 members) -->
             <div id="members-pagination-bar" class="hidden px-5 py-3.5 border-t border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
               <span id="members-pagination-info" class="text-slate-500 font-medium">Showing 1–25 of 25 members</span>
               <div id="members-pagination-controls" class="flex items-center gap-1.5"></div>
@@ -656,14 +658,13 @@
           </div>
         </section>
 
-        <!-- SECTION: ADMIN SETTINGS (SUPERADMIN ONLY) -->
+        <!-- SECTION: ADMIN SETTINGS (SUPERADMIN) -->
         <section id="section-admin-settings" class="hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <!-- Settings Sub-Navigation Tabs -->
-            <div class="px-6 pt-4 border-b border-slate-200 flex items-center gap-6 overflow-x-auto">
+            <div class="px-6 pt-5 border-b border-slate-100 flex items-center gap-6 overflow-x-auto">
               <button type="button" id="settings-tab-librarian" onclick="switchSettingsTab('librarian')"
                 class="settings-tab pb-3.5 text-sm font-semibold text-emerald-800 border-b-2 border-emerald-700 transition whitespace-nowrap">
-                Authorized Librarians
+                Authorize Librarian
               </button>
               <button type="button" id="settings-tab-categories" onclick="switchSettingsTab('categories')"
                 class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
@@ -679,32 +680,32 @@
               </button>
             </div>
 
-            <!-- Tab 1: Authorized Librarians -->
+            <!-- Tab 1: Authorize Librarian -->
             <div id="settings-panel-librarian" class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <form id="add-librarian-form" onsubmit="handleAddLibrarian(event)" class="lg:col-span-4 space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+              <form id="add-librarian-form" onsubmit="handleAddLibrarian(event)" class="lg:col-span-5 space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
                 <div>
                   <h4 class="text-sm font-bold text-slate-900">Authorize New Librarian</h4>
-                  <p class="text-xs text-slate-500 mt-0.5">Grant catalog, member, and circulation desk access.</p>
+                  <p class="text-xs text-slate-500 mt-0.5">Grant full catalog, circulation &amp; member access via Google Sign-In.</p>
                 </div>
                 <div>
                   <label for="librarian-name" class="block text-xs font-semibold text-slate-700 mb-1.5">Full Name</label>
-                  <input type="text" id="librarian-name" required placeholder="e.g. S. Mukherjee"
+                  <input type="text" id="librarian-name" oninput="autoCapitalizeFirstLetter(this)" required placeholder="e.g. S. Mukherjee"
                     class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
                 </div>
                 <div>
-                  <label for="librarian-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Google Email Address</label>
+                  <label for="librarian-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Google Account Email</label>
                   <input type="email" id="librarian-email" required placeholder="librarian@spmniwas.in"
                     class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
                 </div>
                 <button type="submit"
                   class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-                  Authorize Librarian
+                  + Authorize Librarian
                 </button>
               </form>
 
-              <div class="lg:col-span-8 rounded-2xl border border-slate-200/80 overflow-hidden">
+              <div class="lg:col-span-7 border border-slate-200/80 rounded-2xl overflow-hidden">
                 <div class="px-5 py-3.5 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between">
-                  <span class="text-xs font-bold text-slate-800">Active Librarians</span>
+                  <span class="text-xs font-bold text-slate-800">Authorized Librarians</span>
                   <span id="librarian-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Active</span>
                 </div>
                 <div class="overflow-x-auto">
@@ -712,8 +713,8 @@
                     <thead>
                       <tr class="bg-slate-50/50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
                         <th class="py-2.5 px-5">Name</th>
-                        <th class="py-2.5 px-4">Google Email</th>
-                        <th class="py-2.5 px-4">Account Type</th>
+                        <th class="py-2.5 px-4">Email</th>
+                        <th class="py-2.5 px-4">Account</th>
                         <th class="py-2.5 px-4">Status</th>
                         <th class="py-2.5 px-5 text-right">Action</th>
                       </tr>
@@ -725,7 +726,7 @@
             </div>
 
             <!-- Tab 2: Staff Categories -->
-            <div id="settings-panel-categories" class="hidden p-6 max-w-2xl space-y-4">
+            <div id="settings-panel-categories" class="hidden p-6 space-y-4 max-w-2xl">
               <div class="flex items-center justify-between">
                 <div>
                   <h4 class="text-sm font-bold text-slate-900">Categories of Staff &amp; Residents</h4>
@@ -734,44 +735,48 @@
                 <span id="staff-categories-count" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">6 categories configured</span>
               </div>
               <textarea id="staff-categories-textarea" rows="7"
-                class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition"></textarea>
-              <button type="button" onclick="saveStaffCategories()"
-                class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-                Save Staff Categories
-              </button>
+                class="w-full p-3.5 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition"></textarea>
+              <div class="flex justify-end">
+                <button type="button" onclick="saveStaffCategories()"
+                  class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                  Save Categories
+                </button>
+              </div>
             </div>
 
             <!-- Tab 3: Book Entitlement & Loan Period -->
-            <div id="settings-panel-entitlement" class="hidden p-6 max-w-2xl space-y-5">
+            <div id="settings-panel-entitlement" class="hidden p-6 space-y-5 max-w-2xl">
               <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-4">
                 <div>
-                  <h4 class="text-sm font-bold text-slate-900">Default Loan Period (Days)</h4>
-                  <p class="text-xs text-slate-500 mt-0.5">Automatically calculates return due dates at the Circulation Desk.</p>
+                  <label for="default-loan-days-input" class="block text-sm font-bold text-slate-900">Default Loan Period (Days)</label>
+                  <p class="text-xs text-slate-500 mt-0.5">Used to calculate return due dates at the Circulation Desk.</p>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                   <input type="number" id="default-loan-days-input" min="1" max="180" value="14"
-                    class="w-24 px-3 py-1.5 text-sm text-right font-semibold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                    class="w-24 px-3 py-1.5 text-sm text-right font-semibold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600" />
                   <span class="text-xs text-slate-500">days</span>
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-slate-200/80 overflow-hidden divide-y divide-slate-100" id="entitlement-category-list"></div>
+              <div class="border border-slate-200/80 rounded-2xl overflow-hidden divide-y divide-slate-100" id="entitlement-category-list"></div>
 
-              <button type="button" onclick="saveBookEntitlement()"
-                class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-                Save Entitlements &amp; Loan Period
-              </button>
+              <div class="flex justify-end">
+                <button type="button" onclick="saveBookEntitlement()"
+                  class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                  Save Entitlements &amp; Loan Period
+                </button>
+              </div>
             </div>
 
             <!-- Tab 4: SPM NIWAS Logo -->
-            <div id="settings-panel-logo" class="hidden p-6 max-w-2xl space-y-4">
+            <div id="settings-panel-logo" class="hidden p-6 space-y-4 max-w-xl">
               <div>
-                <h4 class="text-sm font-bold text-slate-900">Custom SPM NIWAS Library Emblem</h4>
+                <h4 class="text-sm font-bold text-slate-900">SPM NIWAS Official Emblem / Logo</h4>
                 <p id="logo-file-status" class="text-xs text-slate-500 mt-0.5">Recommended: Square transparent PNG or SVG (max 2 MB).</p>
               </div>
               <div class="flex flex-wrap items-center gap-3">
                 <label for="spm-logo-upload-input"
-                  class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition cursor-pointer">
+                  class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer">
                   Choose Logo File
                 </label>
                 <input type="file" id="spm-logo-upload-input" accept="image/*" onchange="handleLogoFileSelected(event)" class="hidden" />
@@ -780,8 +785,8 @@
                   Save Logo
                 </button>
                 <button type="button" id="btn-remove-brand-logo" onclick="promptRemoveBrandLogo()"
-                  class="hidden px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
-                  Remove Custom Logo
+                  class="hidden px-4 py-2 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
+                  Remove Logo
                 </button>
               </div>
             </div>
@@ -1090,12 +1095,6 @@
           </div>
 
           <div class="sm:col-span-2">
-            <label for="book-copies-input" class="block text-xs font-semibold text-slate-700 mb-1.5">Number of Copies to Add</label>
-            <input type="number" id="book-copies-input" min="1" max="50" value="1" required
-              class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
-          </div>
-
-          <div class="sm:col-span-2">
             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Mode of Procurement</label>
             <div class="grid grid-cols-2 gap-2.5">
               <button type="button" id="btn-procurement-purchased" onclick="openProcurementCommentsDialog('Purchased')"
@@ -1357,6 +1356,59 @@
       </div>
 
       <form id="edit-book-form" onsubmit="handleEditBookSubmit(event)" class="space-y-4">
+        <!-- Book Cover Photo Card (Upload, Fetch via ISBN, 4-Corner Crop & Delete Cross) -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-4">
+          <div class="relative shrink-0">
+            <div id="edit-book-cover-preview-box" class="w-16 h-24 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center shadow-xs">
+              <img id="edit-book-cover-preview-img" src="" alt="Book cover"
+                onerror="this.classList.add('hidden'); document.getElementById('edit-book-cover-placeholder').classList.remove('hidden');"
+                class="hidden w-full h-full object-cover" />
+              <div id="edit-book-cover-placeholder" class="text-center px-1">
+                <svg class="w-5 h-5 text-slate-300 mx-auto" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <span class="block text-[9px] font-medium text-slate-400 mt-0.5">No Cover</span>
+              </div>
+            </div>
+            <!-- Cross button to delete/remove cover image -->
+            <button type="button" id="btn-remove-edit-book-cover" onclick="clearEditBookCoverPhoto()"
+              title="Remove cover image" aria-label="Remove cover image"
+              class="hidden absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-600 hover:bg-rose-700 text-white shadow-md border-2 border-white flex items-center justify-center transition">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <p class="text-xs font-bold text-slate-800">Book Cover Photo</p>
+              <span id="edit-book-cover-source-badge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+                Cover Active
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-0.5">Upload a cover image, pull automatically from the web using ISBN, or click the &times; cross to clear an incorrect cover.</p>
+
+            <div class="mt-2.5 flex flex-wrap items-center gap-2">
+              <label for="edit-book-offline-cover-input"
+                class="px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 transition cursor-pointer shadow-2xs">
+                Upload Photo
+              </label>
+              <input type="file" id="edit-book-offline-cover-input" accept="image/*" capture="environment" onchange="handleEditOfflineCoverSelected(event)" class="hidden" />
+
+              <button type="button" id="btn-edit-fetch-isbn-cover" onclick="pullEditCoverFromIsbn()"
+                class="px-3 py-1.5 rounded-xl text-[11px] font-semibold text-blue-800 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition shadow-2xs">
+                Pull Cover via ISBN
+              </button>
+
+              <button type="button" id="btn-open-edit-4corner-crop" onclick="openEditFourCornerCropper()"
+                class="hidden px-3 py-1.5 rounded-xl text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
+                Crop 4 Corners
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="edit-book-isbn" class="block text-xs font-semibold text-slate-700 mb-1.5">ISBN</label>
@@ -1513,6 +1565,14 @@
       </div>
 
       <div class="p-6 space-y-4">
+        <!-- Copy Selector (Shown when book has multiple physical copies) -->
+        <div id="qr-copy-selector-wrap" class="hidden">
+          <label for="qr-copy-select" class="block text-xs font-semibold text-slate-700 mb-1">Select Copy / Shelf for Sticker</label>
+          <select id="qr-copy-select" onchange="renderActiveQrStickerPreview()"
+            class="w-full px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600">
+          </select>
+        </div>
+
         <!-- Printable Sticker Preview Card -->
         <div id="qr-sticker-printable-card" class="mx-auto max-w-[300px] rounded-2xl border-2 border-slate-900 bg-white p-4 text-center space-y-2.5 shadow-sm">
           <div class="border-b border-slate-200 pb-2">
@@ -1552,6 +1612,33 @@
             <span>Print Sticker</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Circulation Loan Details Modal -->
+  <div id="circulation-details-modal" onclick="if(event.target===this) closeCirculationDetailsModal()"
+    class="hidden fixed inset-0 z-[79] flex items-center justify-center bg-slate-900/60 backdrop-blur-[2px] p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden my-auto">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/70">
+        <div>
+          <span id="circ-detail-status-pill" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800">Issued</span>
+          <h4 class="text-sm font-bold text-slate-900 mt-1">Circulation Loan Details</h4>
+        </div>
+        <button type="button" onclick="closeCirculationDetailsModal()" aria-label="Close circulation details"
+          class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div id="circ-detail-modal-body" class="p-6 space-y-4">
+        <!-- Populated dynamically with loan details -->
+      </div>
+
+      <div id="circ-detail-modal-footer" class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between gap-2">
+        <!-- Populated dynamically with Close & Return action -->
       </div>
     </div>
   </div>
@@ -2099,13 +2186,14 @@
     let activeMemberCatalogSubView = null; // null | 'wishlist' | 'taken' | 'with_me' | 'overdue'
     let selectedCirculationBookIdx = -1;
     let selectedCirculationMemberIdx = -1;
-    let activeCirculationFilter = 'all'; // 'all' | 'issued' | 'overdue'
+    let activeCirculationFilter = 'all'; // 'all' | 'issued' | 'overdue' | 'returned'
     window.defaultLoanDays = 14;
     window.circulationRecords = [
       {
         id: 'CIRC-1001',
         bookTitle: 'The Discovery of India',
         isbn: '978-0143031031',
+        copyId: 'C-01',
         shelf: 'A-12',
         memberName: 'A. Sharma',
         memberEmail: 'member@spmniwas.in',
@@ -2119,6 +2207,7 @@
         id: 'CIRC-1002',
         bookTitle: 'Malgudi Days',
         isbn: '978-8185986173',
+        copyId: 'C-01',
         shelf: 'C-09',
         memberName: 'R. Nair',
         memberEmail: 'rnair@spmniwas.in',
@@ -2132,6 +2221,7 @@
         id: 'CIRC-1003',
         bookTitle: 'The God of Small Things',
         isbn: '978-0679772675',
+        copyId: 'C-01',
         shelf: 'B-07',
         memberName: 'P. Dasgupta',
         memberEmail: 'pdasgupta@spmniwas.in',
@@ -2145,6 +2235,7 @@
         id: 'CIRC-1004',
         bookTitle: 'Sapiens: A Brief History of Humankind',
         isbn: '978-0062316097',
+        copyId: 'C-01',
         shelf: 'D-10',
         memberName: 'K. Verma',
         memberEmail: 'kverma@spmniwas.in',
@@ -2158,6 +2249,7 @@
         id: 'CIRC-1005',
         bookTitle: 'Wings of Fire',
         isbn: '978-8173711466',
+        copyId: 'C-01',
         shelf: 'B-04',
         memberName: 'A. Sharma',
         memberEmail: 'member@spmniwas.in',
@@ -2171,6 +2263,7 @@
         id: 'CIRC-1006',
         bookTitle: 'Atomic Habits',
         isbn: '978-0735211292',
+        copyId: 'C-01',
         shelf: 'E-01',
         memberName: 'A. Sharma',
         memberEmail: 'member@spmniwas.in',
@@ -2182,6 +2275,64 @@
       }
     ];
     const circulationRecords = window.circulationRecords;
+
+    function formatCopyCode(num) {
+      return `C-${String(num).padStart(2, '0')}`;
+    }
+
+    function ensureBookCopyList(book) {
+      if (!book) return [];
+      const totalCopies = Math.max(1, Number(book.copies) || (Array.isArray(book.copyList) ? book.copyList.length : 1));
+      if (!Array.isArray(book.copyList)) {
+        book.copyList = [];
+      }
+      while (book.copyList.length < totalCopies) {
+        book.copyList.push({
+          copyId: formatCopyCode(book.copyList.length + 1),
+          shelf: book.shelf || '—',
+          status: 'Available'
+        });
+      }
+      book.copyList.forEach((c, idx) => {
+        if (!c.copyId) c.copyId = formatCopyCode(idx + 1);
+        if (!c.shelf) c.shelf = book.shelf || '—';
+        if (!c.status) c.status = 'Available';
+      });
+      book.copies = book.copyList.length;
+
+      // Reconcile copy statuses against active circulation loans for this title/ISBN
+      const activeLoans = circulationRecords.filter(r =>
+        r.status === 'Issued' && (
+          (book.isbn && r.isbn && isSameBookIsbn(book.isbn, r.isbn)) ||
+          (r.bookTitle || '').trim().toLowerCase() === (book.title || '').trim().toLowerCase()
+        )
+      );
+      book.copyList.forEach(c => { c.status = 'Available'; });
+      activeLoans.forEach(loan => {
+        let targetCopy = loan.copyId
+          ? book.copyList.find(c => c.copyId === loan.copyId && c.status === 'Available')
+          : null;
+        if (!targetCopy && loan.shelf) {
+          targetCopy = book.copyList.find(c => c.shelf === loan.shelf && c.status === 'Available');
+        }
+        if (!targetCopy) {
+          targetCopy = book.copyList.find(c => c.status === 'Available');
+        }
+        if (targetCopy) {
+          targetCopy.status = 'Issued';
+          if (!loan.copyId) loan.copyId = targetCopy.copyId;
+          if (!loan.shelf && targetCopy.shelf) loan.shelf = targetCopy.shelf;
+        }
+      });
+      return book.copyList;
+    }
+
+    function getBookShelvesLabel(book) {
+      const copies = ensureBookCopyList(book);
+      const uniqueShelves = [...new Set(copies.map(c => (c.shelf || '').trim()).filter(s => s && s !== '—'))];
+      if (uniqueShelves.length === 0) return book?.shelf || '—';
+      return uniqueShelves.join(', ');
+    }
 
     function getTodayIsoDate() {
       return new Date().toISOString().slice(0, 10);
@@ -2340,6 +2491,9 @@
     let forceNewTitleForIsbn = false;
     let sameTitleCandidateIndex = -1;
     let editingBookIndex = -1;
+    let editBookCoverUrl = '';
+    let editRawCoverSourceDataUrl = '';
+    let activeCropTarget = 'add'; // 'add' | 'edit'
 
     window.applyBrandLogoUI = function (logoUrl) {
       const cleanUrl = (logoUrl || '').trim();
@@ -2960,17 +3114,25 @@
 
     function getBookAvailableCopies(book) {
       if (!book) return 0;
-      const totalCopies = Math.max(1, Number(book.copies) || 1);
-      const activeLoansForBook = circulationRecords.filter(r =>
-        r.status === 'Issued' && (
-          (book.isbn && r.isbn && isSameBookIsbn(book.isbn, r.isbn)) ||
-          (r.bookTitle || '').trim().toLowerCase() === (book.title || '').trim().toLowerCase()
-        )
-      ).length;
-      if (activeLoansForBook > 0) {
-        return Math.max(0, totalCopies - activeLoansForBook);
-      }
-      return (book.status === 'Issued' || book.status === 'Overdue') && totalCopies === 1 ? 0 : totalCopies;
+      const copies = ensureBookCopyList(book);
+      return copies.filter(c => c.status === 'Available').length;
+    }
+
+    function recalculateCirculationDueDate() {
+      const issueDateEl = document.getElementById('circ-issue-date');
+      const dueDateEl = document.getElementById('circ-due-date');
+      if (!issueDateEl || !dueDateEl) return;
+
+      const baseStr = issueDateEl.value || getTodayIsoDate();
+      const baseDate = new Date(`${baseStr}T00:00:00`);
+      if (Number.isNaN(baseDate.getTime())) return;
+
+      const loanDays = Number(window.defaultLoanDays) || 14;
+      baseDate.setDate(baseDate.getDate() + loanDays);
+      const yyyy = baseDate.getFullYear();
+      const mm = String(baseDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(baseDate.getDate()).padStart(2, '0');
+      dueDateEl.value = `${yyyy}-${mm}-${dd}`;
     }
 
     function initCirculationDeskView() {
@@ -3006,14 +3168,14 @@
 
     function syncBookCatalogCirculationStatus(book) {
       if (!book) return;
+      const copies = ensureBookCopyList(book);
       const activeForBook = circulationRecords.filter(r =>
         r.status === 'Issued' && (
           (book.isbn && r.isbn && isSameBookIsbn(book.isbn, r.isbn)) ||
           (r.bookTitle || '').trim().toLowerCase() === (book.title || '').trim().toLowerCase()
         )
       );
-      const totalCopies = Math.max(1, Number(book.copies) || 1);
-      const availCopies = Math.max(0, totalCopies - activeForBook.length);
+      const availCopies = copies.filter(c => c.status === 'Available').length;
       if (availCopies > 0) {
         book.status = 'Available';
       } else if (activeForBook.some(r => isLoanOverdue(r))) {
@@ -3033,19 +3195,104 @@
         .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
       const overdueItems = allActive.filter(r => isLoanOverdue(r));
       const onTimeItems = allActive.filter(r => !isLoanOverdue(r));
+      const returnedItems = circulationRecords
+        .filter(r => r.status === 'Returned')
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
       if (badgeEl) {
         badgeEl.textContent = `${allActive.length} Active`;
       }
 
+      const prevScanVal = document.getElementById('circ-quick-return-scan-input')?.value || '';
       const prevSearchVal = document.getElementById('circ-loans-search-input')?.value || '';
-      const q = prevSearchVal.trim().toLowerCase();
+      const canReturn = currentRoleKey === 'librarian';
 
+      // Quick Return Scan / ISBN / Title Match Logic
+      let quickMatchBannerHtml = '';
+      const scanRaw = prevScanVal.trim();
+      if (scanRaw) {
+        let extractedNeedle = scanRaw;
+        try {
+          if (scanRaw.includes('book=')) {
+            const urlObj = new URL(scanRaw.startsWith('http') ? scanRaw : `https://spm.local/?${scanRaw.split('?').pop()}`);
+            const bp = urlObj.searchParams.get('book');
+            if (bp) extractedNeedle = decodeURIComponent(bp);
+          }
+        } catch (e) { /* use raw string */ }
+
+        const needleLower = extractedNeedle.trim().toLowerCase();
+        const needleIsbn = normalizeIsbn(extractedNeedle);
+        const matchedDocBook = catalogBooks.find(b => (b._docId || '').toLowerCase() === needleLower);
+
+        const scanMatches = allActive.filter(r =>
+          (matchedDocBook && (
+            (matchedDocBook.isbn && r.isbn && isSameBookIsbn(matchedDocBook.isbn, r.isbn)) ||
+            (r.bookTitle || '').trim().toLowerCase() === (matchedDocBook.title || '').trim().toLowerCase()
+          )) ||
+          (needleIsbn.length >= 6 && r.isbn && normalizeIsbn(r.isbn).includes(needleIsbn)) ||
+          (r.bookTitle || '').toLowerCase().includes(needleLower)
+        );
+
+        if (scanMatches.length === 1) {
+          const mLoan = scanMatches[0];
+          const shelfTag = mLoan.shelf || 'Library Shelf';
+          const copyTag = mLoan.copyId ? ` (${mLoan.copyId})` : '';
+          quickMatchBannerHtml = `
+            <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="min-w-0">
+                <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-700 text-white mb-1">
+                  Exact Active Loan Matched
+                </span>
+                <p class="text-xs font-bold text-slate-900 truncate">${mLoan.bookTitle}${copyTag}</p>
+                <p class="text-[11px] text-slate-600 mt-0.5">
+                  Borrowed by <span class="font-semibold text-slate-800">${mLoan.memberName}</span> · Re-shelve at <span class="font-mono font-bold text-emerald-800">Shelf ${shelfTag}</span>
+                </p>
+              </div>
+              ${canReturn ? `
+                <button type="button" onclick="markCirculationBookReturned('${mLoan.id}', true)"
+                  class="px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm shrink-0">
+                  Confirm Return &rarr; Shelf ${shelfTag}
+                </button>` : ''}
+            </div>
+          `;
+        } else if (scanMatches.length > 1) {
+          quickMatchBannerHtml = `
+            <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-2">
+              <p class="text-[11px] font-bold text-blue-900">${scanMatches.length} active loans match "${extractedNeedle}" — select borrower to return:</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                ${scanMatches.map(mLoan => `
+                  <div class="p-2.5 rounded-xl bg-white border border-blue-200/80 flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                      <p class="text-xs font-semibold text-slate-900 truncate">${mLoan.memberName} ${mLoan.copyId ? `<span class="font-mono text-[10px] text-emerald-700">(${mLoan.copyId})</span>` : ''}</p>
+                      <p class="text-[10px] text-slate-500">Due ${formatDisplayDate(mLoan.dueDate)} · Shelf ${mLoan.shelf || '—'}</p>
+                    </div>
+                    ${canReturn ? `
+                      <button type="button" onclick="markCirculationBookReturned('${mLoan.id}', true)"
+                        class="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shrink-0">
+                        Return
+                      </button>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        } else {
+          quickMatchBannerHtml = `
+            <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] font-medium text-amber-800">
+              No currently issued loan matches "${extractedNeedle}". It may already be returned.
+            </div>
+          `;
+        }
+      }
+
+      const q = prevSearchVal.trim().toLowerCase();
       let filtered = activeCirculationFilter === 'overdue'
         ? overdueItems
         : activeCirculationFilter === 'issued'
           ? onTimeItems
-          : allActive;
+          : activeCirculationFilter === 'returned'
+            ? returnedItems
+            : allActive;
 
       if (q) {
         filtered = filtered.filter(r =>
@@ -3057,47 +3304,83 @@
         );
       }
 
-      const canReturn = currentRoleKey === 'librarian';
       const tabClass = (key) => activeCirculationFilter === key
         ? 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-700 text-white shadow-2xs transition'
         : 'px-3 py-1.5 rounded-xl text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition';
 
       const rowsHtml = filtered.length === 0
         ? `<div class="py-10 px-4 text-center text-xs text-slate-400">
-             No matching active loans found.
+             ${activeCirculationFilter === 'returned' ? 'No recently returned books found.' : 'No matching active loans found.'}
            </div>`
-        : `<div class="divide-y divide-slate-100">
+        : `<div class="p-4 space-y-3 bg-slate-50/35">
             ${filtered.map(loan => {
-              const overdue = isLoanOverdue(loan);
-              const dueBadgeCls = overdue
-                ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                : 'bg-blue-50 text-blue-700 border border-blue-200/70';
-              const dueLabel = overdue
-                ? `Overdue · Due ${formatDisplayDate(loan.dueDate)}`
-                : `Due ${formatDisplayDate(loan.dueDate)}`;
-              const returnActionHtml = canReturn
-                ? `<button type="button" onclick="markCirculationBookReturned('${loan.id}')"
-                     class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition shrink-0">
-                     Mark Returned
+              const isReturned = loan.status === 'Returned';
+              const overdue = !isReturned && isLoanOverdue(loan);
+              const matchedBook = catalogBooks.find(b =>
+                (loan.isbn && b.isbn && isSameBookIsbn(b.isbn, loan.isbn)) ||
+                (b.title || '').trim().toLowerCase() === (loan.bookTitle || '').trim().toLowerCase()
+              );
+              const initials = (loan.bookTitle || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+              const coverThumbHtml = matchedBook?.coverUrl
+                ? `<div class="w-11 h-16 shrink-0 relative">
+                     <img src="${matchedBook.coverUrl}" alt="${loan.bookTitle}"
+                       onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                       class="w-11 h-16 object-cover rounded-xl border border-slate-200 bg-white" />
+                     <div class="hidden w-11 h-16 rounded-xl bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-xs font-bold">${initials}</div>
+                   </div>`
+                : `<div class="w-11 h-16 shrink-0 rounded-xl bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-xs font-bold">${initials}</div>`;
+
+              const cardBorderCls = isReturned
+                ? 'border-slate-200/80 hover:border-emerald-300'
+                : overdue
+                  ? 'border-amber-200/90 hover:border-amber-400'
+                  : 'border-slate-200/90 hover:border-emerald-300';
+              const badgeCls = isReturned
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70'
+                : overdue
+                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                  : 'bg-blue-50 text-blue-700 border border-blue-200/70';
+              const statusText = isReturned
+                ? `Returned ${formatDisplayDate(loan.returnedDate)}`
+                : overdue
+                  ? `Overdue · Due ${formatDisplayDate(loan.dueDate)}`
+                  : `Due ${formatDisplayDate(loan.dueDate)}`;
+              const copyLabel = loan.copyId ? `${loan.copyId} · ` : '';
+              const shelfBadgeText = isReturned
+                ? `Re-shelve: ${copyLabel}Shelf ${loan.shelf || '—'}`
+                : `${copyLabel}Shelf ${loan.shelf || '—'}`;
+              const returnActionHtml = (!isReturned && canReturn)
+                ? `<button type="button" onclick="event.stopPropagation(); markCirculationBookReturned('${loan.id}')"
+                     class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-2xs shrink-0">
+                     Return
                    </button>`
-                : '';
+                : isReturned
+                  ? `<span class="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-slate-100 text-slate-600 shrink-0">Returned</span>`
+                  : '';
               return `
-                <div class="py-3.5 px-5 hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div class="min-w-0 space-y-1">
-                    <div class="flex items-center gap-2">
-                      <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">${loan.bookTitle}</p>
-                      <span class="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0">Shelf ${loan.shelf || '—'}</span>
-                    </div>
-                    <p class="text-xs text-slate-600 truncate">
-                      Borrower: <span class="font-semibold text-slate-800">${loan.memberName}</span>
-                      <span class="text-slate-400">(${loan.memberEmail})</span>
-                    </p>
-                    <div class="flex flex-wrap items-center gap-2 pt-0.5">
-                      <span class="text-[11px] text-slate-400">Issued: ${formatDisplayDate(loan.issueDate)}</span>
-                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${dueBadgeCls}">${dueLabel}</span>
+                <div onclick="openCirculationDetailsModal('${loan.id}')"
+                  class="w-full rounded-2xl bg-white border ${cardBorderCls} p-4 shadow-2xs hover:shadow-md transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div class="flex items-start gap-3.5 min-w-0 flex-1">
+                    ${coverThumbHtml}
+                    <div class="min-w-0 flex-1 space-y-1">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <p class="text-sm font-bold text-slate-900 truncate">${loan.bookTitle}</p>
+                        <span class="font-mono text-[10px] font-semibold px-2 py-0.5 rounded ${isReturned ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/70' : 'bg-slate-100 text-slate-600'} shrink-0">${shelfBadgeText}</span>
+                      </div>
+                      <p class="text-xs text-slate-600 truncate">
+                        Borrower: <span class="font-semibold text-slate-800">${loan.memberName}</span>
+                        <span class="text-slate-400">(${loan.memberEmail})</span>
+                      </p>
+                      <div class="flex flex-wrap items-center gap-2 pt-0.5">
+                        <span class="text-[11px] text-slate-400">Issued: ${formatDisplayDate(loan.issueDate)}</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${badgeCls}">${statusText}</span>
+                        <span class="text-[11px] font-medium text-emerald-700">Click card for details &rarr;</span>
+                      </div>
                     </div>
                   </div>
-                  ${returnActionHtml}
+                  <div class="flex items-center justify-end gap-2 shrink-0">
+                    ${returnActionHtml}
+                  </div>
                 </div>
               `;
             }).join('')}
@@ -3105,6 +3388,27 @@
 
       container.className = 'divide-y divide-slate-100';
       container.innerHTML = `
+        <!-- Quick Return Scan / ISBN / Title Bar -->
+        <div class="p-4 bg-emerald-50/35 border-b border-slate-100 space-y-2.5">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div class="relative flex-1">
+              <svg class="w-4 h-4 text-emerald-700 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+              </svg>
+              <input type="text" id="circ-quick-return-scan-input" value="${prevScanVal.replace(/"/g, '&quot;')}"
+                oninput="renderActiveCirculationLoans()"
+                placeholder="Scan QR sticker, scan ISBN barcode, or type title for instant return..."
+                class="w-full pl-9 pr-8 py-2 text-xs bg-white border border-emerald-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+              ${prevScanVal ? `
+                <button type="button" onclick="document.getElementById('circ-quick-return-scan-input').value=''; renderActiveCirculationLoans();"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
+              ` : ''}
+            </div>
+          </div>
+          ${quickMatchBannerHtml}
+        </div>
+
+        <!-- Filter Tabs & Search -->
         <div class="p-4 bg-slate-50/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div class="flex items-center gap-1.5 flex-wrap">
             <button type="button" onclick="setCirculationLoansFilter('all')" class="${tabClass('all')}">
@@ -3116,8 +3420,11 @@
             <button type="button" onclick="setCirculationLoansFilter('overdue')" class="${tabClass('overdue')}">
               Overdue (${overdueItems.length})
             </button>
+            <button type="button" onclick="setCirculationLoansFilter('returned')" class="${tabClass('returned')}">
+              Recently Returned (${returnedItems.length})
+            </button>
           </div>
-          <div class="relative sm:w-56">
+          <div class="relative sm:w-52">
             <input type="text" id="circ-loans-search-input" value="${prevSearchVal.replace(/"/g, '&quot;')}"
               oninput="renderActiveCirculationLoans()"
               placeholder="Filter loans or member..."
@@ -3127,250 +3434,107 @@
         ${rowsHtml}
       `;
 
-      const searchBox = document.getElementById('circ-loans-search-input');
-      if (searchBox && document.activeElement?.id === 'circ-loans-search-input') {
-        searchBox.focus();
+      const activeId = document.activeElement?.id;
+      if (activeId === 'circ-quick-return-scan-input' || activeId === 'circ-loans-search-input') {
+        const el = document.getElementById(activeId);
+        if (el) {
+          el.focus();
+          const len = el.value.length;
+          el.setSelectionRange(len, len);
+        }
       }
     }
     window.renderActiveCirculationLoans = renderActiveCirculationLoans;
 
-    function recalculateCirculationDueDate() {
-      const issueDateEl = document.getElementById('circ-issue-date');
-      const dueDateEl = document.getElementById('circ-due-date');
-      if (!issueDateEl || !dueDateEl) return;
+    function openCirculationDetailsModal(loanId) {
+      const loan = circulationRecords.find(r => r.id === loanId);
+      const modal = document.getElementById('circulation-details-modal');
+      const pill = document.getElementById('circ-detail-status-pill');
+      const bodyEl = document.getElementById('circ-detail-modal-body');
+      const footerEl = document.getElementById('circ-detail-modal-footer');
+      if (!loan || !modal || !bodyEl || !footerEl) return;
 
-      const baseStr = issueDateEl.value || getTodayIsoDate();
-      const baseDate = new Date(`${baseStr}T00:00:00`);
-      if (Number.isNaN(baseDate.getTime())) return;
+      const isReturned = loan.status === 'Returned';
+      const overdue = !isReturned && isLoanOverdue(loan);
+      const matchedBook = catalogBooks.find(b =>
+        (loan.isbn && b.isbn && isSameBookIsbn(b.isbn, loan.isbn)) ||
+        (b.title || '').trim().toLowerCase() === (loan.bookTitle || '').trim().toLowerCase()
+      );
+      const matchedMember = registeredMembers.find(m =>
+        (m.email || '').trim().toLowerCase() === (loan.memberEmail || '').trim().toLowerCase()
+      );
 
-      const loanDays = Number(window.defaultLoanDays) || 14;
-      baseDate.setDate(baseDate.getDate() + loanDays);
-      dueDateEl.value = baseDate.toISOString().slice(0, 10);
+      if (pill) {
+        pill.textContent = isReturned ? 'Returned' : overdue ? 'Overdue' : 'Active Loan';
+        pill.className = isReturned
+          ? 'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800'
+          : overdue
+            ? 'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800'
+            : 'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800';
+      }
+
+      const todayMs = new Date(`${getTodayIsoDate()}T00:00:00`).getTime();
+      const dueMs = loan.dueDate ? new Date(`${loan.dueDate}T00:00:00`).getTime() : todayMs;
+      const diffDays = Math.round((dueMs - todayMs) / (1000 * 60 * 60 * 24));
+      const timelineNote = isReturned
+        ? `Returned on ${formatDisplayDate(loan.returnedDate)}`
+        : diffDays < 0
+          ? `${Math.abs(diffDays)} ${Math.abs(diffDays) === 1 ? 'day' : 'days'} overdue`
+          : diffDays === 0
+            ? 'Due today'
+            : `${diffDays} ${diffDays === 1 ? 'day' : 'days'} remaining`;
+
+      bodyEl.innerHTML = `
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+          <p class="text-base font-bold text-slate-900">${loan.bookTitle}</p>
+          <p class="text-xs text-slate-500">${matchedBook?.author || 'SPM NIWAS Library Collection'}${matchedBook?.publisher ? ' · ' + matchedBook.publisher : ''}</p>
+          <div class="pt-1.5 flex flex-wrap items-center gap-2 text-[11px] font-mono">
+            ${loan.copyId ? `<span class="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold">Copy: ${loan.copyId}</span>` : ''}
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700">Shelf: ${loan.shelf || matchedBook?.shelf || '—'}</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600">ISBN: ${loan.isbn || matchedBook?.isbn || '—'}</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-500">Loan ID: ${loan.id}</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div class="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70 space-y-1">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Borrower</p>
+            <p class="font-bold text-slate-900">${loan.memberName}</p>
+            <p class="text-slate-600 truncate">${loan.memberEmail}</p>
+            ${matchedMember ? `<p class="text-[11px] text-slate-500">${matchedMember.designation || 'Member'} · ${matchedMember.category || 'Standard'}</p>` : ''}
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70 space-y-1">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Loan Schedule</p>
+            <p class="text-slate-700">Issued: <span class="font-semibold text-slate-900">${formatDisplayDate(loan.issueDate)}</span></p>
+            <p class="text-slate-700">Due Date: <span class="font-semibold ${overdue ? 'text-amber-700' : 'text-slate-900'}">${formatDisplayDate(loan.dueDate)}</span></p>
+            <p class="text-[11px] font-semibold ${overdue ? 'text-amber-700' : isReturned ? 'text-emerald-700' : 'text-blue-700'}">${timelineNote}</p>
+          </div>
+        </div>
+      `;
+
+      const canReturn = currentRoleKey === 'librarian' && !isReturned;
+      footerEl.innerHTML = `
+        <button type="button" onclick="closeCirculationDetailsModal()"
+          class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 transition">
+          Close
+        </button>
+        ${canReturn ? `
+          <button type="button" onclick="closeCirculationDetailsModal(); markCirculationBookReturned('${loan.id}');"
+            class="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+            Return Book
+          </button>` : ''}
+      `;
+
+      modal.classList.remove('hidden');
     }
 
-    function renderCirculationBookSuggestions() {
-      const inputEl = document.getElementById('circ-book-search-input');
-      const boxEl = document.getElementById('circ-book-suggestions');
-      if (!inputEl || !boxEl) return;
-
-      const q = inputEl.value.trim().toLowerCase();
-      const matches = catalogBooks
-        .filter(b =>
-          !q ||
-          (b.title || '').toLowerCase().includes(q) ||
-          (b.author || '').toLowerCase().includes(q) ||
-          (b.shelf || '').toLowerCase().includes(q) ||
-          normalizeIsbn(b.isbn).toLowerCase().includes(q.replace(/[^0-9x]/g, '') || '__none__')
-        )
-        .slice(0, 8);
-
-      if (matches.length === 0) {
-        boxEl.innerHTML = `<div class="p-3.5 text-center text-xs text-slate-400">No matching books found in catalog.</div>`;
-        boxEl.classList.remove('hidden');
-        return;
-      }
-
-      boxEl.innerHTML = matches.map(b => {
-        const idx = catalogBooks.indexOf(b);
-        const avail = getBookAvailableCopies(b);
-        const total = Math.max(1, Number(b.copies) || 1);
-        const availBadge = avail > 0
-          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 shrink-0">${avail}/${total} avail</span>`
-          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 shrink-0">0/${total} avail</span>`;
-        return `
-          <button type="button" onclick="selectCirculationBook(${idx})"
-            class="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 transition flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <p class="text-xs font-semibold text-slate-900 truncate">${b.title}</p>
-              <p class="text-[11px] text-slate-500 truncate">${b.author} · Shelf ${b.shelf || '—'}</p>
-            </div>
-            ${availBadge}
-          </button>
-        `;
-      }).join('');
-      boxEl.classList.remove('hidden');
+    function closeCirculationDetailsModal() {
+      const modal = document.getElementById('circulation-details-modal');
+      if (modal) modal.classList.add('hidden');
     }
 
-    function selectCirculationBook(idx) {
-      const book = catalogBooks[idx];
-      const boxEl = document.getElementById('circ-book-suggestions');
-      const inputEl = document.getElementById('circ-book-search-input');
-      if (boxEl) boxEl.classList.add('hidden');
-      if (!book) return;
-
-      selectedCirculationBookIdx = idx;
-      if (inputEl) inputEl.value = `${book.title} (Shelf ${book.shelf || '—'})`;
-      updateSelectedCirculationBookCard();
-    }
-
-    function clearCirculationBookSelection() {
-      selectedCirculationBookIdx = -1;
-      const inputEl = document.getElementById('circ-book-search-input');
-      if (inputEl) inputEl.value = '';
-      updateSelectedCirculationBookCard();
-    }
-
-    function updateSelectedCirculationBookCard() {
-      const card = document.getElementById('circ-selected-book-card');
-      const clearBtn = document.getElementById('btn-clear-circ-book');
-      const book = catalogBooks[selectedCirculationBookIdx];
-      if (!card) return;
-
-      if (!book) {
-        card.classList.add('hidden');
-        if (clearBtn) clearBtn.classList.add('hidden');
-        return;
-      }
-
-      if (clearBtn) clearBtn.classList.remove('hidden');
-      card.classList.remove('hidden');
-
-      const initials = (book.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-      const coverEl = document.getElementById('circ-selected-book-cover');
-      if (coverEl) {
-        coverEl.innerHTML = book.coverUrl
-          ? `<img src="${book.coverUrl}" alt="${book.title}" onerror="this.remove();" class="w-full h-full object-cover" />`
-          : initials;
-      }
-
-      document.getElementById('circ-selected-book-title').textContent = book.title;
-      document.getElementById('circ-selected-book-meta').textContent = `${book.author || 'Unknown'} · Shelf ${book.shelf || '—'} · ${book.isbn || 'No ISBN'}`;
-
-      const avail = getBookAvailableCopies(book);
-      const total = Math.max(1, Number(book.copies) || 1);
-      const badgeEl = document.getElementById('circ-selected-book-avail-badge');
-      if (badgeEl) {
-        badgeEl.textContent = avail > 0
-          ? `${avail} of ${total} ${total === 1 ? 'copy' : 'copies'} available`
-          : `0 of ${total} available (All copies issued)`;
-        badgeEl.className = avail > 0
-          ? 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700'
-          : 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700';
-      }
-    }
-
-    function renderCirculationMemberSuggestions() {
-      const inputEl = document.getElementById('circ-member-search-input');
-      const boxEl = document.getElementById('circ-member-suggestions');
-      if (!inputEl || !boxEl) return;
-
-      const q = inputEl.value.trim().toLowerCase();
-      const matches = registeredMembers
-        .filter(m =>
-          !q ||
-          (m.name || '').toLowerCase().includes(q) ||
-          (m.designation || '').toLowerCase().includes(q) ||
-          (m.category || '').toLowerCase().includes(q) ||
-          (m.email || '').toLowerCase().includes(q)
-        )
-        .slice(0, 8);
-
-      if (matches.length === 0) {
-        boxEl.innerHTML = `<div class="p-3.5 text-center text-xs text-slate-400">No matching SPM NIWAS members found.</div>`;
-        boxEl.classList.remove('hidden');
-        return;
-      }
-
-      boxEl.innerHTML = matches.map(m => {
-        const idx = registeredMembers.indexOf(m);
-        const activeCount = getMemberCirculationRecords(m.email).filter(r => r.status === 'Issued').length;
-        const limit = m.booksAllowed ?? defaultBooksAllowed;
-        return `
-          <button type="button" onclick="selectCirculationMember(${idx})"
-            class="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 transition flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <p class="text-xs font-semibold text-slate-900 truncate">${m.name}</p>
-              <p class="text-[11px] text-slate-500 truncate">${m.designation || 'Member'} · ${m.email}</p>
-            </div>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 shrink-0">${activeCount}/${limit} books</span>
-          </button>
-        `;
-      }).join('');
-      boxEl.classList.remove('hidden');
-    }
-
-    async function handleIssueBookSubmit(event) {
-      event.preventDefault();
-      if (currentRoleKey !== 'librarian') {
-        showToast('Only Librarian can issue books.', 'warning');
-        return;
-      }
-      const book = catalogBooks[selectedCirculationBookIdx];
-      const member = registeredMembers[selectedCirculationMemberIdx];
-      if (!book) {
-        showToast('Please select a book from the catalog first.', 'warning');
-        return;
-      }
-      if (!member) {
-        showToast('Please select an SPM NIWAS member first.', 'warning');
-        return;
-      }
-      if (getBookAvailableCopies(book) <= 0) {
-        showToast(`All copies of "${book.title}" are currently issued.`, 'warning');
-        return;
-      }
-      const myLoans = getMemberCirculationRecords(member.email);
-      const activeCount = myLoans.filter(r => r.status === 'Issued').length;
-      const overdueCount = myLoans.filter(r => isLoanOverdue(r)).length;
-      const limit = member.booksAllowed ?? defaultBooksAllowed;
-      if (overdueCount > 0) {
-        showToast(`Cannot issue: ${member.name} has ${overdueCount} overdue book(s).`, 'warning');
-        return;
-      }
-      if (activeCount >= limit) {
-        showToast(`Cannot issue: ${member.name} has reached the limit of ${limit} books.`, 'warning');
-        return;
-      }
-
-      const issueDate = document.getElementById('circ-issue-date')?.value || getTodayIsoDate();
-      const dueDate = document.getElementById('circ-due-date')?.value || getTodayIsoDate();
-      if (dueDate < issueDate) {
-        showToast('Return due date cannot be earlier than the issue date.', 'warning');
-        return;
-      }
-
-      const newLoan = {
-        id: `CIRC-${Date.now()}`,
-        bookTitle: book.title,
-        isbn: book.isbn || '',
-        shelf: book.shelf || '',
-        memberName: member.name,
-        memberEmail: member.email.toLowerCase(),
-        issueDate,
-        dueDate,
-        returnedDate: '',
-        status: 'Issued',
-        issuedBy: SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian',
-        updatedAt: Date.now()
-      };
-
-      circulationRecords.unshift(newLoan);
-      syncBookCatalogCirculationStatus(book);
-
-      if (window.firebaseCloud) {
-        await window.firebaseCloud.saveCirculationRecord(newLoan).catch(err => console.warn(err));
-        await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
-      }
-
-      triggerLibraryEmail('book_issued', {
-        bookTitle: newLoan.bookTitle,
-        isbn: newLoan.isbn,
-        shelf: newLoan.shelf,
-        memberName: newLoan.memberName,
-        memberEmail: newLoan.memberEmail,
-        dueDate: formatDisplayDate(newLoan.dueDate)
-      });
-
-      clearCirculationBookSelection();
-      clearCirculationMemberSelection();
-      renderActiveCirculationLoans();
-      searchCatalogBooks(false);
-      updateDashboardKpiCards();
-      renderDashboardCirculationActivity();
-      showToast(`Issued "${newLoan.bookTitle}" to ${newLoan.memberName} (Due ${formatDisplayDate(newLoan.dueDate)}).`, 'success');
-    }
-
-    async function markCirculationBookReturned(loanId) {
+    async function markCirculationBookReturned(loanId, clearQuickScan = false) {
       if (currentRoleKey !== 'librarian') {
         showToast('Only Librarian can mark books as returned.', 'warning');
         return;
@@ -3403,13 +3567,184 @@
         memberEmail: loan.memberEmail
       });
 
+      if (clearQuickScan) {
+        const scanBox = document.getElementById('circ-quick-return-scan-input');
+        if (scanBox) scanBox.value = '';
+      }
+
+      const reshelveShelf = loan.shelf || matchedBook?.shelf || 'Library Shelf';
+      const copyNote = loan.copyId ? ` (${loan.copyId})` : '';
       renderActiveCirculationLoans();
       updateSelectedCirculationBookCard();
       updateSelectedCirculationMemberCard();
       searchCatalogBooks(false);
       updateDashboardKpiCards();
       renderDashboardCirculationActivity();
-      showToast(`Marked "${loan.bookTitle}" as returned by ${loan.memberName}.`, 'success');
+      showToast(`Returned "${loan.bookTitle}"${copyNote} — Please re-shelve at Shelf ${reshelveShelf}.`, 'success');
+    }
+
+    function renderCirculationBookSuggestions() {
+      const inputEl = document.getElementById('circ-book-search-input');
+      const boxEl = document.getElementById('circ-book-suggestions');
+      if (!inputEl || !boxEl) return;
+
+      const q = inputEl.value.trim().toLowerCase();
+      const matches = catalogBooks
+        .filter(b =>
+          !q ||
+          (b.title || '').toLowerCase().includes(q) ||
+          (b.author || '').toLowerCase().includes(q) ||
+          getBookShelvesLabel(b).toLowerCase().includes(q) ||
+          normalizeIsbn(b.isbn).toLowerCase().includes(q.replace(/[^0-9x]/g, '') || '__none__')
+        )
+        .slice(0, 8);
+
+      if (matches.length === 0) {
+        boxEl.innerHTML = `<div class="p-3.5 text-center text-xs text-slate-400">No matching books found in catalog.</div>`;
+        boxEl.classList.remove('hidden');
+        return;
+      }
+
+      boxEl.innerHTML = matches.map(b => {
+        const idx = catalogBooks.indexOf(b);
+        const avail = getBookAvailableCopies(b);
+        const total = ensureBookCopyList(b).length;
+        const shelvesLabel = getBookShelvesLabel(b);
+        const availBadge = avail > 0
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 shrink-0">${avail}/${total} avail</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 shrink-0">0/${total} avail</span>`;
+        return `
+          <button type="button" onclick="selectCirculationBook(${idx})"
+            class="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 transition flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-900 truncate">${b.title}</p>
+              <p class="text-[11px] text-slate-500 truncate">${b.author} · Shelf ${shelvesLabel}</p>
+            </div>
+            ${availBadge}
+          </button>
+        `;
+      }).join('');
+      boxEl.classList.remove('hidden');
+    }
+
+    function selectCirculationBook(idx) {
+      const book = catalogBooks[idx];
+      const boxEl = document.getElementById('circ-book-suggestions');
+      const inputEl = document.getElementById('circ-book-search-input');
+      if (boxEl) boxEl.classList.add('hidden');
+      if (!book) return;
+
+      selectedCirculationBookIdx = idx;
+      if (inputEl) inputEl.value = `${book.title} (Shelf ${getBookShelvesLabel(book)})`;
+      updateSelectedCirculationBookCard();
+    }
+
+    function clearCirculationBookSelection() {
+      selectedCirculationBookIdx = -1;
+      const inputEl = document.getElementById('circ-book-search-input');
+      if (inputEl) inputEl.value = '';
+      updateSelectedCirculationBookCard();
+    }
+
+    function updateSelectedCirculationBookCard() {
+      const card = document.getElementById('circ-selected-book-card');
+      const clearBtn = document.getElementById('btn-clear-circ-book');
+      const copyPickerWrap = document.getElementById('circ-copy-picker-wrap');
+      const copySelect = document.getElementById('circ-copy-select');
+      const book = catalogBooks[selectedCirculationBookIdx];
+      if (!card) return;
+
+      if (!book) {
+        card.classList.add('hidden');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        if (copyPickerWrap) copyPickerWrap.classList.add('hidden');
+        return;
+      }
+
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      card.classList.remove('hidden');
+
+      const allCopies = ensureBookCopyList(book);
+      const availableCopies = allCopies.filter(c => c.status === 'Available');
+      const shelvesLabel = getBookShelvesLabel(book);
+
+      const initials = (book.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+      const coverEl = document.getElementById('circ-selected-book-cover');
+      if (coverEl) {
+        coverEl.innerHTML = book.coverUrl
+          ? `<img src="${book.coverUrl}" alt="${book.title}" onerror="this.remove();" class="w-full h-full object-cover" />`
+          : initials;
+      }
+
+      document.getElementById('circ-selected-book-title').textContent = book.title;
+      document.getElementById('circ-selected-book-meta').textContent = `${book.author || 'Unknown'} · Shelf ${shelvesLabel} · ${book.isbn || 'No ISBN'}`;
+
+      const avail = availableCopies.length;
+      const total = allCopies.length;
+      const badgeEl = document.getElementById('circ-selected-book-avail-badge');
+      if (badgeEl) {
+        badgeEl.textContent = avail > 0
+          ? `${avail} of ${total} ${total === 1 ? 'copy' : 'copies'} available`
+          : `0 of ${total} available (All copies issued)`;
+        badgeEl.className = avail > 0
+          ? 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700'
+          : 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700';
+      }
+
+      if (copyPickerWrap && copySelect) {
+        if (availableCopies.length > 1 || (availableCopies.length === 1 && total > 1)) {
+          copyPickerWrap.classList.remove('hidden');
+          copySelect.innerHTML = availableCopies.map(c =>
+            `<option value="${c.copyId}">${c.copyId} — Shelf ${c.shelf || book.shelf || '—'} (Available)</option>`
+          ).join('');
+        } else {
+          copyPickerWrap.classList.add('hidden');
+          copySelect.innerHTML = availableCopies.length === 1
+            ? `<option value="${availableCopies[0].copyId}">${availableCopies[0].copyId}</option>`
+            : '';
+        }
+      }
+    }
+
+    function renderCirculationMemberSuggestions() {
+      const inputEl = document.getElementById('circ-member-search-input');
+      const boxEl = document.getElementById('circ-member-suggestions');
+      if (!inputEl || !boxEl) return;
+
+      const q = inputEl.value.trim().toLowerCase();
+      const matches = registeredMembers
+        .filter(m =>
+          !q ||
+          (m.name || '').toLowerCase().includes(q) ||
+          (m.designation || '').toLowerCase().includes(q) ||
+          (m.category || '').toLowerCase().includes(q) ||
+          (m.email || '').toLowerCase().includes(q)
+        )
+        .slice(0, 8);
+
+      if (matches.length === 0) {
+        boxEl.innerHTML = `<div class="p-3.5 text-center text-xs text-slate-400">No matching SPM NIWAS members found.</div>`;
+        boxEl.classList.remove('hidden');
+        return;
+      }
+
+      boxEl.innerHTML = matches.map(m => {
+        const idx = registeredMembers.indexOf(m);
+        const activeCount = getMemberCirculationRecords(m.email).filter(r => r.status === 'Issued').length;
+        const limit = m.booksAllowed ?? defaultBooksAllowed;
+        const atLimit = activeCount >= limit;
+        return `
+          <button type="button" onclick="selectCirculationMember(${idx})"
+            class="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 transition flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-900 truncate">${m.name}</p>
+              <p class="text-[11px] text-slate-500 truncate">${m.designation || 'Member'} · ${m.email}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${atLimit ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-700'} shrink-0">${activeCount}/${limit} out</span>
+          </button>
+        `;
+      }).join('');
+      boxEl.classList.remove('hidden');
     }
 
     function selectCirculationMember(idx) {
@@ -3418,6 +3753,7 @@
       const inputEl = document.getElementById('circ-member-search-input');
       if (boxEl) boxEl.classList.add('hidden');
       if (!member) return;
+
       selectedCirculationMemberIdx = idx;
       if (inputEl) inputEl.value = `${member.name} (${member.email})`;
       updateSelectedCirculationMemberCard();
@@ -3445,19 +3781,19 @@
       if (clearBtn) clearBtn.classList.remove('hidden');
       card.classList.remove('hidden');
 
-      const myLoans = getMemberCirculationRecords(member.email);
-      const activeCount = myLoans.filter(r => r.status === 'Issued').length;
-      const overdueCount = myLoans.filter(r => isLoanOverdue(r)).length;
+      const memberLoans = getMemberCirculationRecords(member.email);
+      const activeCount = memberLoans.filter(r => r.status === 'Issued').length;
+      const overdueCount = memberLoans.filter(r => isLoanOverdue(r)).length;
       const limit = member.booksAllowed ?? defaultBooksAllowed;
-      const quotaReached = activeCount >= limit;
+      const overQuota = activeCount >= limit;
 
       document.getElementById('circ-selected-member-name').textContent = member.name;
-      document.getElementById('circ-selected-member-meta').textContent = `${member.designation || 'Member'} (${member.category || 'Standard'}) · ${member.email}`;
+      document.getElementById('circ-selected-member-meta').textContent = `${member.designation || 'Member'} · ${member.category || 'Standard'} · ${member.email}`;
 
-      const quotaBadge = document.getElementById('circ-selected-member-quota-badge');
-      if (quotaBadge) {
-        quotaBadge.textContent = `${activeCount} of ${limit} books issued`;
-        quotaBadge.className = quotaReached
+      const badgeEl = document.getElementById('circ-selected-member-quota-badge');
+      if (badgeEl) {
+        badgeEl.textContent = `${activeCount} of ${limit} issued`;
+        badgeEl.className = overQuota
           ? 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 shrink-0'
           : 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 shrink-0';
       }
@@ -3465,10 +3801,10 @@
       const warnEl = document.getElementById('circ-selected-member-warning');
       if (warnEl) {
         if (overdueCount > 0) {
-          warnEl.textContent = `Blocked: Member currently has ${overdueCount} overdue ${overdueCount === 1 ? 'book' : 'books'}.`;
+          warnEl.textContent = `Warning: Member currently has ${overdueCount} overdue ${overdueCount === 1 ? 'book' : 'books'}.`;
           warnEl.classList.remove('hidden');
-        } else if (quotaReached) {
-          warnEl.textContent = `Blocked: Borrowing limit of ${limit} ${limit === 1 ? 'book' : 'books'} reached.`;
+        } else if (overQuota) {
+          warnEl.textContent = `Entitlement limit reached (${limit} books max). Return an active book before issuing another.`;
           warnEl.classList.remove('hidden');
         } else {
           warnEl.classList.add('hidden');
@@ -3476,11 +3812,102 @@
       }
     }
 
-    function issueBookFromDetails(idx) {
+    async function handleIssueBookSubmit(event) {
+      event.preventDefault();
       if (currentRoleKey !== 'librarian') {
         showToast('Only Librarian can issue books.', 'warning');
         return;
       }
+
+      const book = catalogBooks[selectedCirculationBookIdx];
+      const member = registeredMembers[selectedCirculationMemberIdx];
+      if (!book) {
+        showToast('Please select a catalog book to issue.', 'warning');
+        return;
+      }
+      if (!member) {
+        showToast('Please select an SPM NIWAS member.', 'warning');
+        return;
+      }
+      if (getBookAvailableCopies(book) <= 0) {
+        showToast(`All copies of "${book.title}" are currently issued.`, 'warning');
+        return;
+      }
+
+      const memberLoans = getMemberCirculationRecords(member.email);
+      const activeCount = memberLoans.filter(r => r.status === 'Issued').length;
+      const overdueCount = memberLoans.filter(r => isLoanOverdue(r)).length;
+      const limit = member.booksAllowed ?? defaultBooksAllowed;
+
+      if (overdueCount > 0) {
+        showToast(`${member.name} has ${overdueCount} overdue book(s). Please clear overdue returns first.`, 'warning');
+        return;
+      }
+      if (activeCount >= limit) {
+        showToast(`${member.name} has reached their borrowing entitlement (${limit} books).`, 'warning');
+        return;
+      }
+
+      const issueDate = document.getElementById('circ-issue-date')?.value || getTodayIsoDate();
+      const dueDate = document.getElementById('circ-due-date')?.value || getTodayIsoDate();
+      if (dueDate < issueDate) {
+        showToast('Return due date cannot be earlier than the issue date.', 'warning');
+        return;
+      }
+
+      const allCopies = ensureBookCopyList(book);
+      const chosenCopyId = document.getElementById('circ-copy-select')?.value || '';
+      const selectedCopy = (chosenCopyId && allCopies.find(c => c.copyId === chosenCopyId && c.status === 'Available'))
+        || allCopies.find(c => c.status === 'Available');
+
+      if (!selectedCopy) {
+        showToast(`No available copy found for "${book.title}".`, 'warning');
+        return;
+      }
+
+      const newLoan = {
+        id: `CIRC-${Date.now()}`,
+        bookTitle: book.title,
+        isbn: book.isbn || '',
+        copyId: selectedCopy.copyId,
+        shelf: selectedCopy.shelf || book.shelf || '',
+        memberName: member.name,
+        memberEmail: member.email.toLowerCase(),
+        issueDate,
+        dueDate,
+        returnedDate: '',
+        status: 'Issued',
+        issuedBy: SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian',
+        updatedAt: Date.now()
+      };
+
+      circulationRecords.unshift(newLoan);
+      syncBookCatalogCirculationStatus(book);
+
+      if (window.firebaseCloud) {
+        await window.firebaseCloud.saveCirculationRecord(newLoan).catch(err => console.warn(err));
+        await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
+      }
+
+      triggerLibraryEmail('book_issued', {
+        bookTitle: `${newLoan.bookTitle} (${newLoan.copyId})`,
+        isbn: newLoan.isbn,
+        shelf: newLoan.shelf,
+        memberName: newLoan.memberName,
+        memberEmail: newLoan.memberEmail,
+        dueDate: formatDisplayDate(newLoan.dueDate)
+      });
+
+      clearCirculationBookSelection();
+      clearCirculationMemberSelection();
+      renderActiveCirculationLoans();
+      searchCatalogBooks(false);
+      updateDashboardKpiCards();
+      renderDashboardCirculationActivity();
+      showToast(`Issued "${newLoan.bookTitle}" (${newLoan.copyId} · Shelf ${newLoan.shelf || '—'}) to ${newLoan.memberName}.`, 'success');
+    }
+
+    function issueBookFromDetails(idx) {
       const book = catalogBooks[idx];
       if (!book) return;
       if (getBookAvailableCopies(book) <= 0) {
@@ -3583,14 +4010,164 @@
       document.getElementById('edit-book-procurement-comments').value = book.procurementComments || '';
       document.getElementById('edit-book-reason').value = '';
 
+      editRawCoverSourceDataUrl = '';
+      const editCropBtn = document.getElementById('btn-open-edit-4corner-crop');
+      if (editCropBtn) editCropBtn.classList.add('hidden');
+      setEditBookCoverPreview(book.coverUrl || '', book.coverUrl ? 'Current Cover' : '');
+
       const modal = document.getElementById('edit-book-modal');
       if (modal) modal.classList.remove('hidden');
+    }
+
+    function setEditBookCoverPreview(url, sourceLabel = 'Cover') {
+      editBookCoverUrl = (url || '').trim();
+      const img = document.getElementById('edit-book-cover-preview-img');
+      const placeholder = document.getElementById('edit-book-cover-placeholder');
+      const badge = document.getElementById('edit-book-cover-source-badge');
+      const removeBtn = document.getElementById('btn-remove-edit-book-cover');
+      if (!img || !placeholder) return;
+
+      if (editBookCoverUrl) {
+        img.src = editBookCoverUrl;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        if (badge) {
+          badge.textContent = sourceLabel;
+          badge.classList.remove('hidden');
+        }
+        if (removeBtn) removeBtn.classList.remove('hidden');
+      } else {
+        img.src = '';
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        if (badge) badge.classList.add('hidden');
+        if (removeBtn) removeBtn.classList.add('hidden');
+      }
+    }
+
+    function clearEditBookCoverPhoto() {
+      editRawCoverSourceDataUrl = '';
+      const fileInput = document.getElementById('edit-book-offline-cover-input');
+      if (fileInput) fileInput.value = '';
+      const cropBtn = document.getElementById('btn-open-edit-4corner-crop');
+      if (cropBtn) cropBtn.classList.add('hidden');
+      setEditBookCoverPreview('');
+      showToast('Cover image cleared.', 'info');
+    }
+
+    function handleEditOfflineCoverSelected(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        editRawCoverSourceDataUrl = e.target.result;
+        setEditBookCoverPreview(editRawCoverSourceDataUrl, 'Uploaded Photo');
+        const cropBtn = document.getElementById('btn-open-edit-4corner-crop');
+        if (cropBtn) cropBtn.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function openEditFourCornerCropper() {
+      if (!editRawCoverSourceDataUrl) return;
+      activeCropTarget = 'edit';
+      const modal = document.getElementById('four-corner-crop-modal');
+      const canvas = document.getElementById('four-corner-canvas');
+      if (!modal || !canvas) return;
+      modal.classList.remove('hidden');
+
+      cropSourceImage = new Image();
+      cropSourceImage.onload = function () {
+        const scale = Math.min(480 / cropSourceImage.width, 360 / cropSourceImage.height, 1);
+        canvas.width = Math.round(cropSourceImage.width * scale);
+        canvas.height = Math.round(cropSourceImage.height * scale);
+        resetFourCornerHandles();
+      };
+      cropSourceImage.src = editRawCoverSourceDataUrl;
+    }
+
+    async function pullEditCoverFromIsbn() {
+      const rawIsbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
+      const variants = getIsbnVariants(rawIsbn);
+      if (!variants.length) {
+        showToast('Enter a valid 10- or 13-digit ISBN first to pull cover image.', 'warning');
+        return;
+      }
+
+      const fetchBtn = document.getElementById('btn-edit-fetch-isbn-cover');
+      if (fetchBtn) {
+        fetchBtn.disabled = true;
+        fetchBtn.textContent = 'Searching...';
+      }
+
+      let foundCover = '';
+      try {
+        for (const variant of variants) {
+          if (!foundCover) {
+            try {
+              const searchRes = await fetch(`https://openlibrary.org/search.json?isbn=${variant}&limit=1`);
+              if (searchRes.ok) {
+                const searchData = await searchRes.json();
+                const doc = searchData.docs && searchData.docs[0];
+                if (doc && doc.cover_i) {
+                  foundCover = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+                }
+              }
+            } catch (e) { /* try next source */ }
+          }
+
+          if (!foundCover) {
+            try {
+              const olRes = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${variant}&format=json&jscmd=data`);
+              if (olRes.ok) {
+                const olJson = await olRes.json();
+                const info = olJson[`ISBN:${variant}`];
+                if (info && info.cover && (info.cover.medium || info.cover.large)) {
+                  foundCover = info.cover.medium || info.cover.large;
+                }
+              }
+            } catch (e) { /* try next source */ }
+          }
+
+          if (!foundCover) {
+            try {
+              const gbRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${variant}`);
+              if (gbRes.ok) {
+                const gbJson = await gbRes.json();
+                const vol = gbJson.items && gbJson.items[0] && gbJson.items[0].volumeInfo;
+                if (vol && vol.imageLinks && vol.imageLinks.thumbnail) {
+                  foundCover = vol.imageLinks.thumbnail.replace('http://', 'https://');
+                }
+              }
+            } catch (e) { /* try next variant */ }
+          }
+
+          if (foundCover) break;
+        }
+
+        if (foundCover) {
+          editRawCoverSourceDataUrl = '';
+          const cropBtn = document.getElementById('btn-open-edit-4corner-crop');
+          if (cropBtn) cropBtn.classList.add('hidden');
+          setEditBookCoverPreview(foundCover, 'Online Cover');
+          showToast('Cover image pulled from web!', 'success');
+        } else {
+          showToast(`No cover image found online for ISBN ${rawIsbn}.`, 'warning');
+        }
+      } finally {
+        if (fetchBtn) {
+          fetchBtn.disabled = false;
+          fetchBtn.textContent = 'Pull Cover via ISBN';
+        }
+      }
     }
 
     function closeEditBookModal() {
       const modal = document.getElementById('edit-book-modal');
       if (modal) modal.classList.add('hidden');
       editingBookIndex = -1;
+      editBookCoverUrl = '';
+      editRawCoverSourceDataUrl = '';
     }
 
     async function handleEditBookSubmit(event) {
@@ -3607,10 +4184,10 @@
         shelf: book.shelf || '',
         edition: book.edition || '',
         copies: book.copies || 1,
-        status: book.status || 'Available'
+        status: book.status || 'Available',
+        coverUrl: book.coverUrl || ''
       };
 
-      const reason = (document.getElementById('edit-book-reason')?.value || '').trim();
       book.isbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
       book.status = document.getElementById('edit-book-status')?.value || 'Available';
       book.title = (document.getElementById('edit-book-title')?.value || '').trim();
@@ -3621,57 +4198,127 @@
       book.copies = Math.max(1, parseInt(document.getElementById('edit-book-copies')?.value || '1', 10));
       book.procurementMode = document.getElementById('edit-book-procurement-mode')?.value || 'Purchased';
       book.procurementComments = (document.getElementById('edit-book-procurement-comments')?.value || '').trim();
+      book.coverUrl = editBookCoverUrl || '';
+      const reason = (document.getElementById('edit-book-reason')?.value || '').trim();
+
+      ensureBookCopyList(book);
 
       if (!Array.isArray(book.editLog)) book.editLog = [];
       book.editLog.unshift({
         editedBy: SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian',
-        editedAt: new Date().toLocaleString('en-IN'),
-        reason: reason || 'Updated bibliographic/copy details',
+        editedAt: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        reason,
         previousSnapshot
       });
 
       if (window.firebaseCloud) {
         await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
       }
+
+      closeEditBookModal();
       searchCatalogBooks();
       updateDashboardKpiCards();
       renderDashboardLatestBooks();
-      closeEditBookModal();
-      showToast(`Saved changes to "${book.title}".`, 'success');
+      showToast(`Saved updates for "${book.title}".`, 'success');
     }
 
     function openBookEditLogModal(idx) {
       const book = catalogBooks[idx];
-      if (!book) return;
       const modal = document.getElementById('book-edit-log-modal');
       const subEl = document.getElementById('edit-log-book-subtitle');
       const bodyEl = document.getElementById('book-edit-log-body');
-      if (!modal || !bodyEl) return;
+      if (!book || !modal || !bodyEl) return;
 
-      if (subEl) subEl.textContent = `${book.title} · ISBN: ${book.isbn || '—'}`;
+      if (subEl) subEl.textContent = `${book.title} (${book.isbn || 'No ISBN'})`;
       const logs = Array.isArray(book.editLog) ? book.editLog : [];
 
       if (logs.length === 0) {
-        bodyEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No edits have been recorded for this book yet.</p>`;
+        bodyEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-8">No edits have been recorded for this book yet.</p>`;
       } else {
-        bodyEl.innerHTML = logs.map(entry => {
-          const snap = entry.previousSnapshot || {};
-          return `
-            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
-              <div class="flex items-center justify-between gap-2">
-                <span class="font-bold text-slate-900">${entry.editedBy || 'Librarian'}</span>
-                <span class="text-[11px] text-slate-400">${entry.editedAt || ''}</span>
-              </div>
-              <p class="text-slate-600">${entry.reason || ''}</p>
-              <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 text-[11px] text-slate-600 space-y-0.5 font-mono">
-                <p>Prev Title: ${snap.title || '—'} ${snap.edition ? '(' + snap.edition + ')' : ''}</p>
-                <p>Prev Author: ${snap.author || '—'} | Publisher: ${snap.publisher || '—'}</p>
-                <p>Prev Shelf: ${snap.shelf || '—'} | Copies: ${snap.copies || 1} | Status: ${snap.status || 'Available'}</p>
-              </div>
+        bodyEl.innerHTML = logs.map((entry, i) => `
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-slate-900">Edit #${logs.length - i} by ${entry.editedBy || 'Librarian'}</span>
+              <span class="text-[11px] text-slate-400">${entry.editedAt || ''}</span>
             </div>
-          `;
-        }).join('');
+            ${entry.reason ? `<p class="text-slate-700 font-medium">Reason: ${entry.reason}</p>` : ''}
+            ${entry.previousSnapshot ? `
+              <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 text-[11px] text-slate-500 space-y-0.5">
+                <p class="font-semibold text-slate-600">Previous Entry Snapshot:</p>
+                <p>Title: ${entry.previousSnapshot.title} · Author: ${entry.previousSnapshot.author}</p>
+                <p>Shelf: ${entry.previousSnapshot.shelf} · Copies: ${entry.previousSnapshot.copies} · Status: ${entry.previousSnapshot.status}</p>
+              </div>
+            ` : ''}
+          </div>
+        `).join('');
       }
+      modal.classList.remove('hidden');
+    }
+
+    let activeQrBookIndex = -1;
+    function renderActiveQrStickerPreview() {
+      const book = catalogBooks[activeQrBookIndex];
+      const container = document.getElementById('book-qr-canvas-container');
+      const copySelect = document.getElementById('qr-copy-select');
+      if (!book || !container) return;
+
+      const copies = ensureBookCopyList(book);
+      const chosenCopyId = copySelect?.value || copies[0]?.copyId || 'C-01';
+      const chosenCopy = copies.find(c => c.copyId === chosenCopyId) || copies[0];
+      const shelfVal = chosenCopy?.shelf || book.shelf || '—';
+
+      const bookParam = encodeURIComponent(book._docId || normalizeIsbn(book.isbn) || book.title);
+      const baseUrl = window.location.origin && window.location.origin !== 'null'
+        ? `${window.location.origin}${window.location.pathname}`
+        : 'https://spm-niwas.github.io/spm-niwas-library/';
+      const deepUrl = `${baseUrl}?book=${bookParam}&copy=${encodeURIComponent(chosenCopyId)}`;
+
+      document.getElementById('qr-sticker-title').textContent = `${book.title || 'Untitled Book'} (${chosenCopyId})`;
+      document.getElementById('qr-sticker-author').textContent = book.author || 'Unknown Author';
+      document.getElementById('qr-sticker-shelf').textContent = `Shelf: ${shelfVal}`;
+      document.getElementById('qr-sticker-isbn').textContent = book.isbn || 'NO-ISBN';
+      document.getElementById('qr-sticker-url-preview').textContent = deepUrl;
+
+      container.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(container, {
+          text: deepUrl,
+          width: 152,
+          height: 152,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }
+
+    function openBookQrStickerModal(idx) {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can generate QR cover stickers.', 'warning');
+        return;
+      }
+      const book = catalogBooks[idx];
+      if (!book) return;
+      activeQrBookIndex = idx;
+      const modal = document.getElementById('book-qr-modal');
+      const copyWrap = document.getElementById('qr-copy-selector-wrap');
+      const copySelect = document.getElementById('qr-copy-select');
+      if (!modal) return;
+
+      const copies = ensureBookCopyList(book);
+      if (copyWrap && copySelect) {
+        if (copies.length > 1) {
+          copyWrap.classList.remove('hidden');
+          copySelect.innerHTML = copies.map(c =>
+            `<option value="${c.copyId}">${c.copyId} — Shelf ${c.shelf || book.shelf || '—'} (${c.status})</option>`
+          ).join('');
+        } else {
+          copyWrap.classList.add('hidden');
+          copySelect.innerHTML = `<option value="${copies[0]?.copyId || 'C-01'}">${copies[0]?.copyId || 'C-01'}</option>`;
+        }
+      }
+
+      renderActiveQrStickerPreview();
       modal.classList.remove('hidden');
     }
 
@@ -4438,7 +5085,7 @@
             (b.title || '').toLowerCase().includes(q) ||
             (b.author || '').toLowerCase().includes(q) ||
             (b.publisher || '').toLowerCase().includes(q) ||
-            (b.shelf || '').toLowerCase().includes(q) ||
+            getBookShelvesLabel(b).toLowerCase().includes(q) ||
             normalizeIsbn(b.isbn).toLowerCase().includes(q.replace(/[^0-9x]/g, '') || '__none__') ||
             (b.isbn || '').toLowerCase().includes(q)
           )
@@ -4540,8 +5187,8 @@
             <td class="py-3 px-4 font-semibold text-slate-900">${b.title}${editionBadge}</td>
             <td class="py-3 px-4 text-slate-600">${b.author}</td>
             <td class="py-3 px-4 text-slate-500 text-xs">${b.publisher || '—'}</td>
-            <td class="py-3 px-4 font-mono text-xs font-semibold text-slate-700">${b.shelf}</td>
-            <td class="py-3 px-4 text-center font-bold text-slate-800">${b.copies || 1}</td>
+            <td class="py-3 px-4 font-mono text-xs font-semibold text-slate-700">${getBookShelvesLabel(b)}</td>
+            <td class="py-3 px-4 text-center font-bold text-slate-800">${ensureBookCopyList(b).length}</td>
             <td class="py-3 px-4 text-right">
               <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadge}">${b.status}</span>
             </td>
@@ -4995,6 +5642,7 @@
 
     function openFourCornerCropper() {
       if (!rawCoverSourceDataUrl) return;
+      activeCropTarget = 'add';
       const modal = document.getElementById('four-corner-crop-modal');
       const canvas = document.getElementById('four-corner-canvas');
       if (!modal || !canvas) return;
@@ -5068,7 +5716,11 @@
       out.width = Math.round(w);
       out.height = Math.round(h);
       out.getContext('2d').drawImage(cropSourceImage, minX, minY, w, h, 0, 0, out.width, out.height);
-      setBookCoverPreview(out.toDataURL('image/jpeg', 0.9), 'Cropped Cover');
+      if (activeCropTarget === 'edit') {
+        setEditBookCoverPreview(out.toDataURL('image/jpeg', 0.9), 'Cropped Cover');
+      } else {
+        setBookCoverPreview(out.toDataURL('image/jpeg', 0.9), 'Cropped Cover');
+      }
       closeFourCornerCropper();
     }
 
@@ -5122,7 +5774,7 @@
       const publisher = (document.getElementById('book-publisher-input')?.value || '').trim();
       const shelf = (document.getElementById('book-shelf-input')?.value || '').trim();
       const edition = (document.getElementById('book-edition-input')?.value || '').trim();
-      const copiesToAdd = Math.max(1, parseInt(document.getElementById('book-copies-input')?.value || '1', 10));
+      const copiesToAdd = 1;
 
       if (!title || !author || !publisher || !shelf) {
         showToast('Book Title, Author, Publisher, and Shelf ID are compulsory.', 'warning');
@@ -5138,24 +5790,31 @@
       };
 
       if (matchedExistingBook) {
-        matchedExistingBook.copies = (Number(matchedExistingBook.copies) || 1) + copiesToAdd;
-        matchedExistingBook.lastProcuredAt = Date.now();
-        if (shelf) matchedExistingBook.shelf = shelf;
-        matchedExistingBook.procurementMode = currentProcurementMode;
-        matchedExistingBook.procurementComments = currentProcurementComments;
-        if (!Array.isArray(matchedExistingBook.procurementLog)) {
-          matchedExistingBook.procurementLog = [];
+        const existingBookRef = matchedExistingBook;
+        const existingTitle = existingBookRef.title || title;
+        const copies = ensureBookCopyList(existingBookRef);
+        const nextCopyId = formatCopyCode(copies.length + 1);
+        const copyShelf = shelf || existingBookRef.shelf || '—';
+        copies.push({ copyId: nextCopyId, shelf: copyShelf, status: 'Available' });
+        existingBookRef.copies = copies.length;
+        existingBookRef.lastProcuredAt = Date.now();
+        if (!existingBookRef.shelf && copyShelf !== '—') existingBookRef.shelf = copyShelf;
+        existingBookRef.procurementMode = currentProcurementMode;
+        existingBookRef.procurementComments = currentProcurementComments;
+        if (!Array.isArray(existingBookRef.procurementLog)) {
+          existingBookRef.procurementLog = [];
         }
-        matchedExistingBook.procurementLog.push(acquisitionEntry);
+        existingBookRef.procurementLog.push({ ...acquisitionEntry, copyId: nextCopyId, shelf: copyShelf });
+        syncBookCatalogCirculationStatus(existingBookRef);
 
         if (window.firebaseCloud) {
-          await window.firebaseCloud.saveBook(matchedExistingBook).catch(err => console.warn(err));
+          await window.firebaseCloud.saveBook(existingBookRef).catch(err => console.warn(err));
         }
         searchCatalogBooks();
         updateDashboardKpiCards();
         renderDashboardLatestBooks();
         closeAddBookModal();
-        showToast(`Added ${copiesToAdd} ${copiesToAdd === 1 ? 'copy' : 'copies'} to "${matchedExistingBook.title}".`, 'success');
+        showToast(`Added ${nextCopyId} (Shelf ${copyShelf}) to "${existingTitle}".`, 'success');
         return;
       }
 
@@ -5167,19 +5826,54 @@
         shelf,
         edition,
         copies: copiesToAdd,
+        copyList: [{ copyId: 'C-01', shelf, status: 'Available' }],
         status: 'Available',
         coverUrl: currentBookCoverUrl || (isbn ? getOpenLibraryCover(isbn) : ''),
         procurementMode: currentProcurementMode,
         procurementComments: currentProcurementComments,
-        procurementLog: [acquisitionEntry],
+        procurementLog: [{ ...acquisitionEntry, copyId: 'C-01', shelf }],
         isDistinctEdition: forceNewTitleForIsbn,
         addedAt: Date.now(),
         lastProcuredAt: Date.now()
       };
+      const copies = ensureBookCopyList(book);
+      if (shelfEl) shelfEl.textContent = getBookShelvesLabel(book);
+      if (copiesEl) copiesEl.textContent = `${copies.length} (${copies.filter(c => c.status === 'Available').length} available)`;
 
-      catalogBooks.unshift(newBook);
-      if (window.firebaseCloud) {
-        await window.firebaseCloud.saveBook(newBook).catch(err => console.warn(err));
+      const log = Array.isArray(book.procurementLog) ? book.procurementLog : [];
+      if (procEl) {
+        if (log.length > 1) {
+          const pCount = log.filter(e => e.mode === 'Purchased').reduce((s, e) => s + (e.copies || 1), 0);
+          const dCount = log.filter(e => e.mode === 'Donated').reduce((s, e) => s + (e.copies || 1), 0);
+          const parts = [];
+          if (pCount) parts.push(`${pCount} Purchased`);
+          if (dCount) parts.push(`${dCount} Donated`);
+          procEl.textContent = parts.join(' · ') || (book.procurementMode || 'Purchased');
+        } else {
+          procEl.textContent = book.procurementMode || 'Purchased';
+        }
+      }
+
+      if (procNoteRow && procListEl) {
+        const copyBreakdownHtml = copies.map(c => `
+          <div class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200/80 text-[11px] flex items-center justify-between gap-2">
+            <span class="font-mono font-semibold text-slate-800">${c.copyId} · Shelf ${c.shelf || '—'}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${c.status === 'Available' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}">${c.status}</span>
+          </div>
+        `).join('');
+
+        const procEntriesHtml = log.map(entry => `
+          <div class="p-2 rounded-lg bg-white border border-slate-200/80 text-[11px]">
+            <div class="flex items-center justify-between font-semibold text-slate-800">
+              <span>${entry.mode}${entry.copyId ? ` (${entry.copyId})` : ''}</span>
+              <span class="text-[10px] text-slate-400">${entry.date || ''}</span>
+            </div>
+            ${entry.comments ? `<p class="text-slate-600 mt-0.5">${entry.comments}</p>` : ''}
+          </div>
+        `).join('');
+
+        procListEl.innerHTML = copyBreakdownHtml + procEntriesHtml;
+        procNoteRow.classList.remove('hidden');
       }
       searchCatalogBooks();
       updateDashboardKpiCards();
