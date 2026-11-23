@@ -602,6 +602,192 @@
           </div>
         </section>
 
+        <!-- SECTION: SPM NIWAS MEMBERS DIRECTORY -->
+        <section id="section-members" class="hidden space-y-6">
+          <!-- Top Search Bar & Add Member Action -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="relative flex-1 max-w-lg">
+              <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input type="text" id="members-search-input" oninput="filterMembersDirectory()"
+                placeholder="Search members by name, designation, category, or email..."
+                class="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+            </div>
+
+            <button type="button" id="btn-open-add-member" onclick="openAddMemberModal()"
+              class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm flex items-center justify-center gap-1.5 shrink-0">
+              <span>+ Add Member</span>
+            </button>
+          </div>
+
+          <!-- Members Table Card -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">SPM NIWAS Members Directory</h3>
+                <p class="text-xs text-slate-400">Authorized staff and resident borrowers with automatic book entitlements</p>
+              </div>
+              <span id="directory-member-count" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Member</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                    <th class="py-3 px-5">Member Name</th>
+                    <th class="py-3 px-4">Designation</th>
+                    <th class="py-3 px-4">Category</th>
+                    <th class="py-3 px-4">Google Email</th>
+                    <th class="py-3 px-4 text-center">Books Allowed</th>
+                    <th class="member-action-col py-3 px-5 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="directory-members-table-body" class="divide-y divide-slate-100 text-sm">
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Auto Pagination Footer (Appears automatically when > 25 members) -->
+            <div id="members-pagination-bar" class="hidden px-5 py-3.5 border-t border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <span id="members-pagination-info" class="text-slate-500 font-medium">Showing 1–25 of 25 members</span>
+              <div id="members-pagination-controls" class="flex items-center gap-1.5"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: ADMIN SETTINGS (SUPERADMIN ONLY) -->
+        <section id="section-admin-settings" class="hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <!-- Settings Sub-Navigation Tabs -->
+            <div class="px-6 pt-4 border-b border-slate-200 flex items-center gap-6 overflow-x-auto">
+              <button type="button" id="settings-tab-librarian" onclick="switchSettingsTab('librarian')"
+                class="settings-tab pb-3.5 text-sm font-semibold text-emerald-800 border-b-2 border-emerald-700 transition whitespace-nowrap">
+                Authorized Librarians
+              </button>
+              <button type="button" id="settings-tab-categories" onclick="switchSettingsTab('categories')"
+                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
+                Staff Categories
+              </button>
+              <button type="button" id="settings-tab-entitlement" onclick="switchSettingsTab('entitlement')"
+                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
+                Book Entitlement &amp; Loan Period
+              </button>
+              <button type="button" id="settings-tab-logo" onclick="switchSettingsTab('logo')"
+                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
+                SPM NIWAS Logo
+              </button>
+            </div>
+
+            <!-- Tab 1: Authorized Librarians -->
+            <div id="settings-panel-librarian" class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <form id="add-librarian-form" onsubmit="handleAddLibrarian(event)" class="lg:col-span-4 space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900">Authorize New Librarian</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Grant catalog, member, and circulation desk access.</p>
+                </div>
+                <div>
+                  <label for="librarian-name" class="block text-xs font-semibold text-slate-700 mb-1.5">Full Name</label>
+                  <input type="text" id="librarian-name" required placeholder="e.g. S. Mukherjee"
+                    class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                </div>
+                <div>
+                  <label for="librarian-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Google Email Address</label>
+                  <input type="email" id="librarian-email" required placeholder="librarian@spmniwas.in"
+                    class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                </div>
+                <button type="submit"
+                  class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                  Authorize Librarian
+                </button>
+              </form>
+
+              <div class="lg:col-span-8 rounded-2xl border border-slate-200/80 overflow-hidden">
+                <div class="px-5 py-3.5 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-800">Active Librarians</span>
+                  <span id="librarian-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Active</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-slate-50/50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                        <th class="py-2.5 px-5">Name</th>
+                        <th class="py-2.5 px-4">Google Email</th>
+                        <th class="py-2.5 px-4">Account Type</th>
+                        <th class="py-2.5 px-4">Status</th>
+                        <th class="py-2.5 px-5 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="librarians-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 2: Staff Categories -->
+            <div id="settings-panel-categories" class="hidden p-6 max-w-2xl space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900">Categories of Staff &amp; Residents</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Enter one category per line.</p>
+                </div>
+                <span id="staff-categories-count" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">6 categories configured</span>
+              </div>
+              <textarea id="staff-categories-textarea" rows="7"
+                class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition"></textarea>
+              <button type="button" onclick="saveStaffCategories()"
+                class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                Save Staff Categories
+              </button>
+            </div>
+
+            <!-- Tab 3: Book Entitlement & Loan Period -->
+            <div id="settings-panel-entitlement" class="hidden p-6 max-w-2xl space-y-5">
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-4">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900">Default Loan Period (Days)</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Automatically calculates return due dates at the Circulation Desk.</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <input type="number" id="default-loan-days-input" min="1" max="180" value="14"
+                    class="w-24 px-3 py-1.5 text-sm text-right font-semibold text-slate-900 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                  <span class="text-xs text-slate-500">days</span>
+                </div>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200/80 overflow-hidden divide-y divide-slate-100" id="entitlement-category-list"></div>
+
+              <button type="button" onclick="saveBookEntitlement()"
+                class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                Save Entitlements &amp; Loan Period
+              </button>
+            </div>
+
+            <!-- Tab 4: SPM NIWAS Logo -->
+            <div id="settings-panel-logo" class="hidden p-6 max-w-2xl space-y-4">
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Custom SPM NIWAS Library Emblem</h4>
+                <p id="logo-file-status" class="text-xs text-slate-500 mt-0.5">Recommended: Square transparent PNG or SVG (max 2 MB).</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-3">
+                <label for="spm-logo-upload-input"
+                  class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition cursor-pointer">
+                  Choose Logo File
+                </label>
+                <input type="file" id="spm-logo-upload-input" accept="image/*" onchange="handleLogoFileSelected(event)" class="hidden" />
+                <button type="button" id="btn-save-brand-logo" onclick="saveBrandLogo()"
+                  class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                  Save Logo
+                </button>
+                <button type="button" id="btn-remove-brand-logo" onclick="promptRemoveBrandLogo()"
+                  class="hidden px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
+                  Remove Custom Logo
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   </div>
