@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SPM Niwas Library — Desktop Console</title>
+  <title>SPM NIWAS Library — Desktop Console</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,27 +22,63 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900">
 
-  <!-- Main Desktop Application Shell -->
-  <div class="min-h-screen flex flex-col md:flex-row">
+  <!-- Production Google Sign-In Gate (Shown only when unauthenticated on production domains) -->
+  <div id="production-signin-gate" class="hidden fixed inset-0 z-[100] bg-slate-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xl max-w-md w-full p-8 text-center space-y-6">
+      <div id="gate-logo-box" class="w-16 h-16 rounded-2xl bg-emerald-700 text-white flex items-center justify-center shadow-md mx-auto overflow-hidden">
+        <img id="gate-brand-logo-img" src="" alt="SPM NIWAS Logo" class="hidden w-full h-full object-contain bg-white p-1.5" />
+        <svg id="gate-brand-logo-fallback" class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+        </svg>
+      </div>
 
+      <div class="space-y-1.5">
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">SPM NIWAS Library</h1>
+        <p class="text-xs font-medium text-slate-500">Internal Staff &amp; Resident Library Console</p>
+      </div>
+
+      <div id="gate-error-box" class="hidden rounded-2xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-700 leading-relaxed"></div>
+
+      <div class="pt-1">
+        <button type="button" id="btn-gate-google-signin" onclick="signInWithGoogleAccount()"
+          class="w-full py-3 px-4 rounded-2xl text-sm font-semibold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 shadow-sm transition flex items-center justify-center gap-3">
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>
+            <path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/>
+            <path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 000 10.76l3.98-3.09z"/>
+            <path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/>
+          </svg>
+          <span>Sign in with Google</span>
+        </button>
+      </div>
+
+      <p id="gate-status-hint" class="text-[11px] text-slate-400 leading-relaxed">
+        Sign in with your authorized SPM NIWAS Google account to load your role automatically.
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Desktop Application Shell -->
+  <div id="app-main-shell" class="min-h-screen flex flex-col md:flex-row">
     <!-- Left Navigation Sidebar -->
     <aside class="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-slate-200 flex flex-col justify-between shrink-0">
       <div>
         <!-- Brand Header -->
-        <div class="h-16 px-6 flex items-center gap-3 border-b border-slate-100">
-          <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-sm shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <div class="h-16 px-5 border-b border-slate-100 flex items-center gap-3">
+          <div id="sidebar-logo-box" class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-sm shrink-0 overflow-hidden">
+            <img id="sidebar-brand-logo-img" src="" alt="SPM NIWAS Logo" class="hidden w-full h-full object-contain bg-white p-1" />
+            <svg id="sidebar-brand-logo-fallback" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
           </div>
-          <div>
-            <h1 class="text-sm font-bold text-slate-900 tracking-tight leading-tight">SPM Niwas</h1>
-            <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Library Console</p>
+          <div class="min-w-0">
+            <h1 class="text-sm font-bold text-slate-900 tracking-tight truncate">SPM NIWAS Library</h1>
+            <p class="text-[11px] text-slate-400 truncate">Books, books &amp; books!</p>
           </div>
         </div>
 
         <!-- Primary Navigation Links -->
-        <nav class="p-3 flex md:flex-col gap-1 overflow-x-auto" aria-label="Sidebar Navigation">
+        <nav class="p-3 flex md:flex-col gap-1 overflow-x-auto">
           <button onclick="switchSection('dashboard', 'Dashboard')" id="nav-dashboard"
             class="nav-item active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-emerald-50 text-emerald-800 transition-colors whitespace-nowrap">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -51,7 +87,7 @@
             Dashboard
           </button>
 
-          <button onclick="switchSection('catalog', 'Catalog')" id="nav-catalog"
+          <button onclick="switchSection('members', 'SPM NIWAS Members')" id="nav-members"
             class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors whitespace-nowrap">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -75,14 +111,7 @@
             Members
           </button>
 
-          <button onclick="switchSection('settings', 'Library Settings')" id="nav-settings"
-            class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors whitespace-nowrap">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Settings
-          </button>
+          <div id="nav-settings-divider" class="hidden my-1.5 border-t border-slate-200/80 mx-2"></div>
 
           <button onclick="switchSection('admin-settings', 'Admin Settings')" id="nav-admin-settings"
             class="nav-item hidden flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors whitespace-nowrap">
@@ -90,14 +119,6 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
             </svg>
             Admin Settings
-          </button>
-
-          <button onclick="switchSection('add-librarian', 'Add Librarian')" id="nav-add-librarian"
-            class="nav-item hidden flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors whitespace-nowrap">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
-            </svg>
-            Add Librarian
           </button>
         </nav>
       </div>
@@ -110,12 +131,6 @@
       <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between gap-4 shrink-0">
         <div class="flex items-center gap-3">
           <h2 id="page-title" class="text-lg font-bold text-slate-900">Dashboard</h2>
-          <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-            Desktop Console
-          </span>
-          <span id="view-only-badge" class="hidden inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-            View Only · No Executive Actions
-          </span>
         </div>
 
         <!-- Account Menu -->
@@ -170,8 +185,8 @@
                   </svg>
                   <span>Sign in with Google</span>
                 </button>
-                <button onclick="handleLogout()"
-                  class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
+                <button onclick="handleLogout()" id="btn-google-logout"
+                  class="hidden w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition">
                   <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                   </svg>
@@ -191,7 +206,7 @@
           <!-- KPI Metric Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Books</p>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">SPM NIWAS Members</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p class="text-2xl font-bold text-slate-900">1,248</p>
                 <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">+14 this month</span>
@@ -306,80 +321,6 @@
           </div>
         </section>
 
-        <!-- SECTION: SUPERADMIN ONLY - ADD LIBRARIAN -->
-        <section id="section-add-librarian" class="hidden space-y-6">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Add Librarian Form -->
-            <div class="lg:col-span-1 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
-              <div class="mb-5">
-                <h3 class="text-base font-bold text-slate-900">Add Librarian</h3>
-                <p class="text-xs text-slate-500 mt-1">Authorize a librarian using a Gmail or Google Workspace account.</p>
-              </div>
-
-              <form id="add-librarian-form" onsubmit="handleAddLibrarian(event)" class="space-y-4">
-                <div>
-                  <label for="librarian-name" class="block text-xs font-semibold text-slate-700 mb-1.5">Librarian Name</label>
-                  <input type="text" id="librarian-name" oninput="autoCapitalizeFirstLetter(this)" required
-                    placeholder="e.g. Subhash Mukherjee"
-                    class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
-                  <p class="text-[11px] text-slate-400 mt-1">First letter is automatically capitalized.</p>
-                </div>
-
-                <div>
-                  <label for="librarian-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Google / Gmail Address</label>
-                  <input type="email" id="librarian-email" required
-                    placeholder="name@gmail.com or name@spmniwas.in"
-                    class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
-                  <p id="librarian-email-hint" class="text-[11px] text-slate-400 mt-1">Only @gmail.com, @googlemail.com, or Google Workspace domains allowed.</p>
-                </div>
-
-                <button type="submit" id="btn-submit-librarian"
-                  class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-                  Add
-                </button>
-              </form>
-            </div>
-
-            <!-- Added Librarians List -->
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-              <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                  <h3 class="text-sm font-bold text-slate-900">Added Librarians</h3>
-                  <p class="text-xs text-slate-400">Active Google accounts with Librarian desk &amp; scanner access</p>
-                </div>
-                <span id="librarian-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Active</span>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                  <thead>
-                    <tr class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                      <th class="py-3 px-5">Name</th>
-                      <th class="py-3 px-4">Google Email</th>
-                      <th class="py-3 px-4">Provider</th>
-                      <th class="py-3 px-4">Status</th>
-                      <th class="py-3 px-5 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="librarians-table-body" class="divide-y divide-slate-100 text-sm">
-                    <tr class="hover:bg-slate-50/60">
-                      <td class="py-3.5 px-5 font-medium text-slate-900">S. Mukherjee</td>
-                      <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">librarian@spmniwas.in</td>
-                      <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-700">Google Workspace</span></td>
-                      <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">Active</span></td>
-                      <td class="py-3.5 px-5 text-right">
-                        <button type="button" onclick="promptDeleteLibrarian('librarian@spmniwas.in')"
-                          class="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <!-- SECTION: CATALOG & INVENTORY -->
         <section id="section-catalog" class="hidden space-y-6">
           <!-- Top Search Bar, Search Button & Add Book Action -->
@@ -410,7 +351,7 @@
             <div class="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 class="text-sm font-bold text-slate-900">Existing Books</h3>
-                <p id="catalog-results-subtitle" class="text-xs text-slate-400">Showing all existing books in SPM Niwas Library</p>
+                <p id="catalog-results-subtitle" class="text-xs text-slate-400">Showing all existing books in SPM NIWAS Library</p>
               </div>
               <div class="flex flex-wrap items-center gap-2">
                 <!-- Weekly Auto-Sync Status Pill & Manual Trigger -->
@@ -450,7 +391,7 @@
         <section id="section-circulation" class="hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
             <h3 class="text-base font-bold text-slate-900">Circulation Desk</h3>
-            <p class="text-xs text-slate-500 mt-1">Issue books to SPM Niwas members, process returns, and track overdue loans.</p>
+            <p class="text-xs text-slate-500 mt-1">Issue books to SPM NIWAS members, process returns, and track overdue loans.</p>
           </div>
         </section>
 
@@ -473,11 +414,11 @@
             </button>
           </div>
 
-          <!-- SPM Niwas Members Directory Table -->
+          <!-- SPM NIWAS Members Directory Table -->
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <div>
-                <h3 class="text-sm font-bold text-slate-900">SPM Niwas Members</h3>
+                <h3 class="text-sm font-bold text-slate-900">SPM NIWAS Members</h3>
                 <p class="text-xs text-slate-400">Registered staff &amp; resident borrowers</p>
               </div>
               <span id="directory-member-count" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Member</span>
@@ -501,42 +442,96 @@
           </div>
         </section>
 
-        <!-- SECTION: SETTINGS (LIBRARIAN VIEW) -->
-        <section id="section-settings" class="hidden space-y-6">
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 max-w-2xl space-y-4">
-            <div>
-              <h3 class="text-base font-bold text-slate-900">Library Settings</h3>
-              <p class="text-xs text-slate-500 mt-1">
-                General desk preferences, overdue reminder notifications, and barcode scanner options for SPM Niwas Library.
-              </p>
-            </div>
-            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600">
-              Staff categories and book entitlement rules are managed by the Superadmin under <span class="font-semibold text-slate-800">Admin Settings</span>.
-            </div>
-          </div>
-        </section>
-
         <!-- SECTION: ADMIN SETTINGS (SUPERADMIN ONLY) -->
         <section id="section-admin-settings" class="hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
             <!-- Admin Settings Tabs Header -->
-            <div class="px-6 pt-4 border-b border-slate-200 flex items-center gap-6">
+            <div class="px-6 pt-4 border-b border-slate-200 flex items-center gap-6 overflow-x-auto">
+              <button type="button" onclick="switchSettingsTab('librarian')" id="settings-tab-librarian"
+                class="settings-tab pb-3.5 text-sm font-semibold text-emerald-800 border-b-2 border-emerald-700 transition whitespace-nowrap">
+                Add Librarian
+              </button>
               <button type="button" onclick="switchSettingsTab('categories')" id="settings-tab-categories"
-                class="settings-tab pb-3.5 text-sm font-semibold text-emerald-800 border-b-2 border-emerald-700 transition">
-                Category of staff
+                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
+                Staff Categories
               </button>
               <button type="button" onclick="switchSettingsTab('entitlement')" id="settings-tab-entitlement"
-                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition">
+                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
                 Book entitlement
+              </button>
+              <button type="button" onclick="switchSettingsTab('logo')" id="settings-tab-logo"
+                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
+                Add Logo
               </button>
             </div>
 
-            <!-- Tab 1: Category of Staff -->
-            <div id="settings-panel-categories" class="p-6 max-w-2xl space-y-4">
+            <!-- Tab 1: Add Librarian -->
+            <div id="settings-panel-librarian" class="p-6">
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add Librarian Form -->
+                <div class="lg:col-span-1 bg-slate-50/70 rounded-2xl border border-slate-200/80 p-5">
+                  <div class="mb-4">
+                    <h3 class="text-base font-bold text-slate-900">Add Librarian</h3>
+                    <p class="text-xs text-slate-500 mt-1">Authorize a Google account to manage desk &amp; catalog.</p>
+                  </div>
+
+                  <form id="add-librarian-form" onsubmit="handleAddLibrarian(event)" class="space-y-4">
+                    <div>
+                      <label for="librarian-name" class="block text-xs font-semibold text-slate-700 mb-1.5">Librarian Name</label>
+                      <input type="text" id="librarian-name" oninput="autoCapitalizeFirstLetter(this)" required
+                        placeholder="e.g. S. Mukherjee"
+                        class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                    </div>
+
+                    <div>
+                      <label for="librarian-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Google / Gmail Address</label>
+                      <input type="email" id="librarian-email" required
+                        placeholder="librarian@spmniwas.in"
+                        class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                      <p id="librarian-email-hint" class="text-[11px] text-slate-400 mt-1">Only @gmail.com, @googlemail.com, or Google Workspace domains allowed.</p>
+                    </div>
+
+                    <button type="submit"
+                      class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                      + Add Librarian
+                    </button>
+                  </form>
+                </div>
+
+                <!-- Authorized Librarians List -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
+                  <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                      <h3 class="text-sm font-bold text-slate-900">Authorized Librarians</h3>
+                      <p class="text-xs text-slate-400">Active staff with Librarian desk &amp; scanner permissions</p>
+                    </div>
+                    <span id="librarian-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Active</span>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                      <thead>
+                        <tr class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                          <th class="py-3 px-5">Name</th>
+                          <th class="py-3 px-4">Google Email</th>
+                          <th class="py-3 px-4">Provider</th>
+                          <th class="py-3 px-4">Status</th>
+                          <th class="py-3 px-5 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="librarians-table-body" class="divide-y divide-slate-100 text-sm">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 2: Staff Categories -->
+            <div id="settings-panel-categories" class="hidden p-6 max-w-2xl space-y-4">
               <div>
-                <h3 class="text-base font-bold text-slate-900">Category of staff</h3>
+                <h3 class="text-base font-bold text-slate-900">Staff Categories</h3>
                 <p class="text-xs text-slate-500 mt-1">
-                  Enter one category of staff per line. All listed categories will appear in the Add Member dropdown.
+                  Enter one staff category per line. All listed categories will appear in the Add Member dropdown.
                 </p>
               </div>
 
@@ -558,19 +553,19 @@
               </div>
             </div>
 
-            <!-- Tab 2: Book Entitlement -->
+            <!-- Tab 3: Book Entitlement -->
             <div id="settings-panel-entitlement" class="hidden p-6 max-w-3xl space-y-5">
               <div>
                 <h3 class="text-base font-bold text-slate-900">Book entitlement</h3>
                 <p class="text-xs text-slate-500 mt-1">
-                  Assign the maximum number of books allowed for each staff category added under Category of staff.
+                  Assign the maximum number of books allowed for each staff category added under Staff Categories.
                 </p>
               </div>
 
               <!-- Two-Pane Category Entitlement Grid -->
               <div class="rounded-2xl border border-slate-200/80 overflow-hidden bg-white">
                 <div class="grid grid-cols-12 bg-slate-50/80 border-b border-slate-200/80 px-5 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  <div class="col-span-7 sm:col-span-8">Category of Staff</div>
+                  <div class="col-span-7 sm:col-span-8">Staff Categories</div>
                   <div class="col-span-5 sm:col-span-4 text-right">Books Allowed</div>
                 </div>
                 <div id="entitlement-category-list" class="divide-y divide-slate-100">
@@ -583,6 +578,73 @@
                 <button type="button" onclick="saveBookEntitlement()"
                   class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm shrink-0">
                   Save Entitlement
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab 4: Add Logo -->
+            <div id="settings-panel-logo" class="hidden p-6 max-w-2xl space-y-5">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Add Logo</h3>
+                <p class="text-xs text-slate-500 mt-1">
+                  Upload the official SPM NIWAS logo (PNG, JPG, SVG, or WebP). It will appear on the Google Sign-In screen and top-left sidebar branding.
+                </p>
+              </div>
+
+              <!-- Live Preview Card (Sign-In Screen & Top-Left Sidebar) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center text-center space-y-2.5">
+                  <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Login Screen Preview</span>
+                  <div class="w-16 h-16 rounded-2xl bg-emerald-700 text-white flex items-center justify-center shadow-sm overflow-hidden border border-slate-200">
+                    <img id="preview-gate-logo-img" src="" alt="Login Logo Preview" class="hidden w-full h-full object-contain bg-white p-1.5" />
+                    <svg id="preview-gate-logo-fallback" class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
+                  </div>
+                  <p class="text-xs font-bold text-slate-800">SPM NIWAS Library</p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-center space-y-2.5">
+                  <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 text-center">Top-Left Branding Preview</span>
+                  <div class="px-4 py-3 rounded-xl bg-white border border-slate-200/80 flex items-center gap-3 shadow-2xs mx-auto">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-sm shrink-0 overflow-hidden border border-slate-200">
+                      <img id="preview-sidebar-logo-img" src="" alt="Sidebar Logo Preview" class="hidden w-full h-full object-contain bg-white p-1" />
+                      <svg id="preview-sidebar-logo-fallback" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold text-slate-900 leading-tight">SPM NIWAS Library</p>
+                      <p class="text-[11px] text-slate-400">Books, books &amp; books!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upload Dropzone & Actions -->
+              <div class="p-5 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="space-y-1 text-center sm:text-left">
+                  <p class="text-xs font-bold text-slate-800">Upload SPM NIWAS Logo File</p>
+                  <p id="logo-file-status" class="text-[11px] text-slate-500">Recommended: Square transparent PNG or SVG (max 2 MB).</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <label for="spm-logo-upload-input"
+                    class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 transition cursor-pointer shadow-2xs">
+                    Choose Logo
+                  </label>
+                  <input type="file" id="spm-logo-upload-input" accept="image/*" onchange="handleLogoFileSelected(event)" class="hidden" />
+
+                  <button type="button" id="btn-remove-brand-logo" onclick="promptRemoveBrandLogo()"
+                    class="hidden px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <div class="pt-1 flex items-center justify-end gap-3">
+                <button type="button" id="btn-save-brand-logo" onclick="saveBrandLogo()"
+                  class="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                  Save Logo
                 </button>
               </div>
             </div>
@@ -599,7 +661,7 @@
       <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
         <div>
           <h4 class="text-base font-bold text-slate-900">Add Member</h4>
-          <p class="text-xs text-slate-500 mt-0.5">Register an SPM Niwas staff or resident member</p>
+          <p class="text-xs text-slate-500 mt-0.5">Register an SPM NIWAS staff or resident member</p>
         </div>
         <button type="button" onclick="closeAddMemberModal()" aria-label="Close dialog"
           class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
@@ -760,7 +822,7 @@
               </svg>
             </div>
             <div>
-              <h5 class="text-xs font-bold text-amber-900">Book Already Exists in SPM Niwas Library</h5>
+              <h5 class="text-xs font-bold text-amber-900">Book Already Exists in SPM NIWAS Library</h5>
               <p id="duplicate-book-details" class="text-xs text-amber-800 mt-0.5">
                 Currently 1 copy on Shelf A-12. Submitting will add new copy/copies to this existing title.
               </p>
@@ -999,10 +1061,10 @@
             </p>
           </div>
 
-          <!-- SPM Niwas Member Reviews -->
+          <!-- SPM NIWAS Member Reviews -->
           <div class="pt-4 border-t border-slate-100 space-y-3">
             <div class="flex items-center justify-between">
-              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">SPM Niwas Reader Reviews</h4>
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">SPM NIWAS Reader Reviews</h4>
               <span id="detail-reviews-count" class="text-xs font-medium text-slate-400">0 Reviews</span>
             </div>
 
@@ -1021,7 +1083,7 @@
                 <option value="1">&#9733;&#9734;&#9734;&#9734;&#9734; (1)</option>
               </select>
               <input type="text" id="detail-review-text" required
-                placeholder="Write a short review for fellow SPM Niwas readers..."
+                placeholder="Write a short review for fellow SPM NIWAS readers..."
                 class="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
               <button type="submit"
                 class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shrink-0">
@@ -1034,90 +1096,37 @@
     </div>
   </div>
 
-  <!-- Confirmation Dialog for Adding Librarian / Member / Book -->
-  <div id="confirm-add-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/40 backdrop-blur-[1px] p-4">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-sm w-full p-6 space-y-4">
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+  <!-- Unified Application Dialog (Confirmations, Warnings, Role-Conflict Alerts & Deletions) -->
+  <div id="system-dialog-modal" onclick="if(event.target===this && systemDialogDismissible) closeSystemDialog()"
+    class="hidden fixed inset-0 z-[75] flex items-center justify-center bg-slate-900/45 backdrop-blur-[1px] p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full p-6 space-y-4">
+      <div class="flex items-start gap-3.5">
+        <div id="system-dialog-icon-wrap" class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+          <svg id="system-dialog-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <div>
-          <h4 id="confirm-add-title" class="text-sm font-bold text-slate-900">Confirm Addition</h4>
-          <p id="confirm-add-msg" class="text-xs text-slate-500 mt-1 leading-relaxed">
-            Please verify the details below before adding.
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2">
+            <h4 id="system-dialog-title" class="text-sm font-bold text-slate-900">Confirm Action</h4>
+          </div>
+          <p id="system-dialog-msg" class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Please verify the details below.
           </p>
         </div>
       </div>
-      <div id="confirm-add-summary" class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1">
-      </div>
-      <div class="flex items-center justify-end gap-2 pt-2">
-        <button type="button" onclick="closeConfirmAddModal()"
-          class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
-          Cancel
-        </button>
-        <button type="button" onclick="executeConfirmedAdd()"
-          class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition">
-          Confirm &amp; Add
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Delete Librarian Confirmation Modal -->
-  <div id="delete-librarian-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-[1px] p-4">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-sm w-full p-6 space-y-4">
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-          </svg>
-        </div>
-        <div>
-          <h4 class="text-sm font-bold text-slate-900">Delete Librarian Access?</h4>
-          <p id="delete-librarian-msg" class="text-xs text-slate-500 mt-1 leading-relaxed">
-            Are you sure you want to remove this librarian? They will immediately lose desk and scanner access.
-          </p>
-        </div>
+      <div id="system-dialog-summary" class="hidden p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 space-y-1.5">
       </div>
-      <div class="flex items-center justify-end gap-2 pt-2">
-        <button type="button" onclick="closeDeleteLibrarianModal()"
-          class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
-          Cancel
-        </button>
-        <button type="button" onclick="confirmDeleteLibrarian()"
-          class="px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 transition">
-          Delete Librarian
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Delete Member Confirmation Modal -->
-  <div id="delete-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-[1px] p-4">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-sm w-full p-6 space-y-4">
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-          </svg>
-        </div>
-        <div>
-          <h4 class="text-sm font-bold text-slate-900">Delete Member?</h4>
-          <p id="delete-member-msg" class="text-xs text-slate-500 mt-1 leading-relaxed">
-            Are you sure you want to remove this member from SPM Niwas Library?
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center justify-end gap-2 pt-2">
-        <button type="button" onclick="closeDeleteMemberModal()"
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button type="button" id="system-dialog-cancel-btn" onclick="closeSystemDialog()"
           class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
           Cancel
         </button>
-        <button type="button" onclick="confirmDeleteMember()"
-          class="px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 transition">
-          Delete Member
+        <button type="button" id="system-dialog-confirm-btn" onclick="executeSystemDialogAction()"
+          class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+          Confirm
         </button>
       </div>
     </div>
@@ -1215,7 +1224,7 @@
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
-        } else if (!auth.currentUser) {
+        } else if (!window.IS_PRODUCTION && !auth.currentUser) {
           await signInAnonymously(auth);
         }
       } catch (err) {
@@ -1225,33 +1234,67 @@
 
     onAuthStateChanged(auth, async (user) => {
       firebaseUser = user;
-      if (!user) return;
+      const isGoogleSignedIn = Boolean(user && !user.isAnonymous && user.email);
 
-      // If signed in with a real Google account (non-anonymous), resolve role & profile photo
-      if (!user.isAnonymous && user.email) {
+      if (typeof window.updateAccountAuthButtons === 'function') {
+        window.updateAccountAuthButtons(isGoogleSignedIn);
+      }
+
+      // On live production, keep the console hidden behind the Sign-In gate until a Google account signs in
+      if (window.IS_PRODUCTION && !isGoogleSignedIn) {
+        if (typeof window.setProductionGateVisible === 'function') {
+          window.setProductionGateVisible(true);
+        }
+        return;
+      }
+
+      // If signed in with a real Google account, verify authorization and resolve role automatically
+      if (isGoogleSignedIn) {
         const email = user.email.toLowerCase();
         const photoUrl = user.photoURL || '';
         const displayName = user.displayName || email.split('@')[0];
         const initials = displayName.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'U';
 
-        let resolvedRole = 'members';
+        let resolvedRole = null;
         if (email === 'director@spmniwas.in') {
           resolvedRole = 'superadmin';
         } else {
           const libSnap = await getDoc(publicDoc('librarians', email)).catch(() => null);
           if (libSnap && libSnap.exists()) {
             resolvedRole = 'librarian';
+          } else {
+            const memSnap = await getDoc(publicDoc('members', email)).catch(() => null);
+            if (memSnap && memSnap.exists()) {
+              resolvedRole = 'members';
+            }
           }
         }
 
-        if (window.SYSTEM_ROLES && window.SYSTEM_ROLES[resolvedRole]) {
-          window.SYSTEM_ROLES[resolvedRole].name = displayName;
-          window.SYSTEM_ROLES[resolvedRole].email = email;
-          window.SYSTEM_ROLES[resolvedRole].initials = initials;
-          if (photoUrl) window.SYSTEM_ROLES[resolvedRole].photoUrl = photoUrl;
-          if (typeof window.setActiveRole === 'function') {
-            window.setActiveRole(resolvedRole);
+        // In live production, deny unregistered Google accounts cleanly
+        if (window.IS_PRODUCTION && !resolvedRole) {
+          await signOut(auth);
+          if (typeof window.setProductionGateVisible === 'function') {
+            window.setProductionGateVisible(
+              true,
+              `Access denied: "${email}" is not registered with SPM NIWAS Library. Please contact the Librarian or Director.`
+            );
           }
+          return;
+        }
+
+        const finalRole = resolvedRole || 'members';
+        if (window.SYSTEM_ROLES && window.SYSTEM_ROLES[finalRole]) {
+          window.SYSTEM_ROLES[finalRole].name = displayName;
+          window.SYSTEM_ROLES[finalRole].email = email;
+          window.SYSTEM_ROLES[finalRole].initials = initials;
+          if (photoUrl) window.SYSTEM_ROLES[finalRole].photoUrl = photoUrl;
+          if (typeof window.setActiveRole === 'function') {
+            window.setActiveRole(finalRole);
+          }
+        }
+
+        if (typeof window.setProductionGateVisible === 'function') {
+          window.setProductionGateVisible(false);
         }
 
         // In live production, reveal Role Inspector only if Superadmin (director@spmniwas.in) opens ?design=1
@@ -1260,7 +1303,7 @@
         }
       }
 
-      if (!listenersAttached) {
+      if (!listenersAttached && firebaseUser) {
         listenersAttached = true;
         attachFirestoreSync();
       }
@@ -1312,7 +1355,7 @@
         if (typeof window.renderMembersTable === 'function') window.renderMembersTable();
       }, (err) => console.error('Members sync error:', err));
 
-      // 5. Real-time Staff Categories & Entitlements Config Sync
+      // 5. Real-time Staff Categories, Entitlements & Brand Logo Config Sync
       onSnapshot(publicDoc('settings', 'library_config'), (docSnap) => {
         if (!docSnap.exists()) return;
         const cfg = docSnap.data();
@@ -1321,6 +1364,11 @@
         }
         if (cfg.categoryEntitlements && typeof cfg.categoryEntitlements === 'object') {
           Object.assign(window.categoryEntitlements, cfg.categoryEntitlements);
+        }
+        if (typeof cfg.brandLogoUrl === 'string') {
+          window.brandLogoUrl = cfg.brandLogoUrl;
+          localStorage.setItem('spm_niwas_brand_logo', cfg.brandLogoUrl);
+          if (typeof window.applyBrandLogoUI === 'function') window.applyBrandLogoUI(cfg.brandLogoUrl);
         }
         if (typeof window.syncStaffCategoriesUI === 'function') window.syncStaffCategoriesUI();
       }, (err) => console.error('Settings sync error:', err));
@@ -1336,7 +1384,9 @@
       },
       async signOutGoogle() {
         await signOut(auth);
-        await signInAnonymously(auth);
+        if (!window.IS_PRODUCTION) {
+          await signInAnonymously(auth);
+        }
       },
       async saveBook(bookObj) {
         if (!firebaseUser) return;
@@ -1380,6 +1430,24 @@
           categoryEntitlements: entitlements,
           updatedAt: Date.now()
         }, { merge: true });
+      },
+      async saveBrandLogo(logoDataOrUrl) {
+        if (!firebaseUser) return;
+        let finalLogoUrl = logoDataOrUrl || '';
+        if (finalLogoUrl.startsWith('data:image/')) {
+          try {
+            const logoRef = ref(storage, `artifacts/${appId}/branding/spm_niwas_logo`);
+            await uploadString(logoRef, finalLogoUrl, 'data_url');
+            finalLogoUrl = await getDownloadURL(logoRef);
+          } catch (err) {
+            console.warn('Logo Storage upload fallback (storing inline):', err.message);
+          }
+        }
+        await setDoc(publicDoc('settings', 'library_config'), {
+          brandLogoUrl: finalLogoUrl,
+          updatedAt: Date.now()
+        }, { merge: true });
+        return finalLogoUrl;
       }
     };
 
@@ -1396,8 +1464,38 @@
       'spm-niwas-library.firebaseapp.com'
     ];
     const IS_PRODUCTION = PRODUCTION_HOSTS.includes(window.location.hostname);
+    window.IS_PRODUCTION = IS_PRODUCTION;
     const HAS_DESIGN_FLAG = new URLSearchParams(window.location.search).get('design') === '1';
     let DESIGN_VIEW = !IS_PRODUCTION;
+
+    window.setProductionGateVisible = function (showGate, errorMsg = '') {
+      const gateEl = document.getElementById('production-signin-gate');
+      const shellEl = document.getElementById('app-main-shell');
+      const errBox = document.getElementById('gate-error-box');
+      if (!gateEl || !shellEl) return;
+
+      if (showGate) {
+        gateEl.classList.remove('hidden');
+        shellEl.classList.add('hidden');
+        if (errBox) {
+          if (errorMsg) {
+            errBox.textContent = errorMsg;
+            errBox.classList.remove('hidden');
+          } else {
+            errBox.classList.add('hidden');
+          }
+        }
+      } else {
+        gateEl.classList.add('hidden');
+        shellEl.classList.remove('hidden');
+        if (errBox) errBox.classList.add('hidden');
+      }
+    };
+
+    // Immediately show Sign-In Gate on production before auth resolves so no data flashes
+    if (IS_PRODUCTION) {
+      window.setProductionGateVisible(true);
+    }
 
     // Deployed Google Apps Script Web App (/exec) URL
     const EMAIL_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbw4IQz9PMBD8nC2LPNhUeOnq2qpcac_GEO4iGTiDBGiaTgE3Qu6m9skBL8abPupR0C-Fw/exec';
@@ -1422,16 +1520,21 @@
     }
 
     // System Role Definitions (Superadmin hardcoded to director@spmniwas.in)
+    // Global branding rule: always render "SPM NIWAS" in uppercase across all UI strings
+    function formatBrandCasing(str) {
+      return typeof str === 'string' ? str.replace(/spm niwas/gi, 'SPM NIWAS') : str;
+    }
+
     window.SYSTEM_ROLES = {
       superadmin: {
         label: 'Superadmin',
-        name: 'Director, SPM Niwas',
+        name: 'Director, SPM NIWAS',
         initials: 'DS',
         photoUrl: 'https://lh3.googleusercontent.com/a/ACg8ocK9z2wP_SPMNiwasDirector=s96-c',
         email: 'director@spmniwas.in',
         hardcoded: true,
         viewOnly: true,
-        allowedSections: ['dashboard', 'catalog', 'circulation', 'members', 'admin-settings', 'add-librarian'],
+        allowedSections: ['dashboard', 'catalog', 'circulation', 'members', 'admin-settings'],
         defaultSection: { key: 'dashboard', title: 'Dashboard' }
       },
       librarian: {
@@ -1442,7 +1545,7 @@
         email: 'librarian@spmniwas.in',
         hardcoded: false,
         viewOnly: false,
-        allowedSections: ['dashboard', 'catalog', 'circulation', 'members', 'settings'],
+        allowedSections: ['dashboard', 'catalog', 'circulation', 'members'],
         defaultSection: { key: 'dashboard', title: 'Dashboard' }
       },
       members: {
@@ -1460,9 +1563,8 @@
     const SYSTEM_ROLES = window.SYSTEM_ROLES;
 
     let currentRoleKey = 'librarian';
-    let pendingDeleteEmail = null;
-    let pendingDeleteMemberEmail = null;
-    let pendingAddPayload = null;
+    let systemDialogCallback = null;
+    let systemDialogDismissible = true;
     window.authorizedLibrarians = [
       { name: 'S. Mukherjee', email: 'librarian@spmniwas.in', provider: 'Google Workspace' }
     ];
@@ -1526,6 +1628,130 @@
     };
     let categoryEntitlements = window.categoryEntitlements;
     let defaultBooksAllowed = 2;
+    const BRAND_LOGO_STORAGE_KEY = 'spm_niwas_brand_logo';
+    window.brandLogoUrl = localStorage.getItem(BRAND_LOGO_STORAGE_KEY) || '';
+    let pendingBrandLogoDraft = window.brandLogoUrl;
+
+    window.applyBrandLogoUI = function (logoUrl) {
+      const cleanUrl = (logoUrl || '').trim();
+      const slots = [
+        { img: 'gate-brand-logo-img', fallback: 'gate-brand-logo-fallback', box: 'gate-logo-box' },
+        { img: 'sidebar-brand-logo-img', fallback: 'sidebar-brand-logo-fallback', box: 'sidebar-logo-box' },
+        { img: 'preview-gate-logo-img', fallback: 'preview-gate-logo-fallback', box: null },
+        { img: 'preview-sidebar-logo-img', fallback: 'preview-sidebar-logo-fallback', box: null }
+      ];
+
+      slots.forEach(({ img, fallback, box }) => {
+        const imgEl = document.getElementById(img);
+        const fbEl = document.getElementById(fallback);
+        const boxEl = box ? document.getElementById(box) : null;
+        if (!imgEl || !fbEl) return;
+
+        if (cleanUrl) {
+          imgEl.src = cleanUrl;
+          imgEl.onerror = () => {
+            imgEl.classList.add('hidden');
+            fbEl.classList.remove('hidden');
+          };
+          imgEl.classList.remove('hidden');
+          fbEl.classList.add('hidden');
+          if (boxEl) {
+            boxEl.classList.remove('bg-emerald-700');
+            boxEl.classList.add('bg-white', 'border', 'border-slate-200');
+          }
+        } else {
+          imgEl.src = '';
+          imgEl.classList.add('hidden');
+          fbEl.classList.remove('hidden');
+          if (boxEl) {
+            boxEl.classList.add('bg-emerald-700');
+            boxEl.classList.remove('bg-white', 'border', 'border-slate-200');
+          }
+        }
+      });
+
+      const removeBtn = document.getElementById('btn-remove-brand-logo');
+      if (removeBtn) removeBtn.classList.toggle('hidden', !cleanUrl);
+      const statusEl = document.getElementById('logo-file-status');
+      if (statusEl) {
+        statusEl.textContent = cleanUrl
+          ? 'Custom SPM NIWAS logo active on Login Screen & Top-Left Branding.'
+          : 'Recommended: Square transparent PNG or SVG (max 2 MB).';
+      }
+    };
+
+    function handleLogoFileSelected(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Please select a logo image smaller than 2 MB.', 'warning');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        pendingBrandLogoDraft = e.target.result;
+        window.applyBrandLogoUI(pendingBrandLogoDraft);
+        const statusEl = document.getElementById('logo-file-status');
+        if (statusEl) statusEl.textContent = `Selected: "${file.name}" — Click "Save Logo" to publish.`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function saveBrandLogo() {
+      if (currentRoleKey !== 'superadmin') {
+        showToast('Only Superadmin can update the SPM NIWAS logo.', 'warning');
+        return;
+      }
+      const saveBtn = document.getElementById('btn-save-brand-logo');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+      }
+      try {
+        let savedUrl = pendingBrandLogoDraft || '';
+        if (window.firebaseCloud) {
+          const uploadedUrl = await window.firebaseCloud.saveBrandLogo(savedUrl);
+          if (uploadedUrl) savedUrl = uploadedUrl;
+        }
+        window.brandLogoUrl = savedUrl;
+        pendingBrandLogoDraft = savedUrl;
+        localStorage.setItem(BRAND_LOGO_STORAGE_KEY, savedUrl);
+        window.applyBrandLogoUI(savedUrl);
+        showToast('SPM NIWAS logo saved and applied to Login & Top-Left Branding!', 'success');
+      } catch (err) {
+        showToast('Could not save logo. Please try again.', 'error');
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Logo';
+        }
+      }
+    }
+
+    function promptRemoveBrandLogo() {
+      if (currentRoleKey !== 'superadmin') {
+        showToast('Only Superadmin can remove the logo.', 'warning');
+        return;
+      }
+      openSystemDialog({
+        variant: 'danger',
+        title: 'Remove SPM NIWAS Logo?',
+        message: 'This will restore the default library emblem on the Sign-In screen and top-left sidebar.',
+        confirmLabel: 'Remove Logo',
+        onConfirm: async () => {
+          pendingBrandLogoDraft = '';
+          window.brandLogoUrl = '';
+          localStorage.removeItem(BRAND_LOGO_STORAGE_KEY);
+          const input = document.getElementById('spm-logo-upload-input');
+          if (input) input.value = '';
+          window.applyBrandLogoUI('');
+          if (window.firebaseCloud) {
+            await window.firebaseCloud.saveBrandLogo('');
+          }
+          showToast('Default library emblem restored.', 'info');
+        }
+      });
+    }
 
     // Show floating role switcher in Design/Preview mode, or in Production only for director@spmniwas.in with ?design=1
     window.syncDesignFloaterVisibility = function (authenticatedEmail = '') {
@@ -1544,32 +1770,34 @@
 
     (function initDesignViewControls() {
       window.syncDesignFloaterVisibility('');
+      window.applyBrandLogoUI(window.brandLogoUrl);
       syncStaffCategoriesUI();
       applyRolePermissions(SYSTEM_ROLES[currentRoleKey]);
     })();
 
     function switchSettingsTab(tabKey) {
-      const isCategories = tabKey === 'categories';
-      const catTab = document.getElementById('settings-tab-categories');
-      const entTab = document.getElementById('settings-tab-entitlement');
-      const catPanel = document.getElementById('settings-panel-categories');
-      const entPanel = document.getElementById('settings-panel-entitlement');
-
-      if (catTab && entTab && catPanel && entPanel) {
-        catTab.className = isCategories
-          ? 'settings-tab pb-3.5 text-sm font-semibold text-emerald-800 border-b-2 border-emerald-700 transition'
-          : 'settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition';
-
-        entTab.className = !isCategories
-          ? 'settings-tab pb-3.5 text-sm font-semibold text-emerald-800 border-b-2 border-emerald-700 transition'
-          : 'settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition';
-
-        catPanel.classList.toggle('hidden', !isCategories);
-        entPanel.classList.toggle('hidden', isCategories);
-
-        if (!isCategories) {
-          renderBookEntitlementPanes();
+      const tabs = ['librarian', 'categories', 'entitlement', 'logo'];
+      tabs.forEach(key => {
+        const isActive = key === tabKey;
+        const tabBtn = document.getElementById('settings-tab-' + key);
+        const panelEl = document.getElementById('settings-panel-' + key);
+        if (tabBtn) {
+          tabBtn.className = isActive
+            ? 'settings-tab pb-3.5 text-sm font-semibold text-emerald-800 border-b-2 border-emerald-700 transition whitespace-nowrap'
+            : 'settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap';
         }
+        if (panelEl) {
+          panelEl.classList.toggle('hidden', !isActive);
+        }
+      });
+
+      if (tabKey === 'librarian') {
+        renderLibrariansTable();
+      } else if (tabKey === 'entitlement') {
+        renderBookEntitlementPanes();
+      } else if (tabKey === 'logo') {
+        pendingBrandLogoDraft = window.brandLogoUrl;
+        window.applyBrandLogoUI(pendingBrandLogoDraft);
       }
     }
 
@@ -1580,7 +1808,7 @@
       if (staffCategories.length === 0) {
         listEl.innerHTML = `
           <div class="p-6 text-center text-xs text-slate-400">
-            No staff categories found. Add categories under the "Category of staff" tab first.
+            No staff categories found. Add categories under the "Staff Categories" tab first.
           </div>
         `;
         return;
@@ -1721,7 +1949,7 @@
 
     function applyRolePermissions(role) {
       // Toggle sidebar items based on allowedSections
-      const allNavKeys = ['dashboard', 'catalog', 'circulation', 'members', 'settings', 'admin-settings', 'add-librarian'];
+      const allNavKeys = ['dashboard', 'catalog', 'circulation', 'members', 'admin-settings'];
       allNavKeys.forEach(key => {
         const navBtn = document.getElementById('nav-' + key);
         if (!navBtn) return;
@@ -1732,10 +1960,9 @@
         }
       });
 
-      // Superadmin is strictly View-Only (no executive buttons or form submissions)
-      const viewOnlyBadge = document.getElementById('view-only-badge');
-      if (viewOnlyBadge) {
-        viewOnlyBadge.classList.toggle('hidden', !role.viewOnly);
+      const settingsDivider = document.getElementById('nav-settings-divider');
+      if (settingsDivider) {
+        settingsDivider.classList.toggle('hidden', !role.allowedSections.includes('admin-settings'));
       }
 
       document.querySelectorAll('.exec-action').forEach(el => {
@@ -1871,10 +2098,99 @@
       return { valid: true, provider: 'Google Custom Domain' };
     }
 
+    // Check if an email already holds ANY role in SPM Niwas Library (Superadmin, Librarian, or Member)
+    function findExistingEmailRole(email) {
+      const normalized = (email || '').trim().toLowerCase();
+      if (!normalized) return null;
+
+      if (normalized === 'director@spmniwas.in') {
+        return { role: 'Superadmin', name: SYSTEM_ROLES.superadmin?.name || 'Director, SPM NIWAS', email: normalized };
+      }
+      const existingLib = authorizedLibrarians.find(lib => lib.email.toLowerCase() === normalized);
+      if (existingLib) {
+        return { role: 'Librarian', name: existingLib.name, email: normalized };
+      }
+      const existingMem = registeredMembers.find(m => m.email.toLowerCase() === normalized);
+      if (existingMem) {
+        return { role: 'Member', name: existingMem.name, email: normalized };
+      }
+      return null;
+    }
+
+    // Unified System Dialog for Confirmations, Role-Conflict Warnings, and Deletions
+    function openSystemDialog({
+      variant = 'confirm', // 'confirm' | 'warning' | 'danger'
+      title = 'Confirm Action',
+      message = '',
+      summaryRows = [],
+      confirmLabel = 'Confirm',
+      showCancel = true,
+      onConfirm = null
+    }) {
+      const modal = document.getElementById('system-dialog-modal');
+      const iconWrap = document.getElementById('system-dialog-icon-wrap');
+      const iconEl = document.getElementById('system-dialog-icon');
+      const titleEl = document.getElementById('system-dialog-title');
+      const msgEl = document.getElementById('system-dialog-msg');
+      const summaryEl = document.getElementById('system-dialog-summary');
+      const cancelBtn = document.getElementById('system-dialog-cancel-btn');
+      const confirmBtn = document.getElementById('system-dialog-confirm-btn');
+      if (!modal) return;
+
+      systemDialogCallback = typeof onConfirm === 'function' ? onConfirm : null;
+      systemDialogDismissible = true;
+
+      titleEl.textContent = formatBrandCasing(title);
+      msgEl.textContent = formatBrandCasing(message);
+      confirmBtn.textContent = confirmLabel;
+      cancelBtn.classList.toggle('hidden', !showCancel);
+
+      if (variant === 'warning') {
+        iconWrap.className = 'w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/70 flex items-center justify-center shrink-0';
+        iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />';
+        confirmBtn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 transition shadow-sm';
+      } else if (variant === 'danger') {
+        iconWrap.className = 'w-10 h-10 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/70 flex items-center justify-center shrink-0';
+        iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />';
+        confirmBtn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 transition shadow-sm';
+      } else {
+        iconWrap.className = 'w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/70 flex items-center justify-center shrink-0';
+        iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />';
+        confirmBtn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm';
+      }
+
+      if (Array.isArray(summaryRows) && summaryRows.length > 0) {
+        summaryEl.innerHTML = summaryRows.map(row => `
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-slate-500">${row.label}:</span>
+            <span class="font-semibold text-slate-800 text-right truncate">${row.value}</span>
+          </div>
+        `).join('');
+        summaryEl.classList.remove('hidden');
+      } else {
+        summaryEl.innerHTML = '';
+        summaryEl.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeSystemDialog() {
+      systemDialogCallback = null;
+      const modal = document.getElementById('system-dialog-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function executeSystemDialogAction() {
+      const cb = systemDialogCallback;
+      closeSystemDialog();
+      if (typeof cb === 'function') cb();
+    }
+
     function handleAddLibrarian(event) {
       event.preventDefault();
       if (currentRoleKey !== 'superadmin') {
-        showToast('Only Superadmin can add librarians.');
+        showToast('Only Superadmin can add librarians.', 'warning');
         return;
       }
 
@@ -1887,7 +2203,7 @@
       const cleanEmail = emailInput.value.trim().toLowerCase();
 
       if (!cleanName) {
-        showToast('Please enter the librarian name.');
+        showToast('Please enter the librarian name.', 'warning');
         return;
       }
 
@@ -1896,7 +2212,7 @@
         hintEl.textContent = validation.reason;
         hintEl.classList.remove('text-slate-400');
         hintEl.classList.add('text-rose-600', 'font-medium');
-        showToast(validation.reason);
+        showToast(validation.reason, 'warning');
         return;
       }
 
@@ -1904,13 +2220,28 @@
       hintEl.classList.remove('text-rose-600', 'font-medium');
       hintEl.classList.add('text-slate-400');
 
-      if (authorizedLibrarians.some(lib => lib.email === cleanEmail)) {
-        showToast('This Google email is already registered as a librarian.');
+      const existingAccount = findExistingEmailRole(cleanEmail);
+      if (existingAccount) {
+        const isSameRole = existingAccount.role === 'Librarian';
+        openSystemDialog({
+          variant: 'warning',
+          title: isSameRole ? 'Librarian Already Registered' : 'Email Already Assigned to Another Role',
+          message: isSameRole
+            ? 'This Google account is already registered as a Librarian. Each Gmail ID can only be registered once.'
+            : `The same Gmail ID cannot be entered for two roles. "${cleanEmail}" is already registered as a ${existingAccount.role}.`,
+          summaryRows: [
+            { label: 'Google Email', value: cleanEmail },
+            { label: 'Registered Name', value: existingAccount.name },
+            { label: 'Existing Role', value: existingAccount.role }
+          ],
+          confirmLabel: 'Understood',
+          showCancel: false
+        });
         return;
       }
 
-      openConfirmAddModal({
-        type: 'librarian',
+      openSystemDialog({
+        variant: 'confirm',
         title: 'Confirm Add Librarian',
         message: 'Please confirm you want to grant Librarian access to:',
         summaryRows: [
@@ -1918,10 +2249,16 @@
           { label: 'Email', value: cleanEmail },
           { label: 'Provider', value: validation.provider }
         ],
-        data: {
-          name: cleanName,
-          email: cleanEmail,
-          provider: validation.provider
+        confirmLabel: 'Confirm & Add',
+        onConfirm: () => {
+          const newLib = { name: cleanName, email: cleanEmail, provider: validation.provider };
+          authorizedLibrarians.push(newLib);
+          renderLibrariansTable();
+          if (window.firebaseCloud) window.firebaseCloud.saveLibrarian(newLib);
+          triggerLibraryEmail('librarian_added', newLib);
+          if (nameInput) nameInput.value = '';
+          if (emailInput) emailInput.value = '';
+          showToast(`Success: Librarian "${cleanName}" has been added!`, 'success');
         }
       });
     }
@@ -2887,7 +3224,7 @@
     function handleAddBookSubmit(event) {
       event.preventDefault();
       if (currentRoleKey !== 'librarian') {
-        showToast('Only Librarian can add books.');
+        showToast('Only Librarian can add books.', 'warning');
         return;
       }
 
@@ -2899,17 +3236,20 @@
       const copies = parseInt(document.getElementById('book-copies-input').value, 10) || 1;
 
       if (!title || !author || !shelf) {
-        showToast('Please enter Title, Author, and Shelf ID.');
+        showToast('Please enter Title, Author, and Shelf ID.', 'warning');
         return;
       }
 
       const isCopy = Boolean(matchedExistingBook);
-      openConfirmAddModal({
-        type: 'book',
+      const existingBookRef = matchedExistingBook;
+      const coverUrl = currentBookCoverUrl;
+
+      openSystemDialog({
+        variant: 'confirm',
         title: isCopy ? 'Confirm Add Copy' : 'Confirm Add Book',
         message: isCopy
-          ? 'This title is already in SPM Niwas Library. Confirm adding new copy/copies:'
-          : 'Please confirm adding this new book to SPM Niwas Library:',
+          ? 'This title is already in SPM NIWAS Library. Confirm adding new copy/copies:'
+          : 'Please confirm adding this new book to SPM NIWAS Library:',
         summaryRows: [
           { label: 'Title', value: title },
           { label: 'Author', value: author },
@@ -2917,51 +3257,69 @@
           { label: 'Shelf ID', value: shelf },
           { label: isCopy ? 'Copies to Add' : 'Initial Copies', value: String(copies) }
         ],
-        data: {
-          isbn,
-          title,
-          author,
-          publisher,
-          shelf,
-          copies,
-          coverUrl: currentBookCoverUrl,
-          isCopyAddition: isCopy,
-          existingBookRef: matchedExistingBook
+        confirmLabel: 'Confirm & Add',
+        onConfirm: () => {
+          if (isCopy && existingBookRef) {
+            existingBookRef.copies = (existingBookRef.copies || 1) + copies;
+            if (shelf) existingBookRef.shelf = shelf;
+            if (coverUrl) existingBookRef.coverUrl = coverUrl;
+            existingBookRef.status = 'Available';
+            if (window.firebaseCloud) window.firebaseCloud.saveBook(existingBookRef);
+            closeAddBookModal();
+            searchCatalogBooks();
+            showToast(`Success: Added ${copies} ${copies === 1 ? 'copy' : 'copies'} of "${existingBookRef.title}" (Total: ${existingBookRef.copies})!`, 'success');
+          } else {
+            const newBook = {
+              isbn: isbn || 'NO-ISBN-' + Math.floor(1000 + Math.random() * 9000),
+              title,
+              author,
+              publisher: publisher || '—',
+              shelf,
+              copies,
+              coverUrl: coverUrl || '',
+              coverSource: coverUrl ? (rawCoverSourceDataUrl ? 'manual' : 'online') : '',
+              needsMetadataSync: !publisher || publisher === '—' || !coverUrl,
+              syncAttempts: 0,
+              status: 'Available'
+            };
+            catalogBooks.unshift(newBook);
+            if (window.firebaseCloud) window.firebaseCloud.saveBook(newBook);
+            closeAddBookModal();
+            searchCatalogBooks();
+            updateCatalogSyncStatusUI();
+            showToast(`Success: "${title}" (${copies} ${copies === 1 ? 'copy' : 'copies'}) added to catalog!`, 'success');
+          }
         }
       });
     }
 
     function promptDeleteLibrarian(email) {
       if (currentRoleKey !== 'superadmin') {
-        showToast('Only Superadmin can remove librarians.');
+        showToast('Only Superadmin can remove librarians.', 'warning');
         return;
       }
       const target = authorizedLibrarians.find(lib => lib.email === email);
       if (!target) return;
 
-      pendingDeleteEmail = email;
-      const msgEl = document.getElementById('delete-librarian-msg');
-      if (msgEl) {
-        msgEl.textContent = `Are you sure you want to remove "${target.name}" (${target.email})? They will immediately lose librarian access.`;
-      }
-      document.getElementById('delete-librarian-modal').classList.remove('hidden');
-    }
-
-    function closeDeleteLibrarianModal() {
-      pendingDeleteEmail = null;
-      document.getElementById('delete-librarian-modal').classList.add('hidden');
-    }
-
-    function confirmDeleteLibrarian() {
-      if (!pendingDeleteEmail) return;
-      const idx = authorizedLibrarians.findIndex(lib => lib.email === pendingDeleteEmail);
-      if (idx !== -1) {
-        const removed = authorizedLibrarians.splice(idx, 1)[0];
-        renderLibrariansTable();
-        if (window.firebaseCloud) window.firebaseCloud.deleteLibrarian(removed.email);
-        showToast(`Removed librarian "${removed.name}".`);
-      }
-      closeDeleteLibrarianModal();
+      openSystemDialog({
+        variant: 'danger',
+        title: 'Delete Librarian Access?',
+        message: 'Are you sure you want to remove this librarian? They will immediately lose desk and scanner access.',
+        summaryRows: [
+          { label: 'Name', value: target.name },
+          { label: 'Google Email', value: target.email }
+        ],
+        confirmLabel: 'Delete Librarian',
+        onConfirm: () => {
+          const idx = authorizedLibrarians.findIndex(lib => lib.email === email);
+          if (idx !== -1) {
+            const removed = authorizedLibrarians.splice(idx, 1)[0];
+            renderLibrariansTable();
+            if (window.firebaseCloud) window.firebaseCloud.deleteLibrarian(removed.email);
+            showToast(`Removed librarian "${removed.name}".`, 'info');
+          }
+        }
+      });
     }
 
     function renderLibrariansTable() {
@@ -3002,7 +3360,7 @@
     function handleAddMember(event) {
       event.preventDefault();
       if (currentRoleKey !== 'librarian') {
-        showToast('Add Member is available only in Librarian mode.');
+        showToast('Add Member is available only in Librarian mode.', 'warning');
         return;
       }
 
@@ -3022,7 +3380,7 @@
         : defaultBooksAllowed;
 
       if (!cleanName || !cleanDesignation || !selectedCategory) {
-        showToast('Please fill in all member details.');
+        showToast('Please fill in all member details.', 'warning');
         return;
       }
 
@@ -3031,7 +3389,7 @@
         hintEl.textContent = validation.reason;
         hintEl.classList.remove('text-slate-400');
         hintEl.classList.add('text-rose-600', 'font-medium');
-        showToast(validation.reason);
+        showToast(validation.reason, 'warning');
         return;
       }
 
@@ -3039,13 +3397,28 @@
       hintEl.classList.remove('text-rose-600', 'font-medium');
       hintEl.classList.add('text-slate-400');
 
-      if (registeredMembers.some(m => m.email === cleanEmail)) {
-        showToast('This Google email is already registered as a member.');
+      const existingAccount = findExistingEmailRole(cleanEmail);
+      if (existingAccount) {
+        const isSameRole = existingAccount.role === 'Member';
+        openSystemDialog({
+          variant: 'warning',
+          title: isSameRole ? 'Member Already Registered' : 'Email Already Assigned to Another Role',
+          message: isSameRole
+            ? 'This Google account is already registered as an SPM NIWAS Member. Each Gmail ID can only be registered once.'
+            : `The same Gmail ID cannot be entered for two roles. "${cleanEmail}" is already registered as ${existingAccount.role === 'Superadmin' ? 'Superadmin' : 'a ' + existingAccount.role}.`,
+          summaryRows: [
+            { label: 'Google Email', value: cleanEmail },
+            { label: 'Registered Name', value: existingAccount.name },
+            { label: 'Existing Role', value: existingAccount.role }
+          ],
+          confirmLabel: 'Understood',
+          showCancel: false
+        });
         return;
       }
 
-      openConfirmAddModal({
-        type: 'member',
+      openSystemDialog({
+        variant: 'confirm',
         title: 'Confirm Add Member',
         message: 'Please confirm the member registration details below:',
         summaryRows: [
@@ -3055,19 +3428,28 @@
           { label: 'Email', value: cleanEmail },
           { label: 'Books Allowed (Auto)', value: `${booksAllowed} ${booksAllowed === 1 ? 'book' : 'books'}` }
         ],
-        data: {
-          name: cleanName,
-          designation: cleanDesignation,
-          category: selectedCategory,
-          email: cleanEmail,
-          booksAllowed
+        confirmLabel: 'Confirm & Add',
+        onConfirm: () => {
+          const newMember = {
+            name: cleanName,
+            designation: cleanDesignation,
+            category: selectedCategory,
+            email: cleanEmail,
+            booksAllowed
+          };
+          registeredMembers.push(newMember);
+          renderMembersTable();
+          if (window.firebaseCloud) window.firebaseCloud.saveMember(newMember);
+          triggerLibraryEmail('member_added', newMember);
+          closeAddMemberModal();
+          showToast(`Success: Member "${cleanName}" has been added!`, 'success');
         }
       });
     }
 
     function openAddMemberModal() {
       if (currentRoleKey !== 'librarian') {
-        showToast('Add Member is available only in Librarian mode.');
+        showToast('Add Member is available only in Librarian mode.', 'warning');
         return;
       }
       const form = document.getElementById('add-member-form');
@@ -3087,35 +3469,31 @@
 
     function promptDeleteMember(email) {
       if (currentRoleKey !== 'librarian') {
-        showToast('Only Librarian can delete members.');
+        showToast('Only Librarian can delete members.', 'warning');
         return;
       }
       const target = registeredMembers.find(m => m.email === email);
       if (!target) return;
 
-      pendingDeleteMemberEmail = email;
-      const msgEl = document.getElementById('delete-member-msg');
-      if (msgEl) {
-        msgEl.textContent = `Are you sure you want to remove "${target.name}" (${target.email}) from SPM Niwas Members?`;
-      }
-      document.getElementById('delete-member-modal').classList.remove('hidden');
-    }
-
-    function closeDeleteMemberModal() {
-      pendingDeleteMemberEmail = null;
-      document.getElementById('delete-member-modal').classList.add('hidden');
-    }
-
-    function confirmDeleteMember() {
-      if (!pendingDeleteMemberEmail) return;
-      const idx = registeredMembers.findIndex(m => m.email === pendingDeleteMemberEmail);
-      if (idx !== -1) {
-        const removed = registeredMembers.splice(idx, 1)[0];
-        renderMembersTable();
-        if (window.firebaseCloud) window.firebaseCloud.deleteMember(removed.email);
-        showToast(`Removed member "${removed.name}".`);
-      }
-      closeDeleteMemberModal();
+      openSystemDialog({
+        variant: 'danger',
+        title: 'Delete Member?',
+        message: 'Are you sure you want to remove this member from SPM NIWAS Library?',
+        summaryRows: [
+          { label: 'Name', value: target.name },
+          { label: 'Google Email', value: target.email }
+        ],
+        confirmLabel: 'Delete Member',
+        onConfirm: () => {
+          const idx = registeredMembers.findIndex(m => m.email === email);
+          if (idx !== -1) {
+            const removed = registeredMembers.splice(idx, 1)[0];
+            renderMembersTable();
+            if (window.firebaseCloud) window.firebaseCloud.deleteMember(removed.email);
+            showToast(`Removed member "${removed.name}".`, 'info');
+          }
+        }
+      });
     }
 
     function filterMembersDirectory() {
@@ -3212,7 +3590,7 @@
       if (subtitleEl) {
         subtitleEl.textContent = query
           ? `Showing results matching "${rawQuery}"`
-          : 'Showing all existing books in SPM Niwas Library';
+          : 'Showing all existing books in SPM NIWAS Library';
       }
       if (countBadge) {
         countBadge.textContent = `${matches.length} ${matches.length === 1 ? 'Book' : 'Books'}`;
@@ -3274,7 +3652,7 @@
       if (!Array.isArray(book.reviews)) {
         book.reviews = [
           {
-            reviewer: 'A. Sharma (SPM Niwas)',
+            reviewer: 'A. Sharma (SPM NIWAS)',
             stars: 5,
             comment: 'Well-preserved copy in our library collection. Highly recommended read.',
             date: 'Nov 2026'
@@ -3316,7 +3694,7 @@
     async function fetchBookRichDetails(book) {
       if (!book || !book.isbn || book.isbn.startsWith('NO-ISBN-')) {
         return {
-          description: `${book.title} by ${book.author}${book.publisher && book.publisher !== '—' ? ', published by ' + book.publisher : ''}. Available in the SPM Niwas Library collection on Shelf ${book.shelf}.`,
+          description: `${book.title} by ${book.author}${book.publisher && book.publisher !== '—' ? ', published by ' + book.publisher : ''}. Available in the SPM NIWAS Library collection on Shelf ${book.shelf}.`,
           rating: book.rating || '4.2',
           ratingsCount: book.ratingsCount || 0,
           pageCount: book.pageCount || null
@@ -3374,7 +3752,7 @@
       }
 
       if (!description) {
-        description = `"${book.title}" is a notable work by ${book.author}${book.publisher && book.publisher !== '—' ? ' (' + book.publisher + ')' : ''}. Cataloged in SPM Niwas Library under Shelf ${book.shelf}.`;
+        description = `"${book.title}" is a notable work by ${book.author}${book.publisher && book.publisher !== '—' ? ' (' + book.publisher + ')' : ''}. Cataloged in SPM NIWAS Library under Shelf ${book.shelf}.`;
       }
 
       book.description = description;
@@ -3498,7 +3876,7 @@
       if (!comment) return;
 
       const book = catalogBooks[activeDetailBookIndex];
-      const currentUser = SYSTEM_ROLES[currentRoleKey]?.name || 'SPM Niwas Reader';
+      const currentUser = SYSTEM_ROLES[currentRoleKey]?.name || 'SPM NIWAS Reader';
       ensureBookReviews(book).unshift({
         reviewer: currentUser,
         stars,
@@ -3514,6 +3892,11 @@
 
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') {
+        const sysModal = document.getElementById('system-dialog-modal');
+        if (sysModal && !sysModal.classList.contains('hidden')) {
+          closeSystemDialog();
+          return;
+        }
         const detailModal = document.getElementById('book-details-modal');
         if (detailModal && !detailModal.classList.contains('hidden')) {
           closeBookDetailsModal();
@@ -3551,7 +3934,7 @@
 
       const pageTitleEl = document.getElementById('page-title');
       if (pageTitleEl && title) {
-        pageTitleEl.textContent = title;
+        pageTitleEl.textContent = formatBrandCasing(title);
       }
 
       if (sectionKey === 'catalog') {
@@ -3561,9 +3944,8 @@
         renderMembersTable();
       } else if (sectionKey === 'admin-settings') {
         syncStaffCategoriesUI();
-        switchSettingsTab('categories');
-      } else if (sectionKey === 'add-librarian') {
         renderLibrariansTable();
+        switchSettingsTab('librarian');
       }
     }
 
@@ -3577,12 +3959,20 @@
       btn.setAttribute('aria-expanded', String(isHidden));
     }
 
+    window.updateAccountAuthButtons = function (isGoogleSignedIn) {
+      const signInBtn = document.getElementById('btn-google-signin');
+      const logoutBtn = document.getElementById('btn-google-logout');
+      if (signInBtn) signInBtn.classList.toggle('hidden', isGoogleSignedIn);
+      if (logoutBtn) logoutBtn.classList.toggle('hidden', !isGoogleSignedIn);
+    };
+
     async function signInWithGoogleAccount() {
       const dropdown = document.getElementById('gear-dropdown');
       if (dropdown) dropdown.classList.add('hidden');
       if (!window.firebaseCloud) return;
       try {
         const user = await window.firebaseCloud.signInGoogle();
+        window.updateAccountAuthButtons(true);
         showToast(`Signed in as ${user.displayName || user.email}`, 'success');
       } catch (err) {
         showToast('Google Sign-In cancelled or domain not authorized yet in Firebase Console.');
@@ -3595,7 +3985,8 @@
       if (window.firebaseCloud) {
         await window.firebaseCloud.signOutGoogle();
       }
-      showToast('Signed out of SPM Niwas Library Console.');
+      window.updateAccountAuthButtons(false);
+      showToast('Signed out of SPM NIWAS Library Console.');
     }
 
     let toastTimeout = null;
@@ -3605,14 +3996,20 @@
       const dotEl = document.getElementById('toast-dot');
       if (!toastEl || !textEl) return;
 
-      textEl.textContent = message;
+      textEl.textContent = formatBrandCasing(message);
+      toastEl.className = 'fixed bottom-16 right-5 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-lg border transition-opacity duration-200 flex items-center gap-2.5 z-[80]';
+
       if (variant === 'success') {
-        toastEl.classList.remove('bg-slate-900');
-        toastEl.classList.add('bg-emerald-900');
+        toastEl.classList.add('bg-emerald-900', 'border-emerald-700/80');
         if (dotEl) dotEl.className = 'w-2 h-2 rounded-full bg-emerald-300 shrink-0';
+      } else if (variant === 'warning') {
+        toastEl.classList.add('bg-amber-900', 'border-amber-700/80');
+        if (dotEl) dotEl.className = 'w-2 h-2 rounded-full bg-amber-300 shrink-0';
+      } else if (variant === 'error' || variant === 'danger') {
+        toastEl.classList.add('bg-rose-900', 'border-rose-700/80');
+        if (dotEl) dotEl.className = 'w-2 h-2 rounded-full bg-rose-300 shrink-0';
       } else {
-        toastEl.classList.remove('bg-emerald-900');
-        toastEl.classList.add('bg-slate-900');
+        toastEl.classList.add('bg-slate-900', 'border-slate-700/80');
         if (dotEl) dotEl.className = 'w-2 h-2 rounded-full bg-emerald-400 shrink-0';
       }
 
@@ -3620,7 +4017,7 @@
       if (toastTimeout) clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => {
         toastEl.classList.add('opacity-0', 'pointer-events-none');
-      }, 3200);
+      }, 3400);
     }
 
     // Close open dropdowns when clicking outside
