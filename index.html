@@ -2075,7 +2075,6 @@
           loanId: loan.id,
           bookTitle: loan.copyId ? `${loan.bookTitle} (${loan.copyId})` : loan.bookTitle,
           isbn: loan.isbn || '',
-          shelf: loan.shelf || '',
           memberName: loan.memberName,
           memberEmail: loan.memberEmail,
           dueDate: formatDisplayDate(loan.dueDate),
@@ -3897,7 +3896,6 @@
           .map(r => ({
             bookTitle: r.copyId ? `${r.bookTitle} (${r.copyId})` : r.bookTitle,
             isbn: r.isbn || '',
-            shelf: r.shelf || '',
             issueDate: formatDisplayDate(r.issueDate),
             dueDate: formatDisplayDate(r.dueDate)
           }));
@@ -3919,7 +3917,6 @@
           loanId: newLoan.id,
           bookTitle: `${newLoan.bookTitle} (${newLoan.copyId})`,
           isbn: newLoan.isbn,
-          shelf: newLoan.shelf,
           memberName: newLoan.memberName,
           memberEmail: newLoan.memberEmail,
           issueDate: formatDisplayDate(newLoan.issueDate),
@@ -3935,7 +3932,6 @@
             loanId: newLoan.id,
             bookTitle: `${newLoan.bookTitle} (${newLoan.copyId})`,
             isbn: newLoan.isbn,
-            shelf: newLoan.shelf,
             memberName: newLoan.memberName,
             memberEmail: newLoan.memberEmail,
             dueDate: formatDisplayDate(newLoan.dueDate),
