@@ -1905,14 +1905,21 @@
         const docId = bookObj._docId || (bookObj.isDistinctEdition ? `${cleanIsbn || 'BOOK'}_${Date.now()}` : (cleanIsbn || crypto.randomUUID()));
         let finalCoverUrl = bookObj.coverUrl || '';
 
-        // Upload 4-corner cropped data URLs to Firebase Storage
+        // Upload compressed cover data URLs to Firebase Storage with a 4s timeout fallback
         if (finalCoverUrl.startsWith('data:image/')) {
           try {
             const coverRef = ref(storage, `artifacts/${appId}/covers/${docId}.jpg`);
-            await uploadString(coverRef, finalCoverUrl, 'data_url');
-            finalCoverUrl = await getDownloadURL(coverRef);
+            const uploadTask = (async () => {
+              await uploadString(coverRef, finalCoverUrl, 'data_url');
+              return await getDownloadURL(coverRef);
+            })();
+            const timeoutTask = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Storage upload timeout')), 4000)
+            );
+            finalCoverUrl = await Promise.race([uploadTask, timeoutTask]);
+            bookObj.coverUrl = finalCoverUrl;
           } catch (err) {
-            console.warn('Storage upload fallback:', err.message);
+            console.warn('Storage upload fallback (saving compressed inline cover):', err.message);
           }
         }
 
@@ -2485,7 +2492,7 @@
     let editingBookIndex = -1;
     let editBookCoverUrl = '';
 
-    function resizeCoverImageToDataUrl(file, maxWidth = 420, maxHeight = 630, quality = 0.85) {
+    function resizeCoverImageToDataUrl(file, maxWidth = 300, maxHeight = 450, quality = 0.78) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onerror = () => reject(new Error('Could not read image file.'));
@@ -3990,67 +3997,21 @@
     async function handleEditOfflineCoverSelected(event) {
       const file = event.target.files?.[0];
       if (!file) return;
+      const saveBtn = document.querySelector('#edit-book-form button[type="submit"]');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Processing Image...';
+      }
       try {
         const compressedUrl = await resizeCoverImageToDataUrl(file);
         setEditBookCoverPreview(compressedUrl, 'Uploaded Photo');
-        showToast('Cover photo attached. Click "Save Changes" to apply.', 'info');
+        showToast('Cover photo ready. Click "Save Changes" to apply.', 'info');
       } catch (err) {
         showToast('Could not read selected cover photo.', 'error');
-      }
-    }
-
-    async function pullEditCoverFromIsbn() {
-      const rawIsbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
-      const variants = getIsbnVariants(rawIsbn);
-      if (!variants.length) {
-        showToast('Enter a valid 10- or 13-digit ISBN first to pull cover.', 'warning');
-        return;
-      }
-
-      const btn = document.getElementById('btn-edit-fetch-isbn-cover');
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Pulling...';
-      }
-
-      try {
-        let pulledUrl = '';
-        for (const variant of variants) {
-          try {
-            const searchRes = await fetch(`https://openlibrary.org/search.json?isbn=${variant}&limit=1`);
-            if (searchRes.ok) {
-              const data = await searchRes.json();
-              const coverId = data.docs?.[0]?.cover_i;
-              if (coverId) {
-                pulledUrl = `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`;
-                break;
-              }
-            }
-          } catch (e) { /* try next */ }
-
-          try {
-            const gbRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${variant}`);
-            if (gbRes.ok) {
-              const gbData = await gbRes.json();
-              const thumb = gbData.items?.[0]?.volumeInfo?.imageLinks?.thumbnail;
-              if (thumb) {
-                pulledUrl = thumb.replace('http://', 'https://');
-                break;
-              }
-            }
-          } catch (e) { /* try next */ }
-        }
-
-        if (pulledUrl) {
-          setEditBookCoverPreview(pulledUrl, 'ISBN Web Cover');
-          showToast('Cover pulled from ISBN directory! Click "Save Changes" to keep it.', 'success');
-        } else {
-          showToast(`No online cover image found for ISBN ${rawIsbn}.`, 'warning');
-        }
       } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = 'Pull Cover via ISBN';
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Changes';
         }
       }
     }
@@ -4166,6 +4127,9 @@
       }
 
       try {
+        const prevCoverRef = (book.coverUrl || '').startsWith('data:image/')
+          ? '[Uploaded Cover Photo]'
+          : (book.coverUrl || '');
         const previousSnapshot = {
           isbn: book.isbn || '',
           title: book.title || '',
@@ -4175,7 +4139,7 @@
           edition: book.edition || '',
           copies: book.copies || 1,
           status: book.status || 'Available',
-          coverUrl: book.coverUrl || ''
+          coverUrl: prevCoverRef
         };
 
         book.isbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
@@ -4202,9 +4166,6 @@
         });
 
         const updatedTitle = book.title;
-        if (window.firebaseCloud) {
-          await window.firebaseCloud.saveBook(book).catch(err => console.warn('Cloud save notice:', err));
-        }
 
         closeEditBookModal();
         searchCatalogBooks(false);
@@ -4217,6 +4178,15 @@
         }
 
         showToast(`Saved updates for "${updatedTitle}".`, 'success');
+
+        if (window.firebaseCloud) {
+          window.firebaseCloud.saveBook(book)
+            .then(() => {
+              searchCatalogBooks(false);
+              renderDashboardLatestBooks();
+            })
+            .catch(err => console.warn('Cloud save notice:', err));
+        }
       } catch (err) {
         console.error('Edit book save error:', err);
         showToast('Could not save book changes. Please try again.', 'error');
