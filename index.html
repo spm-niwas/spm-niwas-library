@@ -1002,11 +1002,6 @@
                 Online Cover
               </span>
             </div>
-            <p class="text-[11px] text-slate-500 mt-0.5">Auto-fetched on ISBN lookup, or upload an offline photo and crop its 4 corners.</p>
-
-            <div class="mt-2.5 flex flex-wrap items-center gap-2">
-              <label for="book-offline-cover-input"
-                class="px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 transition cursor-pointer shadow-2xs">
             <p class="text-[11px] text-slate-500 mt-0.5">Auto-fetched on ISBN lookup, or upload an offline cover photo.</p>
 
             <div class="mt-2.5 flex flex-wrap items-center gap-2">
@@ -3423,12 +3418,16 @@
     window.renderActiveCirculationLoans = renderActiveCirculationLoans;
 
     function openCirculationDetailsModal(loanId) {
-      const loan = circulationRecords.find(r => r.id === loanId);
+      const cleanId = String(loanId || '').trim();
+      const loan = circulationRecords.find(r => String(r.id || '').trim() === cleanId);
       const modal = document.getElementById('circulation-details-modal');
       const pill = document.getElementById('circ-detail-status-pill');
       const bodyEl = document.getElementById('circ-detail-modal-body');
       const footerEl = document.getElementById('circ-detail-modal-footer');
-      if (!loan || !modal || !bodyEl || !footerEl) return;
+      if (!loan || !modal || !bodyEl || !footerEl) {
+        showToast('Could not load details for this loan record.', 'warning');
+        return;
+      }
 
       const isReturned = loan.status === 'Returned';
       const overdue = !isReturned && isLoanOverdue(loan);
@@ -3460,13 +3459,15 @@
             ? 'Due today'
             : `${diffDays} ${diffDays === 1 ? 'day' : 'days'} remaining`;
 
+      const displayShelf = loan.shelf || (matchedBook ? getBookShelvesLabel(matchedBook) : '—');
+
       bodyEl.innerHTML = `
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
           <p class="text-base font-bold text-slate-900">${loan.bookTitle}</p>
           <p class="text-xs text-slate-500">${matchedBook?.author || 'SPM NIWAS Library Collection'}${matchedBook?.publisher ? ' · ' + matchedBook.publisher : ''}</p>
           <div class="pt-1.5 flex flex-wrap items-center gap-2 text-[11px] font-mono">
             ${loan.copyId ? `<span class="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold">Copy: ${loan.copyId}</span>` : ''}
-            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700">Shelf: ${loan.shelf || matchedBook?.shelf || '—'}</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700">Shelf: ${displayShelf}</span>
             <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600">ISBN: ${loan.isbn || matchedBook?.isbn || '—'}</span>
             <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-500">Loan ID: ${loan.id}</span>
           </div>
@@ -3504,22 +3505,26 @@
 
       modal.classList.remove('hidden');
     }
+    window.openCirculationDetailsModal = openCirculationDetailsModal;
 
     function closeCirculationDetailsModal() {
       const modal = document.getElementById('circulation-details-modal');
       if (modal) modal.classList.add('hidden');
     }
+    window.closeCirculationDetailsModal = closeCirculationDetailsModal;
 
     async function markCirculationBookReturned(loanId, clearQuickScan = false) {
       if (currentRoleKey !== 'librarian') {
         showToast('Only Librarian can mark books as returned.', 'warning');
         return;
       }
-      const loan = circulationRecords.find(r => r.id === loanId);
+      const cleanId = String(loanId || '').trim();
+      const loan = circulationRecords.find(r => String(r.id || '').trim() === cleanId);
       if (!loan || loan.status === 'Returned') return;
 
       loan.status = 'Returned';
       loan.returnedDate = getTodayIsoDate();
+      loan.returnedBy = SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian';
       loan.updatedAt = Date.now();
 
       const matchedBook = catalogBooks.find(b =>
@@ -3530,19 +3535,6 @@
         syncBookCatalogCirculationStatus(matchedBook);
       }
 
-      if (window.firebaseCloud) {
-        await window.firebaseCloud.saveCirculationRecord(loan).catch(err => console.warn(err));
-        if (matchedBook) {
-          await window.firebaseCloud.saveBook(matchedBook).catch(err => console.warn(err));
-        }
-      }
-
-      triggerLibraryEmail('book_returned', {
-        bookTitle: loan.bookTitle,
-        memberName: loan.memberName,
-        memberEmail: loan.memberEmail
-      });
-
       if (clearQuickScan) {
         const scanBox = document.getElementById('circ-quick-return-scan-input');
         if (scanBox) scanBox.value = '';
@@ -3550,14 +3542,44 @@
 
       const reshelveShelf = loan.shelf || matchedBook?.shelf || 'Library Shelf';
       const copyNote = loan.copyId ? ` (${loan.copyId})` : '';
+      const remainingActiveLoans = getMemberCirculationRecords(loan.memberEmail)
+        .filter(r => r.status === 'Issued')
+        .map(r => ({
+          bookTitle: r.copyId ? `${r.bookTitle} (${r.copyId})` : r.bookTitle,
+          isbn: r.isbn || '',
+          shelf: r.shelf || '',
+          dueDate: formatDisplayDate(r.dueDate)
+        }));
+
       renderActiveCirculationLoans();
       updateSelectedCirculationBookCard();
       updateSelectedCirculationMemberCard();
       searchCatalogBooks(false);
       updateDashboardKpiCards();
       renderDashboardCirculationActivity();
-      showToast(`Returned "${loan.bookTitle}"${copyNote} — Please re-shelve at Shelf ${reshelveShelf}.`, 'success');
+      showToast(`Returned "${loan.bookTitle}"${copyNote} — Re-shelve at Shelf ${reshelveShelf} · Return email sent to ${loan.memberName}.`, 'success');
+
+      if (window.firebaseCloud) {
+        window.firebaseCloud.saveCirculationRecord(loan).catch(err => console.warn('Cloud return save notice:', err));
+        if (matchedBook) {
+          window.firebaseCloud.saveBook(matchedBook).catch(err => console.warn('Cloud book sync notice:', err));
+        }
+      }
+
+      triggerLibraryEmail('book_returned', {
+        loanId: loan.id,
+        bookTitle: loan.copyId ? `${loan.bookTitle} (${loan.copyId})` : loan.bookTitle,
+        isbn: loan.isbn || matchedBook?.isbn || '',
+        shelf: reshelveShelf,
+        memberName: loan.memberName,
+        memberEmail: loan.memberEmail,
+        issueDate: formatDisplayDate(loan.issueDate),
+        returnedDate: formatDisplayDate(loan.returnedDate),
+        remainingActiveCount: remainingActiveLoans.length,
+        remainingActiveLoans
+      }).catch(() => {});
     }
+    window.markCirculationBookReturned = markCirculationBookReturned;
 
     function renderCirculationBookSuggestions() {
       const inputEl = document.getElementById('circ-book-search-input');
@@ -4750,73 +4772,6 @@
         await window.firebaseCloud.deleteLibrarian(target.email).catch(err => console.warn(err));
       }
       showToast(`Revoked Librarian access for ${target.name}.`, 'info');
-    }
-
-    function renderMembersTable(filterQuery = '') {
-      const tbody = document.getElementById('directory-members-table-body');
-      const countBadge = document.getElementById('directory-member-count');
-      const actionHeader = document.querySelector('.member-action-col');
-      if (!tbody) return;
-
-      const canManageMembers = currentRoleKey === 'librarian';
-      if (actionHeader) {
-        actionHeader.classList.toggle('hidden', !canManageMembers);
-      }
-
-      const q = (filterQuery || '').trim().toLowerCase();
-      const filtered = q
-        ? registeredMembers.filter(m =>
-            (m.name || '').toLowerCase().includes(q) ||
-            (m.designation || '').toLowerCase().includes(q) ||
-            (m.category || '').toLowerCase().includes(q) ||
-            (m.email || '').toLowerCase().includes(q)
-          )
-        : registeredMembers;
-
-      if (countBadge) {
-        countBadge.textContent = `${filtered.length} ${filtered.length === 1 ? 'Member' : 'Members'}`;
-      }
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="${canManageMembers ? 6 : 5}" class="py-8 px-5 text-center text-xs text-slate-400">
-              No matching SPM NIWAS members found.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(m => {
-        const realIdx = registeredMembers.indexOf(m);
-        const actionCell = canManageMembers
-          ? `<td class="py-3 px-5 text-right">
-               <button type="button" onclick="removeMember(${realIdx})"
-                 class="text-xs font-semibold text-rose-600 hover:text-rose-800 transition">
-                 Remove
-               </button>
-             </td>`
-          : '';
-        return `
-          <tr class="hover:bg-slate-50/70 transition">
-            <td class="py-3 px-5 font-semibold text-slate-900">${m.name}</td>
-            <td class="py-3 px-4 text-slate-600">${m.designation || '—'}</td>
-            <td class="py-3 px-4">
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">${m.category || 'Standard'}</span>
-            </td>
-            <td class="py-3 px-4 font-mono text-xs text-slate-600">${m.email}</td>
-            <td class="py-3 px-4 text-center font-bold text-slate-800">${m.booksAllowed ?? defaultBooksAllowed}</td>
-            ${actionCell}
-          </tr>
-        `;
-      }).join('');
-    }
-    window.renderMembersTable = renderMembersTable;
-
-    function filterMembersDirectory() {
-      const input = document.getElementById('members-search-input');
-      renderMembersTable(input ? input.value : '');
     }
 
     function openAddMemberModal() {
@@ -6314,13 +6269,19 @@
 
     let toastTimeout = null;
     function showToast(message, variant = 'default') {
-      const toastEl = document.getElementById('toast');
+      let toastEl = document.getElementById('toast');
+      if (!toastEl) {
+        toastEl = document.createElement('div');
+        toastEl.id = 'toast';
+        toastEl.innerHTML = '<span id="toast-dot"></span><span id="toast-text"></span>';
+        document.body.appendChild(toastEl);
+      }
       const textEl = document.getElementById('toast-text');
       const dotEl = document.getElementById('toast-dot');
       if (!toastEl || !textEl) return;
 
       textEl.textContent = formatBrandCasing(message);
-      toastEl.className = 'fixed bottom-16 right-5 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-xl border transition-opacity duration-200 flex items-center gap-2.5 z-[110] max-w-md';
+      toastEl.className = 'fixed bottom-16 right-5 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-2xl border transition-opacity duration-200 flex items-center gap-2.5 z-[120] max-w-md';
 
       if (variant === 'success') {
         toastEl.classList.add('bg-emerald-900', 'border-emerald-700/80');
@@ -6337,18 +6298,22 @@
       }
 
       toastEl.classList.remove('opacity-0', 'pointer-events-none');
+      toastEl.style.opacity = '1';
       if (toastTimeout) clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => {
+        toastEl.style.opacity = '0';
         toastEl.classList.add('opacity-0', 'pointer-events-none');
       }, 4500);
     }
+    window.showToast = showToast;
 
-    // Close open dropdowns when clicking outside
     document.addEventListener('click', function (event) {
       const gearWrapper = document.getElementById('gear-menu-wrapper');
       const gearDropdown = document.getElementById('gear-dropdown');
+      const gearBtn = document.getElementById('gear-menu-btn');
       if (gearWrapper && gearDropdown && !gearWrapper.contains(event.target)) {
         gearDropdown.classList.add('hidden');
+        if (gearBtn) gearBtn.setAttribute('aria-expanded', 'false');
       }
 
       const roleFloater = document.getElementById('design-role-floater');
