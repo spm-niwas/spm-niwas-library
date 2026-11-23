@@ -916,6 +916,28 @@
             <input type="number" id="book-copies-input" min="1" max="50" value="1" required
               class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
           </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Mode of Procurement</label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <button type="button" id="btn-procurement-purchased" onclick="openProcurementCommentsDialog('Purchased')"
+                class="procurement-mode-btn flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-emerald-600 bg-emerald-50 text-emerald-800 transition">
+                <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                <span>Purchased</span>
+              </button>
+              <button type="button" id="btn-procurement-donated" onclick="openProcurementCommentsDialog('Donated')"
+                class="procurement-mode-btn flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition">
+                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                <span>Donated</span>
+              </button>
+            </div>
+            <div id="procurement-comment-preview" onclick="openProcurementCommentsDialog(currentProcurementMode)"
+              title="Click to edit procurement comments"
+              class="hidden mt-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 flex items-center justify-between gap-2 cursor-pointer hover:bg-slate-100/80 transition">
+              <span id="procurement-comment-preview-text" class="truncate"></span>
+              <span class="text-[11px] font-semibold text-emerald-700 shrink-0">Edit</span>
+            </div>
+          </div>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
@@ -1016,6 +1038,14 @@
             <div class="flex items-center justify-between">
               <span class="text-slate-500">Library Copies</span>
               <span id="detail-book-copies" class="font-bold text-slate-900">1</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Procurement</span>
+              <span id="detail-book-procurement" class="font-semibold text-slate-800">Purchased</span>
+            </div>
+            <div id="detail-book-procurement-note-row" class="hidden pt-1 border-t border-slate-200/70">
+              <span class="block text-[11px] text-slate-400">Procurement Notes</span>
+              <p id="detail-book-procurement-note" class="text-[11px] text-slate-700 mt-0.5 leading-relaxed"></p>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-slate-500">Availability</span>
@@ -1137,13 +1167,47 @@
     </div>
   </div>
 
-  <!-- Design View Only: Floating Role Switcher (Bottom-Right Corner) -->
-  <div id="design-role-floater" class="hidden fixed bottom-5 right-5 z-50">
-    <!-- Popover Menu -->
-    <div id="design-role-panel" class="hidden mb-2 w-60 bg-slate-900 text-white rounded-2xl shadow-xl border border-slate-700/80 p-2 space-y-1">
-      <div class="px-3 py-1.5 flex items-center justify-between border-b border-slate-800">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Design View · Role Switcher</span>
+  <!-- Mode of Procurement Comments Dialog -->
+  <div id="procurement-dialog-modal" onclick="if(event.target===this) closeProcurementCommentsDialog()"
+    class="hidden fixed inset-0 z-[76] flex items-center justify-center bg-slate-900/45 backdrop-blur-[1px] p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-3.5">
+        <div>
+          <span id="procurement-dialog-badge" class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70 mb-1">
+            Purchased
+          </span>
+          <h4 id="procurement-dialog-title" class="text-sm font-bold text-slate-900">Mode of Procurement — Purchased</h4>
+          <p id="procurement-dialog-subtitle" class="text-xs text-slate-500 mt-0.5">Add optional vendor, invoice/bill number, or price comments below.</p>
+        </div>
+        <button type="button" onclick="closeProcurementCommentsDialog()" aria-label="Close dialog"
+          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
+
+      <div>
+        <label for="procurement-comments-textarea" class="block text-xs font-semibold text-slate-700 mb-1.5">
+          Comments
+        </label>
+        <textarea id="procurement-comments-textarea" rows="3"
+          placeholder="e.g. Bill No. 412 · Purchased from Oxford Book Store (₹495)"
+          class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition leading-relaxed"></textarea>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button type="button" onclick="closeProcurementCommentsDialog()"
+          class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+          Cancel
+        </button>
+        <button type="button" onclick="saveProcurementCommentsDialog()"
+          class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
       <button onclick="setActiveRole('superadmin', true)" id="role-btn-superadmin"
         class="role-switch-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition">
         <span>Superadmin</span>
@@ -1646,6 +1710,9 @@
     let activeCornerIdx = -1;
     let isCatalogSyncRunning = false;
     let activeDetailBookIndex = -1;
+    let currentProcurementMode = 'Purchased';
+    let currentProcurementComments = '';
+    let pendingProcurementMode = 'Purchased';
     const WEEKLY_SYNC_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
     const CATALOG_SYNC_STORAGE_KEY = 'spm_niwas_last_catalog_sync_ts';
     window.staffCategories = [
@@ -2563,7 +2630,84 @@
 
     function closeAddBookModal() {
       stopBarcodeScanner();
+      closeProcurementCommentsDialog();
       document.getElementById('add-book-modal').classList.add('hidden');
+    }
+
+    function setProcurementSelection(mode, comments = '') {
+      currentProcurementMode = mode === 'Donated' ? 'Donated' : 'Purchased';
+      currentProcurementComments = (comments || '').trim();
+
+      const purBtn = document.getElementById('btn-procurement-purchased');
+      const donBtn = document.getElementById('btn-procurement-donated');
+      const activeClasses = 'procurement-mode-btn flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-emerald-600 bg-emerald-50 text-emerald-800 transition';
+      const inactiveClasses = 'procurement-mode-btn flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition';
+
+      if (purBtn) {
+        purBtn.className = currentProcurementMode === 'Purchased' ? activeClasses : inactiveClasses;
+        const dot = purBtn.querySelector('span:first-child');
+        if (dot) dot.className = `w-2 h-2 rounded-full ${currentProcurementMode === 'Purchased' ? 'bg-emerald-600' : 'bg-slate-300'}`;
+      }
+      if (donBtn) {
+        donBtn.className = currentProcurementMode === 'Donated' ? activeClasses : inactiveClasses;
+        const dot = donBtn.querySelector('span:first-child');
+        if (dot) dot.className = `w-2 h-2 rounded-full ${currentProcurementMode === 'Donated' ? 'bg-emerald-600' : 'bg-slate-300'}`;
+      }
+
+      const previewBox = document.getElementById('procurement-comment-preview');
+      const previewText = document.getElementById('procurement-comment-preview-text');
+      if (previewBox && previewText) {
+        if (currentProcurementComments) {
+          previewText.textContent = `${currentProcurementMode}: ${currentProcurementComments}`;
+          previewBox.classList.remove('hidden');
+        } else {
+          previewText.textContent = '';
+          previewBox.classList.add('hidden');
+        }
+      }
+    }
+
+    function openProcurementCommentsDialog(mode) {
+      pendingProcurementMode = mode === 'Donated' ? 'Donated' : 'Purchased';
+      const modal = document.getElementById('procurement-dialog-modal');
+      const badgeEl = document.getElementById('procurement-dialog-badge');
+      const titleEl = document.getElementById('procurement-dialog-title');
+      const subEl = document.getElementById('procurement-dialog-subtitle');
+      const textarea = document.getElementById('procurement-comments-textarea');
+      if (!modal || !textarea) return;
+
+      const isDonated = pendingProcurementMode === 'Donated';
+      if (badgeEl) {
+        badgeEl.textContent = pendingProcurementMode;
+        badgeEl.className = isDonated
+          ? 'inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/70 mb-1'
+          : 'inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70 mb-1';
+      }
+      if (titleEl) titleEl.textContent = `Mode of Procurement — ${pendingProcurementMode}`;
+      if (subEl) {
+        subEl.textContent = isDonated
+          ? 'Add donor name, flat/department, or donation remarks below.'
+          : 'Add vendor name, invoice/bill reference, or price remarks below.';
+      }
+      textarea.placeholder = isDonated
+        ? 'e.g. Donated by Dr. R. Verma (Flat B-102)'
+        : 'e.g. Bill No. 412 · Purchased from Oxford Book Store (₹495)';
+      textarea.value = currentProcurementMode === pendingProcurementMode ? currentProcurementComments : '';
+
+      modal.classList.remove('hidden');
+      setTimeout(() => textarea.focus(), 30);
+    }
+
+    function closeProcurementCommentsDialog() {
+      const modal = document.getElementById('procurement-dialog-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function saveProcurementCommentsDialog() {
+      const textarea = document.getElementById('procurement-comments-textarea');
+      const comments = textarea ? textarea.value.trim() : '';
+      setProcurementSelection(pendingProcurementMode, comments);
+      closeProcurementCommentsDialog();
     }
 
     function resetAddBookModalState() {
@@ -2573,6 +2717,8 @@
       if (isbnInput) isbnInput.value = '';
       const copiesInput = document.getElementById('book-copies-input');
       if (copiesInput) copiesInput.value = '1';
+
+      setProcurementSelection('Purchased', '');
 
       const coverBanner = document.getElementById('cover-ai-status-banner');
       if (coverBanner) coverBanner.classList.add('hidden');
@@ -3348,6 +3494,20 @@
       const isCopy = Boolean(matchedExistingBook);
       const existingBookRef = matchedExistingBook;
       const coverUrl = currentBookCoverUrl;
+      const procurementMode = currentProcurementMode;
+      const procurementComments = currentProcurementComments;
+
+      const dialogSummaryRows = [
+        { label: 'Title', value: title },
+        { label: 'Author', value: author },
+        { label: 'ISBN', value: isbn || 'Not specified' },
+        { label: 'Shelf ID', value: shelf },
+        { label: isCopy ? 'Copies to Add' : 'Initial Copies', value: String(copies) },
+        { label: 'Mode of Procurement', value: procurementMode }
+      ];
+      if (procurementComments) {
+        dialogSummaryRows.push({ label: 'Procurement Comments', value: procurementComments });
+      }
 
       openSystemDialog({
         variant: 'confirm',
@@ -3355,24 +3515,29 @@
         message: isCopy
           ? 'This title is already in SPM NIWAS Library. Confirm adding new copy/copies:'
           : 'Please confirm adding this new book to SPM NIWAS Library:',
-        summaryRows: [
-          { label: 'Title', value: title },
-          { label: 'Author', value: author },
-          { label: 'ISBN', value: isbn || 'Not specified' },
-          { label: 'Shelf ID', value: shelf },
-          { label: isCopy ? 'Copies to Add' : 'Initial Copies', value: String(copies) }
-        ],
+        summaryRows: dialogSummaryRows,
         confirmLabel: 'Confirm & Add',
         onConfirm: async () => {
           if (isCopy && existingBookRef) {
             existingBookRef.copies = (existingBookRef.copies || 1) + copies;
             if (shelf) existingBookRef.shelf = shelf;
             if (coverUrl) existingBookRef.coverUrl = coverUrl;
+            existingBookRef.procurementMode = procurementMode;
+            existingBookRef.procurementComments = procurementComments;
+            if (!Array.isArray(existingBookRef.procurementLog)) {
+              existingBookRef.procurementLog = [];
+            }
+            existingBookRef.procurementLog.push({
+              mode: procurementMode,
+              comments: procurementComments,
+              copiesAdded: copies,
+              recordedAt: new Date().toISOString()
+            });
             existingBookRef.status = 'Available';
             if (window.firebaseCloud) await window.firebaseCloud.saveBook(existingBookRef);
             closeAddBookModal();
             searchCatalogBooks();
-            showToast(`Success: Added ${copies} ${copies === 1 ? 'copy' : 'copies'} of "${existingBookRef.title}"!`, 'success');
+            showToast(`Success: Added ${copies} ${copies === 1 ? 'copy' : 'copies'} of "${existingBookRef.title}" (${procurementMode})!`, 'success');
           } else {
             const newBook = {
               isbn: isbn || 'NO-ISBN-' + Math.floor(1000 + Math.random() * 9000),
@@ -3381,6 +3546,16 @@
               publisher: publisher || '—',
               shelf,
               copies,
+              procurementMode,
+              procurementComments,
+              procurementLog: [
+                {
+                  mode: procurementMode,
+                  comments: procurementComments,
+                  copiesAdded: copies,
+                  recordedAt: new Date().toISOString()
+                }
+              ],
               coverUrl: coverUrl || '',
               coverSource: coverUrl ? (rawCoverSourceDataUrl ? 'manual' : 'online') : '',
               needsMetadataSync: !publisher || publisher === '—' || !coverUrl,
@@ -3392,7 +3567,7 @@
             closeAddBookModal();
             searchCatalogBooks();
             updateCatalogSyncStatusUI();
-            showToast(`Success: "${title}" (${copies} ${copies === 1 ? 'copy' : 'copies'}) added to catalog!`, 'success');
+            showToast(`Success: "${title}" (${copies} ${copies === 1 ? 'copy' : 'copies'} · ${procurementMode}) added to catalog!`, 'success');
           }
         }
       });
@@ -3941,6 +4116,22 @@
       document.getElementById('detail-book-shelf').textContent = book.shelf;
       document.getElementById('detail-book-copies').textContent = String(book.copies || 1);
 
+      const procModeEl = document.getElementById('detail-book-procurement');
+      const procNoteRow = document.getElementById('detail-book-procurement-note-row');
+      const procNoteEl = document.getElementById('detail-book-procurement-note');
+      if (procModeEl) {
+        procModeEl.textContent = book.procurementMode || 'Purchased';
+      }
+      if (procNoteRow && procNoteEl) {
+        if (book.procurementComments) {
+          procNoteEl.textContent = book.procurementComments;
+          procNoteRow.classList.remove('hidden');
+        } else {
+          procNoteEl.textContent = '';
+          procNoteRow.classList.add('hidden');
+        }
+      }
+
       const statusEl = document.getElementById('detail-book-status');
       statusEl.textContent = book.status;
       statusEl.className = book.status === 'Available'
@@ -4030,6 +4221,11 @@
 
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') {
+        const procModal = document.getElementById('procurement-dialog-modal');
+        if (procModal && !procModal.classList.contains('hidden')) {
+          closeProcurementCommentsDialog();
+          return;
+        }
         const sysModal = document.getElementById('system-dialog-modal');
         if (sysModal && !sysModal.classList.contains('hidden')) {
           closeSystemDialog();
