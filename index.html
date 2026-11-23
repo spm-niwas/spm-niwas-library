@@ -2911,8 +2911,7 @@
                 <p class="text-xs font-bold text-slate-900 truncate" title="${b.title}">${b.title}</p>
                 <p class="text-[11px] text-slate-500 truncate">${b.author}</p>
               </div>
-              <div class="flex items-center justify-between gap-1.5 pt-1">
-                <span class="text-[10px] font-mono font-semibold text-slate-600 bg-white px-1.5 py-0.5 rounded border border-slate-200/80">Shelf ${getBookShelvesLabel(b)}</span>
+              <div class="flex items-center justify-start pt-1">
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusClass}">${b.status || 'Available'}</span>
               </div>
             </div>
@@ -5073,6 +5072,22 @@
              </div>`
           : `<div class="w-9 h-12 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-[10px] font-bold">${initials}</div>`;
 
+        const copiesList = ensureBookCopyList(b);
+        const shelvesLabel = getBookShelvesLabel(b);
+        const isMultiShelf = shelvesLabel.includes(',') || shelvesLabel.length > 8;
+        const copyShelfTooltip = copiesList
+          .map(c => `${c.copyId}: Shelf ${c.shelf || '—'} (${c.status})`)
+          .join(' | ');
+        const shelfCellHtml = isMultiShelf
+          ? `<div class="relative group/shelf inline-block max-w-[92px] align-middle" title="${copyShelfTooltip.replace(/"/g, '&quot;')}">
+               <span class="block truncate font-mono text-xs font-semibold text-slate-700 underline decoration-dotted decoration-slate-400 underline-offset-2">${shelvesLabel}</span>
+               <div class="hidden group-hover/shelf:block pointer-events-none absolute left-0 bottom-full mb-1.5 z-30 w-max max-w-[230px] rounded-xl bg-slate-900 text-white text-[11px] font-sans font-normal px-3 py-2 shadow-xl border border-slate-700/80 space-y-1">
+                 <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-300">Shelves (${copiesList.length} copies)</p>
+                 ${copiesList.map(c => `<p class="font-mono text-[10px] text-slate-100">${c.copyId} &rarr; Shelf ${c.shelf || '—'} <span class="text-slate-400">(${c.status})</span></p>`).join('')}
+               </div>
+             </div>`
+          : `<span class="font-mono text-xs font-semibold text-slate-700 whitespace-nowrap" title="${copyShelfTooltip.replace(/"/g, '&quot;')}">${shelvesLabel}</span>`;
+
         const editCount = Array.isArray(b.editLog) ? b.editLog.length : 0;
         const editCell = canEditBook
           ? `<td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
@@ -5093,8 +5108,8 @@
             <td class="py-3 px-4 font-semibold text-slate-900">${b.title}${editionBadge}</td>
             <td class="py-3 px-4 text-slate-600">${b.author}</td>
             <td class="py-3 px-4 text-slate-500 text-xs">${b.publisher || '—'}</td>
-            <td class="py-3 px-4 font-mono text-xs font-semibold text-slate-700">${getBookShelvesLabel(b)}</td>
-            <td class="py-3 px-4 text-center font-bold text-slate-800">${ensureBookCopyList(b).length}</td>
+            <td class="py-3 px-4 max-w-[104px]">${shelfCellHtml}</td>
+            <td class="py-3 px-4 text-center font-bold text-slate-800">${copiesList.length}</td>
             <td class="py-3 px-4 text-right">
               <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadge}">${b.status}</span>
             </td>
