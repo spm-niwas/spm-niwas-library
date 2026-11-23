@@ -1189,7 +1189,9 @@
       deleteDoc,
       collection,
       onSnapshot,
-      getDocs
+      getDocs,
+      query,
+      where
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import {
       getStorage,
@@ -1259,14 +1261,29 @@
         if (email === 'director@spmniwas.in') {
           resolvedRole = 'superadmin';
         } else {
+          // 1. Check direct doc ID or email field query in librarians collection
+          let isLib = false;
           const libSnap = await getDoc(publicDoc('librarians', email)).catch(() => null);
           if (libSnap && libSnap.exists()) {
+            isLib = true;
+          } else {
+            const libQ = await getDocs(query(publicCol('librarians'), where('email', '==', email))).catch(() => null);
+            if (libQ && !libQ.empty) isLib = true;
+          }
+
+          if (isLib) {
             resolvedRole = 'librarian';
           } else {
+            // 2. Check direct doc ID or email field query in members collection
+            let isMem = false;
             const memSnap = await getDoc(publicDoc('members', email)).catch(() => null);
             if (memSnap && memSnap.exists()) {
-              resolvedRole = 'members';
+              isMem = true;
+            } else {
+              const memQ = await getDocs(query(publicCol('members'), where('email', '==', email))).catch(() => null);
+              if (memQ && !memQ.empty) isMem = true;
             }
+            if (isMem) resolvedRole = 'members';
           }
         }
 
@@ -1408,20 +1425,22 @@
         await setDoc(publicDoc('books', docId), cleanRecord, { merge: true });
       },
       async saveLibrarian(libObj) {
-        if (!firebaseUser) return;
-        await setDoc(publicDoc('librarians', libObj.email.toLowerCase()), libObj);
+        if (!firebaseUser) throw new Error('Not signed in to Firebase. Please sign in as director@spmniwas.in first.');
+        const cleanEmail = libObj.email.trim().toLowerCase();
+        await setDoc(publicDoc('librarians', cleanEmail), { ...libObj, email: cleanEmail });
       },
       async deleteLibrarian(email) {
-        if (!firebaseUser) return;
-        await deleteDoc(publicDoc('librarians', email.toLowerCase()));
+        if (!firebaseUser) throw new Error('Not signed in to Firebase.');
+        await deleteDoc(publicDoc('librarians', email.trim().toLowerCase()));
       },
       async saveMember(memberObj) {
-        if (!firebaseUser) return;
-        await setDoc(publicDoc('members', memberObj.email.toLowerCase()), memberObj);
+        if (!firebaseUser) throw new Error('Not signed in to Firebase. Please sign in as librarian first.');
+        const cleanEmail = memberObj.email.trim().toLowerCase();
+        await setDoc(publicDoc('members', cleanEmail), { ...memberObj, email: cleanEmail });
       },
       async deleteMember(email) {
-        if (!firebaseUser) return;
-        await deleteDoc(publicDoc('members', email.toLowerCase()));
+        if (!firebaseUser) throw new Error('Not signed in to Firebase.');
+        await deleteDoc(publicDoc('members', email.trim().toLowerCase()));
       },
       async saveLibraryConfig(categories, entitlements) {
         if (!firebaseUser) return;
@@ -3258,36 +3277,23 @@
           { label: isCopy ? 'Copies to Add' : 'Initial Copies', value: String(copies) }
         ],
         confirmLabel: 'Confirm & Add',
-        onConfirm: () => {
-          if (isCopy && existingBookRef) {
-            existingBookRef.copies = (existingBookRef.copies || 1) + copies;
-            if (shelf) existingBookRef.shelf = shelf;
-            if (coverUrl) existingBookRef.coverUrl = coverUrl;
-            existingBookRef.status = 'Available';
-            if (window.firebaseCloud) window.firebaseCloud.saveBook(existingBookRef);
-            closeAddBookModal();
-            searchCatalogBooks();
-            showToast(`Success: Added ${copies} ${copies === 1 ? 'copy' : 'copies'} of "${existingBookRef.title}" (Total: ${existingBookRef.copies})!`, 'success');
-          } else {
-            const newBook = {
-              isbn: isbn || 'NO-ISBN-' + Math.floor(1000 + Math.random() * 9000),
-              title,
-              author,
-              publisher: publisher || '—',
-              shelf,
-              copies,
-              coverUrl: coverUrl || '',
-              coverSource: coverUrl ? (rawCoverSourceDataUrl ? 'manual' : 'online') : '',
-              needsMetadataSync: !publisher || publisher === '—' || !coverUrl,
-              syncAttempts: 0,
-              status: 'Available'
-            };
-            catalogBooks.unshift(newBook);
-            if (window.firebaseCloud) window.firebaseCloud.saveBook(newBook);
-            closeAddBookModal();
-            searchCatalogBooks();
-            updateCatalogSyncStatusUI();
-            showToast(`Success: "${title}" (${copies} ${copies === 1 ? 'copy' : 'copies'}) added to catalog!`, 'success');
+        onConfirm: async () => {
+          const newLib = { name: cleanName, email: cleanEmail, provider: validation.provider };
+          try {
+            if (window.firebaseCloud) {
+              await window.firebaseCloud.saveLibrarian(newLib);
+            }
+            if (!authorizedLibrarians.some(l => l.email.toLowerCase() === cleanEmail)) {
+              authorizedLibrarians.push(newLib);
+            }
+            renderLibrariansTable();
+            triggerLibraryEmail('librarian_added', newLib);
+            if (nameInput) nameInput.value = '';
+            if (emailInput) emailInput.value = '';
+            showToast(`Success: Librarian "${cleanName}" saved & notified!`, 'success');
+          } catch (err) {
+            console.error('Failed to save librarian to Firestore:', err);
+            showToast(`Cloud save failed (${err.message || 'Check Firestore Rules'}). Librarian was not saved.`, 'error');
           }
         }
       });
@@ -3298,25 +3304,40 @@
         showToast('Only Superadmin can remove librarians.', 'warning');
         return;
       }
-      const target = authorizedLibrarians.find(lib => lib.email === email);
-      if (!target) return;
+      const normalizedEmail = (email || '').trim().toLowerCase();
+      const target = authorizedLibrarians.find(lib => lib.email.toLowerCase() === normalizedEmail);
+      if (!target) {
+        showToast('Librarian record could not be found.', 'error');
+        return;
+      }
 
       openSystemDialog({
         variant: 'danger',
-        title: 'Delete Librarian Access?',
-        message: 'Are you sure you want to remove this librarian? They will immediately lose desk and scanner access.',
+        title: 'Confirm Delete Librarian',
+        message: 'Are you sure you want to remove this librarian from SPM NIWAS Library? They will immediately lose desk and scanner access.',
         summaryRows: [
           { label: 'Name', value: target.name },
-          { label: 'Google Email', value: target.email }
+          { label: 'Google Email', value: target.email },
+          { label: 'Role', value: 'Librarian' }
         ],
-        confirmLabel: 'Delete Librarian',
-        onConfirm: () => {
-          const idx = authorizedLibrarians.findIndex(lib => lib.email === email);
-          if (idx !== -1) {
-            const removed = authorizedLibrarians.splice(idx, 1)[0];
+        confirmLabel: 'Confirm & Delete',
+        onConfirm: async () => {
+          const idx = authorizedLibrarians.findIndex(lib => lib.email.toLowerCase() === normalizedEmail);
+          if (idx === -1) {
+            showToast('Failed to delete librarian: record no longer exists.', 'error');
+            return;
+          }
+          const [removed] = authorizedLibrarians.splice(idx, 1);
+          renderLibrariansTable();
+          try {
+            if (window.firebaseCloud) {
+              await window.firebaseCloud.deleteLibrarian(removed.email);
+            }
+            showToast(`Success: Librarian "${removed.name}" has been deleted.`, 'success');
+          } catch (err) {
+            authorizedLibrarians.splice(idx, 0, removed);
             renderLibrariansTable();
-            if (window.firebaseCloud) window.firebaseCloud.deleteLibrarian(removed.email);
-            showToast(`Removed librarian "${removed.name}".`, 'info');
+            showToast(`Failed to delete librarian "${removed.name}". Please try again.`, 'error');
           }
         }
       });
@@ -3429,7 +3450,7 @@
           { label: 'Books Allowed (Auto)', value: `${booksAllowed} ${booksAllowed === 1 ? 'book' : 'books'}` }
         ],
         confirmLabel: 'Confirm & Add',
-        onConfirm: () => {
+        onConfirm: async () => {
           const newMember = {
             name: cleanName,
             designation: cleanDesignation,
@@ -3437,60 +3458,20 @@
             email: cleanEmail,
             booksAllowed
           };
-          registeredMembers.push(newMember);
-          renderMembersTable();
-          if (window.firebaseCloud) window.firebaseCloud.saveMember(newMember);
-          triggerLibraryEmail('member_added', newMember);
-          closeAddMemberModal();
-          showToast(`Success: Member "${cleanName}" has been added!`, 'success');
-        }
-      });
-    }
-
-    function openAddMemberModal() {
-      if (currentRoleKey !== 'librarian') {
-        showToast('Add Member is available only in Librarian mode.', 'warning');
-        return;
-      }
-      const form = document.getElementById('add-member-form');
-      if (form) form.reset();
-      syncStaffCategoriesUI();
-      const categorySelect = document.getElementById('member-category');
-      if (categorySelect && staffCategories.length > 0) {
-        categorySelect.value = staffCategories[0];
-        handleMemberCategoryChange();
-      }
-      document.getElementById('add-member-modal').classList.remove('hidden');
-    }
-
-    function closeAddMemberModal() {
-      document.getElementById('add-member-modal').classList.add('hidden');
-    }
-
-    function promptDeleteMember(email) {
-      if (currentRoleKey !== 'librarian') {
-        showToast('Only Librarian can delete members.', 'warning');
-        return;
-      }
-      const target = registeredMembers.find(m => m.email === email);
-      if (!target) return;
-
-      openSystemDialog({
-        variant: 'danger',
-        title: 'Delete Member?',
-        message: 'Are you sure you want to remove this member from SPM NIWAS Library?',
-        summaryRows: [
-          { label: 'Name', value: target.name },
-          { label: 'Google Email', value: target.email }
-        ],
-        confirmLabel: 'Delete Member',
-        onConfirm: () => {
-          const idx = registeredMembers.findIndex(m => m.email === email);
-          if (idx !== -1) {
-            const removed = registeredMembers.splice(idx, 1)[0];
+          try {
+            if (window.firebaseCloud) {
+              await window.firebaseCloud.saveMember(newMember);
+            }
+            if (!registeredMembers.some(m => m.email.toLowerCase() === cleanEmail)) {
+              registeredMembers.push(newMember);
+            }
             renderMembersTable();
-            if (window.firebaseCloud) window.firebaseCloud.deleteMember(removed.email);
-            showToast(`Removed member "${removed.name}".`, 'info');
+            triggerLibraryEmail('member_added', newMember);
+            closeAddMemberModal();
+            showToast(`Success: Member "${cleanName}" saved & notified!`, 'success');
+          } catch (err) {
+            console.error('Failed to save member to Firestore:', err);
+            showToast(`Cloud save failed (${err.message || 'Check Firestore Rules'}). Member was not saved.`, 'error');
           }
         }
       });
