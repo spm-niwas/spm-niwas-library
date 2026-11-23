@@ -247,7 +247,7 @@
           <!-- KPI Metric Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Books</p>
+              <p id="kpi-card-1-label" class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Books</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p id="kpi-total-books" class="text-2xl font-bold text-slate-900">0</p>
                 <span id="kpi-total-titles-badge" class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">0 titles</span>
@@ -255,26 +255,26 @@
             </div>
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">New Books (last 30 days)</p>
+              <p id="kpi-card-2-label" class="text-xs font-medium text-slate-500 uppercase tracking-wider">New Books (last 30 days)</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p id="kpi-new-books-30d" class="text-2xl font-bold text-slate-900">0</p>
-                <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Recent additions</span>
+                <span id="kpi-card-2-badge" class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Recent additions</span>
               </div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Overdue Books</p>
+              <p id="kpi-card-3-label" class="text-xs font-medium text-slate-500 uppercase tracking-wider">Overdue Books</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p id="kpi-overdue-books" class="text-2xl font-bold text-amber-600">0</p>
-                <span class="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">Needs follow-up</span>
+                <span id="kpi-card-3-badge" class="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">Needs follow-up</span>
               </div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-              <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Members</p>
+              <p id="kpi-card-4-label" class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Members</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p id="kpi-total-members" class="text-2xl font-bold text-slate-900">0</p>
-                <span class="text-xs font-medium text-slate-500">Registered</span>
+                <span id="kpi-card-4-badge" class="text-xs font-medium text-slate-500">Registered</span>
               </div>
             </div>
           </div>
@@ -304,10 +304,10 @@
               <div>
                 <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
                   <div>
-                    <h3 class="text-sm font-bold text-slate-900">Recent Circulation Activity</h3>
-                    <p class="text-xs text-slate-400">Latest issues, returns &amp; due dates</p>
+                    <h3 id="dashboard-circulation-title" class="text-sm font-bold text-slate-900">Recent Circulation Activity</h3>
+                    <p id="dashboard-circulation-subtitle" class="text-xs text-slate-400">Latest issues, returns &amp; due dates</p>
                   </div>
-                  <button onclick="switchSection('circulation', 'Circulation Desk')" class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 shrink-0">
+                  <button id="dashboard-circulation-header-link" onclick="switchSection('circulation', 'Circulation Desk')" class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 shrink-0">
                     Desk &rarr;
                   </button>
                 </div>
@@ -316,7 +316,7 @@
                 </div>
               </div>
               <div class="px-5 py-3.5 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
-                <button onclick="switchSection('circulation', 'Circulation Desk')" class="exec-action w-full py-2 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition">
+                <button id="dashboard-circulation-footer-btn" onclick="switchSection('circulation', 'Circulation Desk')" class="exec-action w-full py-2 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition">
                   Open Circulation Desk
                 </button>
               </div>
@@ -1085,6 +1085,13 @@
           <span id="detail-book-isbn-header" class="text-xs font-mono text-slate-500 truncate">ISBN: —</span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="btn-detail-wishlist" onclick="toggleBookWishList(activeDetailBookIndex)"
+            class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition flex items-center gap-1.5 shadow-2xs">
+            <svg id="detail-wishlist-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+            <span id="detail-wishlist-label">Add to Wish List</span>
+          </button>
           <button type="button" id="btn-detail-edit-log" onclick="openBookEditLogModal(activeDetailBookIndex)"
             class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1.5 shadow-2xs">
             <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1150,9 +1157,9 @@
             </svg>
           </a>
 
-          <!-- Generate Book Cover QR Sticker -->
-          <button type="button" onclick="openBookQrStickerModal(activeDetailBookIndex)"
-            class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition flex items-center justify-center gap-1.5 shadow-2xs">
+          <!-- Generate Book Cover QR Sticker (Librarian Only) -->
+          <button type="button" id="btn-detail-qr-sticker" onclick="openBookQrStickerModal(activeDetailBookIndex)"
+            class="hidden w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition flex items-center justify-center gap-1.5 shadow-2xs">
             <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 14.625h2.25m2.25 0h2.25m-6.75 3.375h2.25m2.25 0h2.25m-6.75 2.25h6.75" />
@@ -2454,7 +2461,681 @@
       switchSection(role.defaultSection.key, role.defaultSection.title);
     }
 
+    function renderDashboardLatestBooks() {
+      const gridEl = document.getElementById('dashboard-latest-books-grid');
+      const rightPane = document.getElementById('dashboard-circulation-pane');
+      const headerEl = document.getElementById('dashboard-latest-books-header');
+      if (!gridEl) return;
+
+      const sorted = [...catalogBooks].sort((a, b) =>
+        getBookLatestProcuredTimestamp(b, catalogBooks.indexOf(b)) -
+        getBookLatestProcuredTimestamp(a, catalogBooks.indexOf(a))
+      );
+
+      if (sorted.length === 0) {
+        gridEl.innerHTML = `<p class="col-span-full py-8 text-center text-xs text-slate-400">No books in the catalog yet.</p>`;
+        return;
+      }
+
+      const cols = window.innerWidth >= 768 ? 3 : (window.innerWidth >= 640 ? 2 : 1);
+      const rightH = rightPane ? rightPane.offsetHeight : 0;
+      const headerH = headerEl ? headerEl.offsetHeight : 64;
+      const availableBodyH = rightH > 200 ? Math.max(180, rightH - headerH - 32) : 340;
+      const estimatedRowH = 112;
+      const rowsToFill = Math.max(2, Math.min(8, Math.floor(availableBodyH / estimatedRowH)));
+      const targetCount = Math.min(sorted.length, rowsToFill * cols);
+      const slice = sorted.slice(0, targetCount);
+
+      gridEl.innerHTML = slice.map(b => {
+        const realIdx = catalogBooks.indexOf(b);
+        const initials = (b.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        const statusClass = b.status === 'Available'
+          ? 'bg-emerald-50 text-emerald-700'
+          : b.status === 'Issued'
+            ? 'bg-blue-50 text-blue-700'
+            : 'bg-amber-50 text-amber-700';
+
+        const coverHtml = b.coverUrl
+          ? `<div class="w-11 h-16 shrink-0 relative">
+               <img src="${b.coverUrl}" alt="${b.title}"
+                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                 class="w-11 h-16 object-cover rounded-lg border border-slate-200 bg-white" />
+               <div class="hidden w-11 h-16 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-[10px] font-bold">${initials}</div>
+             </div>`
+          : `<div class="w-11 h-16 shrink-0 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-[10px] font-bold">${initials}</div>`;
+
+        return `
+          <div onclick="openBookDetailsModal(${realIdx})"
+            class="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-emerald-50/40 hover:border-emerald-300/80 transition cursor-pointer flex items-start gap-3">
+            ${coverHtml}
+            <div class="min-w-0 flex-1 flex flex-col justify-between h-16">
+              <div>
+                <p class="text-xs font-bold text-slate-900 truncate" title="${b.title}">${b.title}</p>
+                <p class="text-[11px] text-slate-500 truncate">${b.author}</p>
+              </div>
+              <div class="flex items-center justify-between gap-1.5 pt-1">
+                <span class="text-[10px] font-mono font-semibold text-slate-600 bg-white px-1.5 py-0.5 rounded border border-slate-200/80">Shelf ${b.shelf || '—'}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusClass}">${b.status || 'Available'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    window.renderDashboardLatestBooks = renderDashboardLatestBooks;
+
+    function renderDashboardCirculationActivity() {
+      const titleEl = document.getElementById('dashboard-circulation-title');
+      const subtitleEl = document.getElementById('dashboard-circulation-subtitle');
+      const headerLink = document.getElementById('dashboard-circulation-header-link');
+      const footerBtn = document.getElementById('dashboard-circulation-footer-btn');
+      const listEl = document.getElementById('dashboard-circulation-list');
+      if (!listEl) return;
+
+      if (currentRoleKey === 'members') {
+        if (titleEl) titleEl.textContent = 'My Circulation History';
+        if (subtitleEl) subtitleEl.textContent = 'Your active loans & returned books';
+        if (headerLink) {
+          headerLink.textContent = 'Catalog →';
+          headerLink.onclick = () => switchSection('catalog', 'Catalog');
+        }
+        if (footerBtn) {
+          footerBtn.textContent = 'Browse Catalog';
+          footerBtn.classList.remove('hidden');
+          footerBtn.onclick = () => switchSection('catalog', 'Catalog');
+        }
+
+        const myLoans = [
+          { title: 'The Discovery of India', action: 'Currently With You', due: 'Due in 6 days', badge: 'bg-blue-50 text-blue-700' },
+          { title: 'Wings of Fire', action: 'Returned', due: '12 Nov 2026', badge: 'bg-emerald-50 text-emerald-700' },
+          { title: 'Atomic Habits', action: 'Returned', due: '28 Oct 2026', badge: 'bg-emerald-50 text-emerald-700' },
+          { title: 'The Argumentative Indian', action: 'Returned', due: '09 Oct 2026', badge: 'bg-emerald-50 text-emerald-700' }
+        ];
+
+        listEl.innerHTML = myLoans.map(item => {
+          const bookIdx = catalogBooks.findIndex(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
+          const clickAttr = bookIdx >= 0 ? `onclick="openBookDetailsModal(${bookIdx})"` : '';
+          return `
+            <div ${clickAttr} class="p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between gap-2.5 ${bookIdx >= 0 ? 'cursor-pointer hover:bg-emerald-50/40 transition' : ''}">
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-900 truncate">${item.title}</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">${item.due}</p>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${item.badge}">${item.action}</span>
+            </div>
+          `;
+        }).join('');
+        requestAnimationFrame(() => renderDashboardLatestBooks());
+        return;
+      }
+
+      if (titleEl) titleEl.textContent = 'Recent Circulation Activity';
+      if (subtitleEl) subtitleEl.textContent = 'Latest issues, returns & due dates';
+      if (headerLink) {
+        headerLink.textContent = 'Desk →';
+        headerLink.onclick = () => switchSection('circulation', 'Circulation Desk');
+      }
+      if (footerBtn) {
+        footerBtn.textContent = 'Open Circulation Desk';
+        footerBtn.onclick = () => switchSection('circulation', 'Circulation Desk');
+        footerBtn.classList.toggle('hidden', currentRoleKey === 'superadmin');
+      }
+
+      const recentItems = [
+        { book: 'The Discovery of India', member: 'A. Sharma', status: 'Issued', meta: 'Due in 6 days', badge: 'bg-blue-50 text-blue-700' },
+        { book: 'Malgudi Days', member: 'R. Nair', status: 'Overdue', meta: 'Overdue by 3 days', badge: 'bg-amber-50 text-amber-700' },
+        { book: 'The God of Small Things', member: 'P. Dasgupta', status: 'Issued', meta: 'Due in 11 days', badge: 'bg-blue-50 text-blue-700' },
+        { book: 'Sapiens', member: 'K. Verma', status: 'Issued', meta: 'Due in 9 days', badge: 'bg-blue-50 text-blue-700' },
+        { book: 'Wings of Fire', member: 'S. Kulkarni', status: 'Returned', meta: 'Returned yesterday', badge: 'bg-emerald-50 text-emerald-700' }
+      ];
+
+      listEl.innerHTML = recentItems.map(item => {
+        const bookIdx = catalogBooks.findIndex(b => (b.title || '').toLowerCase().includes(item.book.toLowerCase()));
+        const clickAttr = bookIdx >= 0 ? `onclick="openBookDetailsModal(${bookIdx})"` : '';
+        return `
+          <div ${clickAttr} class="p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between gap-2.5 ${bookIdx >= 0 ? 'cursor-pointer hover:bg-emerald-50/40 transition' : ''}">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-900 truncate">${item.book}</p>
+              <p class="text-[11px] text-slate-500 truncate mt-0.5">${item.member} · ${item.meta}</p>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${item.badge}">${item.status}</span>
+          </div>
+        `;
+      }).join('');
+
+      requestAnimationFrame(() => renderDashboardLatestBooks());
+    }
+    window.renderDashboardCirculationActivity = renderDashboardCirculationActivity;
+
+    function switchSection(sectionKey, title) {
+      const role = SYSTEM_ROLES[currentRoleKey];
+      if (role && !role.allowedSections.includes(sectionKey)) {
+        sectionKey = role.defaultSection.key;
+        title = role.defaultSection.title;
+      }
+
+      const allSections = ['dashboard', 'catalog', 'circulation', 'members', 'admin-settings'];
+      allSections.forEach(key => {
+        const secEl = document.getElementById('section-' + key);
+        const navBtn = document.getElementById('nav-' + key);
+        const isTarget = key === sectionKey;
+        if (secEl) secEl.classList.toggle('hidden', !isTarget);
+        if (navBtn) {
+          navBtn.className = isTarget
+            ? 'nav-item active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-emerald-50 text-emerald-800 transition-colors whitespace-nowrap'
+            : 'nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors whitespace-nowrap';
+          if (role && !role.allowedSections.includes(key)) {
+            navBtn.classList.add('hidden');
+          }
+        }
+      });
+
+      const pageTitleEl = document.getElementById('page-title');
+      if (pageTitleEl && title) {
+        pageTitleEl.textContent = formatBrandCasing(title);
+      }
+
+      if (sectionKey === 'dashboard') {
+        updateDashboardKpiCards();
+        renderDashboardCirculationActivity();
+      } else if (sectionKey === 'catalog') {
+        searchCatalogBooks();
+      } else if (sectionKey === 'members') {
+        renderMembersTable();
+      } else if (sectionKey === 'admin-settings') {
+        switchSettingsTab('librarian');
+      }
+    }
+    window.switchSection = switchSection;
+
+    function renderBookReviewsList(book) {
+      const listEl = document.getElementById('detail-reviews-list');
+      const countEl = document.getElementById('detail-reviews-count');
+      if (!listEl) return;
+
+      const reviews = Array.isArray(book?.reviews) ? book.reviews : [];
+      if (countEl) {
+        countEl.textContent = `${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}`;
+      }
+
+      if (reviews.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 italic">No reader reviews yet. Be the first SPM NIWAS reader to share your thoughts!</p>`;
+        return;
+      }
+
+      listEl.innerHTML = reviews.map(r => `
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-slate-800">${r.reviewer || 'SPM NIWAS Reader'}</span>
+            <span class="text-xs text-amber-500">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
+          </div>
+          <p class="text-xs text-slate-600">${r.text}</p>
+          <p class="text-[10px] text-slate-400">${r.date || ''}</p>
+        </div>
+      `).join('');
+    }
+
+    async function handleAddBookReview(event) {
+      event.preventDefault();
+      const book = catalogBooks[activeDetailBookIndex];
+      if (!book) return;
+
+      const rating = parseInt(document.getElementById('detail-review-rating')?.value || '5', 10);
+      const textInput = document.getElementById('detail-review-text');
+      const text = (textInput?.value || '').trim();
+      if (!text) return;
+
+      if (!Array.isArray(book.reviews)) book.reviews = [];
+      book.reviews.unshift({
+        reviewer: SYSTEM_ROLES[currentRoleKey]?.name || 'SPM NIWAS Reader',
+        rating,
+        text,
+        date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+      });
+
+      if (textInput) textInput.value = '';
+      renderBookReviewsList(book);
+      if (window.firebaseCloud) {
+        await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
+      }
+      showToast('Review posted!', 'success');
+    }
+
+    function closeBookDetailsModal() {
+      const modal = document.getElementById('book-details-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function confirmAndOpenEditBook(idx) {
+      openEditBookModal(idx);
+    }
+
+    function openEditBookModal(idx) {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can edit catalog entries.', 'warning');
+        return;
+      }
+      const book = catalogBooks[idx];
+      if (!book) return;
+      editingBookIndex = idx;
+
+      document.getElementById('edit-book-isbn').value = book.isbn || '';
+      document.getElementById('edit-book-status').value = book.status || 'Available';
+      document.getElementById('edit-book-title').value = book.title || '';
+      document.getElementById('edit-book-author').value = book.author || '';
+      document.getElementById('edit-book-publisher').value = book.publisher || '';
+      document.getElementById('edit-book-shelf').value = book.shelf || '';
+      document.getElementById('edit-book-edition').value = book.edition || '';
+      document.getElementById('edit-book-copies').value = book.copies || 1;
+      document.getElementById('edit-book-procurement-mode').value = book.procurementMode || 'Purchased';
+      document.getElementById('edit-book-procurement-comments').value = book.procurementComments || '';
+      document.getElementById('edit-book-reason').value = '';
+
+      const modal = document.getElementById('edit-book-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeEditBookModal() {
+      const modal = document.getElementById('edit-book-modal');
+      if (modal) modal.classList.add('hidden');
+      editingBookIndex = -1;
+    }
+
+    async function handleEditBookSubmit(event) {
+      event.preventDefault();
+      if (currentRoleKey !== 'librarian') return;
+      const book = catalogBooks[editingBookIndex];
+      if (!book) return;
+
+      const previousSnapshot = {
+        isbn: book.isbn || '',
+        title: book.title || '',
+        author: book.author || '',
+        publisher: book.publisher || '',
+        shelf: book.shelf || '',
+        edition: book.edition || '',
+        copies: book.copies || 1,
+        status: book.status || 'Available'
+      };
+
+      const reason = (document.getElementById('edit-book-reason')?.value || '').trim();
+      book.isbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
+      book.status = document.getElementById('edit-book-status')?.value || 'Available';
+      book.title = (document.getElementById('edit-book-title')?.value || '').trim();
+      book.author = (document.getElementById('edit-book-author')?.value || '').trim();
+      book.publisher = (document.getElementById('edit-book-publisher')?.value || '').trim();
+      book.shelf = (document.getElementById('edit-book-shelf')?.value || '').trim();
+      book.edition = (document.getElementById('edit-book-edition')?.value || '').trim();
+      book.copies = Math.max(1, parseInt(document.getElementById('edit-book-copies')?.value || '1', 10));
+      book.procurementMode = document.getElementById('edit-book-procurement-mode')?.value || 'Purchased';
+      book.procurementComments = (document.getElementById('edit-book-procurement-comments')?.value || '').trim();
+
+      if (!Array.isArray(book.editLog)) book.editLog = [];
+      book.editLog.unshift({
+        editedBy: SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian',
+        editedAt: new Date().toLocaleString('en-IN'),
+        reason: reason || 'Updated bibliographic/copy details',
+        previousSnapshot
+      });
+
+      if (window.firebaseCloud) {
+        await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
+      }
+      searchCatalogBooks();
+      updateDashboardKpiCards();
+      renderDashboardLatestBooks();
+      closeEditBookModal();
+      showToast(`Saved changes to "${book.title}".`, 'success');
+    }
+
+    function openBookEditLogModal(idx) {
+      const book = catalogBooks[idx];
+      if (!book) return;
+      const modal = document.getElementById('book-edit-log-modal');
+      const subEl = document.getElementById('edit-log-book-subtitle');
+      const bodyEl = document.getElementById('book-edit-log-body');
+      if (!modal || !bodyEl) return;
+
+      if (subEl) subEl.textContent = `${book.title} · ISBN: ${book.isbn || '—'}`;
+      const logs = Array.isArray(book.editLog) ? book.editLog : [];
+
+      if (logs.length === 0) {
+        bodyEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No edits have been recorded for this book yet.</p>`;
+      } else {
+        bodyEl.innerHTML = logs.map(entry => {
+          const snap = entry.previousSnapshot || {};
+          return `
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-bold text-slate-900">${entry.editedBy || 'Librarian'}</span>
+                <span class="text-[11px] text-slate-400">${entry.editedAt || ''}</span>
+              </div>
+              <p class="text-slate-600">${entry.reason || ''}</p>
+              <div class="p-2.5 rounded-xl bg-white border border-slate-200/70 text-[11px] text-slate-600 space-y-0.5 font-mono">
+                <p>Prev Title: ${snap.title || '—'} ${snap.edition ? '(' + snap.edition + ')' : ''}</p>
+                <p>Prev Author: ${snap.author || '—'} | Publisher: ${snap.publisher || '—'}</p>
+                <p>Prev Shelf: ${snap.shelf || '—'} | Copies: ${snap.copies || 1} | Status: ${snap.status || 'Available'}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function closeBookEditLogModal() {
+      const modal = document.getElementById('book-edit-log-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function openBookQrStickerModal(idx) {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can generate QR cover stickers.', 'warning');
+        return;
+      }
+      const book = catalogBooks[idx];
+      if (!book) return;
+      const modal = document.getElementById('book-qr-modal');
+      const container = document.getElementById('book-qr-canvas-container');
+      if (!modal || !container) return;
+
+      const bookParam = encodeURIComponent(book._docId || normalizeIsbn(book.isbn) || book.title);
+      const baseUrl = window.location.origin && window.location.origin !== 'null'
+        ? `${window.location.origin}${window.location.pathname}`
+        : 'https://spm-niwas.github.io/spm-niwas-library/';
+      const deepUrl = `${baseUrl}?book=${bookParam}`;
+
+      document.getElementById('qr-sticker-title').textContent = book.title || 'Untitled Book';
+      document.getElementById('qr-sticker-author').textContent = book.author || 'Unknown Author';
+      document.getElementById('qr-sticker-shelf').textContent = `Shelf: ${book.shelf || '—'}`;
+      document.getElementById('qr-sticker-isbn').textContent = book.isbn || 'NO-ISBN';
+      document.getElementById('qr-sticker-url-preview').textContent = deepUrl;
+
+      container.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(container, {
+          text: deepUrl,
+          width: 152,
+          height: 152,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeBookQrStickerModal() {
+      const modal = document.getElementById('book-qr-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function downloadBookQrStickerPng() {
+      const container = document.getElementById('book-qr-canvas-container');
+      const canvas = container?.querySelector('canvas');
+      if (!canvas) {
+        showToast('QR image is still rendering. Try again.', 'warning');
+        return;
+      }
+      const link = document.createElement('a');
+      link.download = `SPM-NIWAS-QR-${(document.getElementById('qr-sticker-isbn')?.textContent || 'book').replace(/[^a-zA-Z0-9-]/g, '')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function printBookQrSticker() {
+      window.print();
+    }
+
+    let deepLinkedHandled = false;
+    function checkDeepLinkedBookParam() {
+      if (deepLinkedHandled) return;
+      const bookParam = new URLSearchParams(window.location.search).get('book');
+      if (!bookParam) return;
+      const needle = decodeURIComponent(bookParam).trim().toLowerCase();
+      const idx = catalogBooks.findIndex(b =>
+        (b._docId || '').toLowerCase() === needle ||
+        normalizeIsbn(b.isbn).toLowerCase() === normalizeIsbn(needle).toLowerCase() ||
+        (b.title || '').toLowerCase() === needle
+      );
+      if (idx >= 0) {
+        deepLinkedHandled = true;
+        openBookDetailsModal(idx);
+      }
+    }
+    window.checkDeepLinkedBookParam = checkDeepLinkedBookParam;
+
+    function handleOmniSearchInput() {
+      const input = document.getElementById('librarian-omni-search-input');
+      const dropdown = document.getElementById('librarian-omni-search-dropdown');
+      const clearBtn = document.getElementById('btn-clear-omni-search');
+      if (!input || !dropdown) return;
+
+      const raw = input.value.trim();
+      const q = raw.toLowerCase();
+      if (clearBtn) clearBtn.classList.toggle('hidden', raw.length === 0);
+
+      const quickActions = [
+        { label: '+ Add New Book to Catalog', sub: 'Open ISBN / Barcode / Cover intake', action: () => { closeOmniSearchDropdown(); openAddBookModal(); } },
+        { label: '+ Register SPM NIWAS Member', sub: 'Add staff or resident borrower', action: () => { closeOmniSearchDropdown(); openAddMemberModal(); } },
+        { label: 'Open Full Catalog', sub: 'Browse & sort all library books', action: () => { closeOmniSearchDropdown(); switchSection('catalog', 'Catalog'); } },
+        { label: 'Open Circulation Desk', sub: 'Issue or return books', action: () => { closeOmniSearchDropdown(); switchSection('circulation', 'Circulation Desk'); } }
+      ];
+
+      const matchingBooks = q
+        ? catalogBooks.filter(b =>
+            (b.title || '').toLowerCase().includes(q) ||
+            (b.author || '').toLowerCase().includes(q) ||
+            (b.shelf || '').toLowerCase().includes(q) ||
+            normalizeIsbn(b.isbn).toLowerCase().includes(q.replace(/[^0-9x]/g, '') || '__none__')
+          ).slice(0, 5)
+        : [];
+
+      const matchingMembers = q
+        ? registeredMembers.filter(m =>
+            (m.name || '').toLowerCase().includes(q) ||
+            (m.designation || '').toLowerCase().includes(q) ||
+            (m.category || '').toLowerCase().includes(q) ||
+            (m.email || '').toLowerCase().includes(q)
+          ).slice(0, 4)
+        : [];
+
+      const matchingActions = q
+        ? quickActions.filter(a => a.label.toLowerCase().includes(q) || a.sub.toLowerCase().includes(q))
+        : quickActions;
+
+      let sectionsHtml = '';
+      if (matchingBooks.length > 0) {
+        sectionsHtml += `
+          <div class="p-2">
+            <p class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Books (${matchingBooks.length})</p>
+            ${matchingBooks.map(b => {
+              const idx = catalogBooks.indexOf(b);
+              return `
+                <button type="button" onclick="closeOmniSearchDropdown(); openBookDetailsModal(${idx});"
+                  class="w-full text-left px-3 py-2 rounded-xl hover:bg-emerald-50/70 transition flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold text-slate-900 truncate">${b.title}</p>
+                    <p class="text-[11px] text-slate-500 truncate">${b.author} · Shelf ${b.shelf}</p>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 shrink-0">${b.status}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      if (matchingMembers.length > 0) {
+        sectionsHtml += `
+          <div class="p-2">
+            <p class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Members (${matchingMembers.length})</p>
+            ${matchingMembers.map(m => `
+              <button type="button" onclick="closeOmniSearchDropdown(); switchSection('members', 'SPM Niwas Members'); document.getElementById('members-search-input').value='${m.name.replace(/'/g, "\\'")}'; filterMembersDirectory();"
+                class="w-full text-left px-3 py-2 rounded-xl hover:bg-emerald-50/70 transition flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold text-slate-900 truncate">${m.name}</p>
+                  <p class="text-[11px] text-slate-500 truncate">${m.designation || 'Member'} · ${m.email}</p>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 shrink-0">${m.booksAllowed} books</span>
+              </button>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      if (matchingActions.length > 0) {
+        sectionsHtml += `
+          <div class="p-2">
+            <p class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Quick Actions</p>
+            ${matchingActions.map((a, idx) => `
+              <button type="button" data-omni-action="${idx}"
+                class="omni-quick-action-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 transition flex items-center justify-between gap-2">
+                <div>
+                  <p class="text-xs font-semibold text-slate-800">${a.label}</p>
+                  <p class="text-[11px] text-slate-400">${a.sub}</p>
+                </div>
+                <span class="text-xs text-slate-400">&rarr;</span>
+              </button>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      if (!sectionsHtml) {
+        sectionsHtml = `<div class="p-5 text-center text-xs text-slate-400">No matching books, members, or actions found for "${raw}".</div>`;
+      }
+
+      dropdown.innerHTML = sectionsHtml;
+      dropdown.querySelectorAll('.omni-quick-action-btn').forEach(btn => {
+        const idx = parseInt(btn.getAttribute('data-omni-action'), 10);
+        if (matchingActions[idx]) btn.onclick = matchingActions[idx].action;
+      });
+      dropdown.classList.remove('hidden');
+    }
+
+    function clearOmniSearch() {
+      const input = document.getElementById('librarian-omni-search-input');
+      if (input) input.value = '';
+      handleOmniSearchInput();
+    }
+
+    function closeOmniSearchDropdown() {
+      const dropdown = document.getElementById('librarian-omni-search-dropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    function openSystemDialog({ title, message, confirmLabel = 'Confirm', onConfirm }) {
+      systemDialogCallback = onConfirm;
+      let dialog = document.getElementById('system-confirm-modal');
+      if (!dialog) {
+        dialog = document.createElement('div');
+        dialog.id = 'system-confirm-modal';
+        dialog.className = 'fixed inset-0 z-[85] flex items-center justify-center bg-slate-900/50 backdrop-blur-[1px] p-4';
+        dialog.innerHTML = `
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full p-5 space-y-4">
+            <div>
+              <h4 id="sys-dialog-title" class="text-sm font-bold text-slate-900">Confirm</h4>
+              <p id="sys-dialog-msg" class="text-xs text-slate-600 mt-1 leading-relaxed"></p>
+            </div>
+            <div class="flex items-center justify-end gap-2">
+              <button type="button" onclick="document.getElementById('system-confirm-modal').classList.add('hidden')"
+                class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
+                Cancel
+              </button>
+              <button type="button" id="sys-dialog-confirm-btn"
+                class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 transition shadow-sm">
+                Confirm
+              </button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(dialog);
+      }
+      document.getElementById('sys-dialog-title').textContent = title || 'Confirm';
+      document.getElementById('sys-dialog-msg').textContent = message || '';
+      const confirmBtn = document.getElementById('sys-dialog-confirm-btn');
+      confirmBtn.textContent = confirmLabel;
+      confirmBtn.onclick = async () => {
+        dialog.classList.add('hidden');
+        if (typeof systemDialogCallback === 'function') await systemDialogCallback();
+      };
+      dialog.classList.remove('hidden');
+    }
+
+    // Keyboard '/' shortcut to focus Librarian Omni-Search and resize listener for Latest Books grid
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+        const omni = document.getElementById('librarian-omni-search-input');
+        if (omni && currentRoleKey === 'librarian') {
+          e.preventDefault();
+          omni.focus();
+        }
+      }
+    });
+
+    window.addEventListener('resize', function () {
+      const dashSec = document.getElementById('section-dashboard');
+      if (dashSec && !dashSec.classList.contains('hidden')) {
+        renderDashboardLatestBooks();
+      }
+    });
+
     function updateDashboardKpiCards() {
+      const label1El = document.getElementById('kpi-card-1-label');
+      const totalEl = document.getElementById('kpi-total-books');
+      const titlesBadgeEl = document.getElementById('kpi-total-titles-badge');
+
+      const label2El = document.getElementById('kpi-card-2-label');
+      const newEl = document.getElementById('kpi-new-books-30d');
+      const badge2El = document.getElementById('kpi-card-2-badge');
+
+      const label3El = document.getElementById('kpi-card-3-label');
+      const overdueEl = document.getElementById('kpi-overdue-books');
+      const badge3El = document.getElementById('kpi-card-3-badge');
+
+      const label4El = document.getElementById('kpi-card-4-label');
+      const membersEl = document.getElementById('kpi-total-members');
+      const badge4El = document.getElementById('kpi-card-4-badge');
+
+      if (currentRoleKey === 'members') {
+        const activeRole = SYSTEM_ROLES.members || {};
+        const memberEmail = (activeRole.email || '').toLowerCase();
+        const memberRecord = registeredMembers.find(m => (m.email || '').toLowerCase() === memberEmail);
+        const booksAllowed = memberRecord?.booksAllowed ?? defaultBooksAllowed;
+        const wishlistCount = Array.isArray(memberRecord?.wishList) ? memberRecord.wishList.length : 0;
+
+        const booksTakenTotal = 4;
+        const booksWithMeNow = 1;
+        const myOverdueCount = 0;
+
+        if (label1El) label1El.textContent = 'Books taken by me';
+        if (totalEl) totalEl.textContent = String(booksTakenTotal);
+        if (titlesBadgeEl) titlesBadgeEl.textContent = 'All-time loans';
+
+        if (label2El) label2El.textContent = 'Books with me right now';
+        if (newEl) newEl.textContent = String(booksWithMeNow);
+        if (badge2El) badge2El.textContent = `of ${booksAllowed} allowed`;
+
+        if (label3El) label3El.textContent = 'Overdue Books';
+        if (overdueEl) overdueEl.textContent = String(myOverdueCount);
+        if (badge3El) {
+          badge3El.textContent = myOverdueCount > 0 ? 'Return soon' : 'All on time';
+          badge3El.className = myOverdueCount > 0
+            ? 'text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full'
+            : 'text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full';
+        }
+
+        if (label4El) label4El.textContent = 'My Wish List';
+        if (membersEl) membersEl.textContent = String(wishlistCount);
+        if (badge4El) {
+          badge4El.textContent = 'Saved titles';
+          badge4El.className = 'text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full';
+        }
+        return;
+      }
+
       const totalCopies = catalogBooks.reduce((sum, b) => sum + (Number(b.copies) || 1), 0);
       const totalTitles = catalogBooks.length;
       const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
@@ -2462,17 +3143,27 @@
       const overdueCount = catalogBooks.filter(b => b.status === 'Overdue').length;
       const totalMembersCount = registeredMembers.length;
 
-      const totalEl = document.getElementById('kpi-total-books');
-      const titlesBadgeEl = document.getElementById('kpi-total-titles-badge');
-      const newEl = document.getElementById('kpi-new-books-30d');
-      const overdueEl = document.getElementById('kpi-overdue-books');
-      const membersEl = document.getElementById('kpi-total-members');
-
+      if (label1El) label1El.textContent = 'Total Books';
       if (totalEl) totalEl.textContent = String(totalCopies);
       if (titlesBadgeEl) titlesBadgeEl.textContent = `${totalTitles} ${totalTitles === 1 ? 'title' : 'titles'}`;
+
+      if (label2El) label2El.textContent = 'New Books (last 30 days)';
       if (newEl) newEl.textContent = String(newBooksCount);
+      if (badge2El) badge2El.textContent = 'Recent additions';
+
+      if (label3El) label3El.textContent = 'Overdue Books';
       if (overdueEl) overdueEl.textContent = String(overdueCount);
+      if (badge3El) {
+        badge3El.textContent = 'Needs follow-up';
+        badge3El.className = 'text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full';
+      }
+
+      if (label4El) label4El.textContent = 'Total Members';
       if (membersEl) membersEl.textContent = String(totalMembersCount);
+      if (badge4El) {
+        badge4El.textContent = 'Registered';
+        badge4El.className = 'text-xs font-medium text-slate-500';
+      }
     }
     window.updateDashboardKpiCards = updateDashboardKpiCards;
 
@@ -3637,6 +4328,8 @@
       const goodreadsLink = document.getElementById('detail-goodreads-link');
       const editLogBtn = document.getElementById('btn-detail-edit-log');
       const editLogCount = document.getElementById('detail-edit-log-count');
+      const qrStickerBtn = document.getElementById('btn-detail-qr-sticker');
+      const wishlistBtn = document.getElementById('btn-detail-wishlist');
       const titleEl = document.getElementById('detail-book-title');
       const editionEl = document.getElementById('detail-book-edition');
       const authorEl = document.getElementById('detail-book-author');
@@ -3730,636 +4423,92 @@
       if (editLogBtn) editLogBtn.classList.toggle('hidden', !canViewEditLog);
       if (editLogCount) editLogCount.textContent = String(Array.isArray(book.editLog) ? book.editLog.length : 0);
 
+      if (qrStickerBtn) {
+        qrStickerBtn.classList.toggle('hidden', currentRoleKey !== 'librarian');
+      }
+
+      if (wishlistBtn) {
+        const isMemberView = currentRoleKey === 'members';
+        wishlistBtn.classList.toggle('hidden', !isMemberView);
+        if (isMemberView) {
+          syncBookWishListButtonUI(book);
+        }
+      }
+
       renderBookReviewsList(book);
       modal.classList.remove('hidden');
     }
     window.openBookDetailsModal = openBookDetailsModal;
 
-    function renderBookReviewsList(book) {
-      const listEl = document.getElementById('detail-reviews-list');
-      const countEl = document.getElementById('detail-reviews-count');
-      if (!listEl) return;
-      const reviews = Array.isArray(book.reviews) ? book.reviews : [];
-      if (countEl) {
-        countEl.textContent = `${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}`;
-      }
-      if (reviews.length === 0) {
-        listEl.innerHTML = `<p class="text-xs text-slate-400 italic">No reader reviews yet. Be the first SPM NIWAS reader to share your thoughts!</p>`;
-        return;
-      }
-      listEl.innerHTML = reviews.map(r => {
-        const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(Math.max(0, 5 - (r.rating || 5)));
-        return `
-          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-xs font-bold text-slate-800">${r.reviewer || 'SPM NIWAS Reader'}</span>
-              <span class="text-xs text-amber-500 tracking-tight">${stars}</span>
-            </div>
-            <p class="text-xs text-slate-600 leading-relaxed">${r.comment}</p>
-          </div>
-        `;
-      }).join('');
+    function getBookWishListKey(book) {
+      return book?._docId || normalizeIsbn(book?.isbn) || (book?.title || '').trim();
     }
 
-    async function handleAddBookReview(event) {
-      event.preventDefault();
-      const book = catalogBooks[activeDetailBookIndex];
-      if (!book) return;
-      const ratingEl = document.getElementById('detail-review-rating');
-      const textEl = document.getElementById('detail-review-text');
-      const comment = (textEl?.value || '').trim();
-      if (!comment) return;
-
-      const reviewer = SYSTEM_ROLES[currentRoleKey]?.name || 'SPM NIWAS Reader';
-      if (!Array.isArray(book.reviews)) book.reviews = [];
-      book.reviews.unshift({
-        reviewer,
-        rating: parseInt(ratingEl?.value || '5', 10),
-        comment,
-        createdAt: Date.now()
-      });
-
-      if (textEl) textEl.value = '';
-      renderBookReviewsList(book);
-      if (window.firebaseCloud) {
-        await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
-      }
-      showToast('Thank you! Your review has been posted.', 'success');
+    function getActiveMemberRecord() {
+      const memberEmail = (SYSTEM_ROLES.members?.email || '').toLowerCase();
+      return registeredMembers.find(m => (m.email || '').toLowerCase() === memberEmail) || null;
     }
 
-    function closeBookDetailsModal() {
-      const modal = document.getElementById('book-details-modal');
-      if (modal) modal.classList.add('hidden');
-    }
+    function syncBookWishListButtonUI(book) {
+      const btn = document.getElementById('btn-detail-wishlist');
+      const label = document.getElementById('detail-wishlist-label');
+      const icon = document.getElementById('detail-wishlist-icon');
+      if (!btn || !label || !icon) return;
 
-    function openSystemDialog({ title, message, confirmLabel = 'Confirm', onConfirm }) {
-      systemDialogCallback = onConfirm;
-      let dialog = document.getElementById('system-confirm-modal');
-      if (!dialog) {
-        dialog = document.createElement('div');
-        dialog.id = 'system-confirm-modal';
-        dialog.className = 'fixed inset-0 z-[85] flex items-center justify-center bg-slate-900/55 backdrop-blur-[1px] p-4';
-        dialog.innerHTML = `
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-4">
-            <h4 id="sys-dialog-title" class="text-base font-bold text-slate-900">Confirm Action</h4>
-            <p id="sys-dialog-msg" class="text-xs text-slate-600 leading-relaxed"></p>
-            <div class="flex items-center justify-end gap-2 pt-2">
-              <button type="button" onclick="document.getElementById('system-confirm-modal').classList.add('hidden')"
-                class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
-                Cancel
-              </button>
-              <button type="button" id="sys-dialog-confirm-btn"
-                class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-                Confirm
-              </button>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(dialog);
-      }
+      const memberRecord = getActiveMemberRecord();
+      const wishList = Array.isArray(memberRecord?.wishList) ? memberRecord.wishList : [];
+      const key = getBookWishListKey(book);
+      const isSaved = wishList.includes(key);
 
-      document.getElementById('sys-dialog-title').textContent = title;
-      document.getElementById('sys-dialog-msg').textContent = message;
-      const confirmBtn = document.getElementById('sys-dialog-confirm-btn');
-      confirmBtn.textContent = confirmLabel;
-      confirmBtn.onclick = async () => {
-        dialog.classList.add('hidden');
-        if (typeof systemDialogCallback === 'function') await systemDialogCallback();
-      };
-      dialog.classList.remove('hidden');
-    }
-
-    function confirmAndOpenEditBook(idx) {
-      const book = catalogBooks[idx];
-      if (!book || currentRoleKey !== 'librarian') return;
-      openSystemDialog({
-        title: 'Edit Book Details?',
-        message: `Book details for "${book.title}" have already been added and should not be changed needlessly. All changes and a snapshot of previous entries will be logged. Continue?`,
-        confirmLabel: 'Proceed to Edit',
-        onConfirm: () => openEditBookModal(idx)
-      });
-    }
-
-    function openEditBookModal(idx) {
-      const book = catalogBooks[idx];
-      if (!book) return;
-      editingBookIndex = idx;
-
-      let wrapper = document.getElementById('edit-book-modal');
-      const form = document.getElementById('edit-book-form');
-      if (!wrapper && form) {
-        wrapper = document.createElement('div');
-        wrapper.id = 'edit-book-modal';
-        wrapper.className = 'hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/55 backdrop-blur-[1px] p-4 overflow-y-auto';
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full p-6 space-y-4 my-auto';
-        card.innerHTML = `
-          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div>
-              <h4 class="text-base font-bold text-slate-900">Edit Book Details</h4>
-              <p class="text-xs text-slate-500">Changes are recorded in the permanent audit log.</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="openBookEditLogModal(editingBookIndex)"
-                class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
-                Edit Log
-              </button>
-              <button type="button" onclick="closeEditBookModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600">✕</button>
-            </div>
-          </div>
-        `;
-        card.appendChild(form);
-        wrapper.appendChild(card);
-        document.body.appendChild(wrapper);
-      }
-
-      document.getElementById('edit-book-isbn').value = book.isbn || '';
-      document.getElementById('edit-book-status').value = book.status || 'Available';
-      document.getElementById('edit-book-title').value = book.title || '';
-      document.getElementById('edit-book-author').value = book.author || '';
-      document.getElementById('edit-book-publisher').value = book.publisher || '';
-      document.getElementById('edit-book-shelf').value = book.shelf || '';
-      document.getElementById('edit-book-edition').value = book.edition || '';
-      document.getElementById('edit-book-copies').value = book.copies || 1;
-      document.getElementById('edit-book-procurement-mode').value = book.procurementMode || 'Purchased';
-      document.getElementById('edit-book-procurement-comments').value = book.procurementComments || '';
-      document.getElementById('edit-book-reason').value = '';
-
-      if (wrapper) wrapper.classList.remove('hidden');
-    }
-
-    function closeEditBookModal() {
-      const wrapper = document.getElementById('edit-book-modal');
-      if (wrapper) wrapper.classList.add('hidden');
-    }
-
-    async function handleEditBookSubmit(event) {
-      event.preventDefault();
-      const book = catalogBooks[editingBookIndex];
-      if (!book || currentRoleKey !== 'librarian') return;
-
-      const previousSnapshot = {
-        isbn: book.isbn || '',
-        title: book.title || '',
-        author: book.author || '',
-        publisher: book.publisher || '',
-        shelf: book.shelf || '',
-        edition: book.edition || '',
-        copies: book.copies || 1,
-        status: book.status || 'Available',
-        procurementMode: book.procurementMode || 'Purchased',
-        procurementComments: book.procurementComments || ''
-      };
-
-      const updated = {
-        isbn: document.getElementById('edit-book-isbn').value.trim(),
-        status: document.getElementById('edit-book-status').value,
-        title: document.getElementById('edit-book-title').value.trim(),
-        author: document.getElementById('edit-book-author').value.trim(),
-        publisher: document.getElementById('edit-book-publisher').value.trim(),
-        shelf: document.getElementById('edit-book-shelf').value.trim(),
-        edition: document.getElementById('edit-book-edition').value.trim(),
-        copies: Math.max(1, parseInt(document.getElementById('edit-book-copies').value || '1', 10)),
-        procurementMode: document.getElementById('edit-book-procurement-mode').value,
-        procurementComments: document.getElementById('edit-book-procurement-comments').value.trim()
-      };
-      const reason = document.getElementById('edit-book-reason').value.trim();
-
-      const changes = [];
-      Object.keys(updated).forEach(key => {
-        if (String(previousSnapshot[key]) !== String(updated[key])) {
-          changes.push({ field: key, from: previousSnapshot[key], to: updated[key] });
-        }
-      });
-
-      if (changes.length === 0) {
-        showToast('No changes detected.', 'info');
-        closeEditBookModal();
-        return;
-      }
-
-      const editor = SYSTEM_ROLES[currentRoleKey];
-      const logEntry = {
-        editedBy: editor?.name || 'Librarian',
-        editedByEmail: editor?.email || '',
-        editedAt: new Date().toLocaleString('en-IN'),
-        reason,
-        changes,
-        previousSnapshot
-      };
-
-      Object.assign(book, updated);
-      if (!Array.isArray(book.editLog)) book.editLog = [];
-      book.editLog.unshift(logEntry);
-
-      if (window.firebaseCloud) {
-        await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
-      }
-      searchCatalogBooks();
-      updateDashboardKpiCards();
-      renderDashboardLatestBooks();
-      closeEditBookModal();
-      showToast('Book updated and logged in audit history.', 'success');
-    }
-
-    function openBookEditLogModal(idx) {
-      if (currentRoleKey !== 'librarian' && currentRoleKey !== 'superadmin') {
-        showToast('Edit Log is restricted to Librarian and Superadmin.', 'warning');
-        return;
-      }
-      const book = catalogBooks[idx];
-      if (!book) return;
-
-      const modal = document.getElementById('book-edit-log-modal');
-      const subtitle = document.getElementById('edit-log-book-subtitle');
-      const body = document.getElementById('book-edit-log-body');
-      if (!modal || !body) return;
-
-      if (subtitle) subtitle.textContent = `${book.title} (ISBN: ${book.isbn || '—'})`;
-      const logs = Array.isArray(book.editLog) ? book.editLog : [];
-
-      if (logs.length === 0) {
-        body.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No edits have been recorded for this book yet.</p>`;
+      if (isSaved) {
+        btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-purple-700 hover:bg-purple-800 border border-purple-700 transition flex items-center gap-1.5 shadow-2xs';
+        icon.setAttribute('fill', 'currentColor');
+        label.textContent = 'In Wish List';
       } else {
-        body.innerHTML = logs.map((entry, i) => `
-          <div class="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 text-xs">
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-bold text-slate-900">Revision #${logs.length - i} · ${entry.editedBy}</span>
-              <span class="font-mono text-[11px] text-slate-500">${entry.editedAt}</span>
-            </div>
-            ${entry.reason ? `<p class="text-slate-600 italic">Reason: "${entry.reason}"</p>` : ''}
-            <div class="space-y-1">
-              ${(entry.changes || []).map(c => `
-                <div class="px-2.5 py-1 rounded-lg bg-white border border-slate-200/80 flex items-center justify-between gap-2">
-                  <span class="font-semibold uppercase text-[10px] text-slate-500">${c.field}</span>
-                  <span class="text-slate-700"><span class="line-through text-rose-600">${c.from || '—'}</span> &rarr; <span class="font-semibold text-emerald-700">${c.to || '—'}</span></span>
-                </div>
-              `).join('')}
-            </div>
-            <details class="pt-1">
-              <summary class="cursor-pointer text-[11px] font-semibold text-slate-600 hover:text-slate-900">View Previous Entry Snapshot</summary>
-              <pre class="mt-2 p-2.5 rounded-xl bg-slate-900 text-slate-100 text-[10px] overflow-x-auto">${JSON.stringify(entry.previousSnapshot || {}, null, 2)}</pre>
-            </details>
-          </div>
-        `).join('');
+        btn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition flex items-center gap-1.5 shadow-2xs';
+        icon.setAttribute('fill', 'none');
+        label.textContent = 'Add to Wish List';
       }
-
-      modal.classList.remove('hidden');
     }
 
-    function closeBookEditLogModal() {
-      const modal = document.getElementById('book-edit-log-modal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function openBookQrStickerModal(idx) {
+    async function toggleBookWishList(idx) {
+      if (currentRoleKey !== 'members') return;
       const book = catalogBooks[idx];
       if (!book) return;
-      const modal = document.getElementById('book-qr-modal');
-      const container = document.getElementById('book-qr-canvas-container');
-      const titleEl = document.getElementById('qr-sticker-title');
-      const authorEl = document.getElementById('qr-sticker-author');
-      const shelfEl = document.getElementById('qr-sticker-shelf');
-      const isbnEl = document.getElementById('qr-sticker-isbn');
-      const urlPreviewEl = document.getElementById('qr-sticker-url-preview');
-      if (!modal || !container) return;
 
-      const bookKey = encodeURIComponent(book._docId || normalizeIsbn(book.isbn) || book.title);
-      const baseUrl = window.location.origin + window.location.pathname;
-      const deepLinkUrl = `${baseUrl}?book=${bookKey}`;
-
-      if (titleEl) titleEl.textContent = book.title;
-      if (authorEl) authorEl.textContent = book.author;
-      if (shelfEl) shelfEl.textContent = `Shelf: ${book.shelf || '—'}`;
-      if (isbnEl) isbnEl.textContent = book.isbn || 'NO-ISBN';
-      if (urlPreviewEl) urlPreviewEl.textContent = deepLinkUrl;
-
-      container.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(container, {
-          text: deepLinkUrl,
-          width: 152,
-          height: 152,
-          colorDark: '#0f172a',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.M
-        });
+      let memberRecord = getActiveMemberRecord();
+      if (!memberRecord) {
+        const activeRole = SYSTEM_ROLES.members || {};
+        memberRecord = {
+          name: activeRole.name || 'SPM NIWAS Member',
+          designation: 'Resident',
+          category: 'Resident / Family',
+          email: (activeRole.email || 'member@spmniwas.in').toLowerCase(),
+          booksAllowed: defaultBooksAllowed,
+          wishList: []
+        };
+        registeredMembers.push(memberRecord);
       }
 
-      modal.classList.remove('hidden');
-    }
-
-    function closeBookQrStickerModal() {
-      const modal = document.getElementById('book-qr-modal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function downloadBookQrStickerPng() {
-      const canvas = document.querySelector('#book-qr-canvas-container canvas');
-      if (!canvas) {
-        showToast('QR code image not ready yet.', 'warning');
-        return;
-      }
-      const link = document.createElement('a');
-      link.download = 'SPM-NIWAS-Book-QR.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }
-
-    function printBookQrSticker() {
-      const card = document.getElementById('qr-sticker-printable-card');
-      if (!card) return;
-      const printWin = window.open('', '_blank', 'width=420,height=520');
-      if (!printWin) return;
-      printWin.document.write(`<html><head><title>SPM NIWAS Book QR Label</title><script src="https://cdn.tailwindcss.com"><\/script></head><body class="p-6 flex items-center justify-center">${card.outerHTML}<script>setTimeout(()=>window.print(),300)<\/script></body></html>`);
-      printWin.document.close();
-    }
-
-    window.checkDeepLinkedBookParam = function () {
-      const bookParam = new URLSearchParams(window.location.search).get('book');
-      if (!bookParam) return;
-      const decoded = decodeURIComponent(bookParam).toLowerCase();
-      const idx = catalogBooks.findIndex(b =>
-        (b._docId && b._docId.toLowerCase() === decoded) ||
-        isSameBookIsbn(b.isbn, decoded) ||
-        (b.title || '').toLowerCase() === decoded
-      );
-      if (idx >= 0) {
-        openBookDetailsModal(idx);
-      }
-    };
-
-    function handleOmniSearchInput() {
-      const input = document.getElementById('librarian-omni-search-input');
-      const dropdown = document.getElementById('librarian-omni-search-dropdown');
-      const clearBtn = document.getElementById('btn-clear-omni-search');
-      if (!input || !dropdown) return;
-
-      const q = input.value.trim().toLowerCase();
-      if (clearBtn) clearBtn.classList.toggle('hidden', q.length === 0);
-
-      const matchedBooks = q
-        ? catalogBooks.filter(b =>
-            (b.title || '').toLowerCase().includes(q) ||
-            (b.author || '').toLowerCase().includes(q) ||
-            (b.shelf || '').toLowerCase().includes(q) ||
-            (b.isbn || '').toLowerCase().includes(q)
-          ).slice(0, 5)
-        : catalogBooks.slice(0, 3);
-
-      const matchedMembers = q
-        ? registeredMembers.filter(m =>
-            (m.name || '').toLowerCase().includes(q) ||
-            (m.email || '').toLowerCase().includes(q) ||
-            (m.designation || '').toLowerCase().includes(q)
-          ).slice(0, 4)
-        : [];
-
-      const bookItems = matchedBooks.map(b => {
-        const idx = catalogBooks.indexOf(b);
-        return `
-          <button type="button" onclick="closeOmniSearchDropdown(); openBookDetailsModal(${idx});"
-            class="w-full text-left px-4 py-2.5 hover:bg-emerald-50/70 transition flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-xs font-bold text-slate-900 truncate">${b.title}</p>
-              <p class="text-[11px] text-slate-500 truncate">${b.author} · Shelf ${b.shelf}</p>
-            </div>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 shrink-0">${b.status}</span>
-          </button>
-        `;
-      }).join('');
-
-      const memberItems = matchedMembers.map(m => `
-        <button type="button" onclick="closeOmniSearchDropdown(); switchSection('members', 'SPM Niwas Members'); document.getElementById('members-search-input').value='${m.name.replace(/'/g, "\\'")}'; filterMembersDirectory();"
-          class="w-full text-left px-4 py-2.5 hover:bg-slate-50 transition flex items-center justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-xs font-bold text-slate-900 truncate">${m.name}</p>
-            <p class="text-[11px] text-slate-500 truncate">${m.designation || 'Member'} · ${m.email}</p>
-          </div>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 shrink-0">Member</span>
-        </button>
-      `).join('');
-
-      dropdown.innerHTML = `
-        <div class="p-2 bg-slate-50/80 text-[10px] font-bold uppercase tracking-wider text-slate-400 px-4">Books (${matchedBooks.length})</div>
-        ${bookItems || '<div class="px-4 py-3 text-xs text-slate-400">No matching books</div>'}
-        ${matchedMembers.length ? `<div class="p-2 bg-slate-50/80 text-[10px] font-bold uppercase tracking-wider text-slate-400 px-4">Members (${matchedMembers.length})</div>${memberItems}` : ''}
-      `;
-      dropdown.classList.remove('hidden');
-    }
-
-    function clearOmniSearch() {
-      const input = document.getElementById('librarian-omni-search-input');
-      if (input) input.value = '';
-      closeOmniSearchDropdown();
-    }
-
-    function closeOmniSearchDropdown() {
-      const dropdown = document.getElementById('librarian-omni-search-dropdown');
-      const clearBtn = document.getElementById('btn-clear-omni-search');
-      if (dropdown) dropdown.classList.add('hidden');
-      if (clearBtn) clearBtn.classList.add('hidden');
-    }
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
-        const omni = document.getElementById('librarian-omni-search-input');
-        if (omni && currentRoleKey === 'librarian') {
-          e.preventDefault();
-          omni.focus();
-        }
-      }
-    });
-
-    function renderDashboardCirculationActivity() {
-      const listEl = document.getElementById('dashboard-circulation-list');
-      if (!listEl) return;
-
-      const sampleActivities = [
-        {
-          bookTitle: 'The Discovery of India',
-          memberName: 'A. Sharma (A-204)',
-          action: 'Issued',
-          dateLabel: 'Due 02 Dec',
-          badgeClass: 'bg-blue-50 text-blue-700'
-        },
-        {
-          bookTitle: 'Malgudi Days',
-          memberName: 'R. Verma (B-102)',
-          action: 'Overdue',
-          dateLabel: 'Due 18 Nov',
-          badgeClass: 'bg-amber-50 text-amber-700'
-        },
-        {
-          bookTitle: 'The God of Small Things',
-          memberName: 'P. Sen (C-301)',
-          action: 'Issued',
-          dateLabel: 'Due 05 Dec',
-          badgeClass: 'bg-blue-50 text-blue-700'
-        },
-        {
-          bookTitle: 'Wings of Fire',
-          memberName: 'S. Nair (A-108)',
-          action: 'Returned',
-          dateLabel: 'Returned Today',
-          badgeClass: 'bg-emerald-50 text-emerald-700'
-        },
-        {
-          bookTitle: 'Sapiens: A Brief History',
-          memberName: 'K. Das (B-205)',
-          action: 'Issued',
-          dateLabel: 'Due 08 Dec',
-          badgeClass: 'bg-blue-50 text-blue-700'
-        }
-      ];
-
-      listEl.innerHTML = sampleActivities.map(item => `
-        <div class="p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 space-y-1">
-          <div class="flex items-center justify-between gap-2">
-            <p class="text-xs font-bold text-slate-900 truncate">${item.bookTitle}</p>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${item.badgeClass}">${item.action}</span>
-          </div>
-          <div class="flex items-center justify-between gap-2 text-[11px] text-slate-500">
-            <span class="truncate">${item.memberName}</span>
-            <span class="font-mono text-[10px] text-slate-400 shrink-0">${item.dateLabel}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-    window.renderDashboardCirculationActivity = renderDashboardCirculationActivity;
-
-    function renderDashboardLatestBooks() {
-      const gridEl = document.getElementById('dashboard-latest-books-grid');
-      if (!gridEl) return;
-
-      if (catalogBooks.length === 0) {
-        gridEl.innerHTML = `
-          <div class="col-span-full py-8 text-center text-xs text-slate-400">
-            No books in the catalog yet. Click "+ Add Book" to get started.
-          </div>
-        `;
-        return;
+      if (!Array.isArray(memberRecord.wishList)) {
+        memberRecord.wishList = [];
       }
 
-      // Calculate columns per row based on current responsive grid width
-      const vw = window.innerWidth;
-      const cols = vw >= 768 ? 3 : vw >= 640 ? 2 : 1;
-
-      // Measure available vertical space against the right-hand Recent Circulation Activity pane
-      const rightPaneEl = document.getElementById('dashboard-circulation-pane');
-      const leftHeaderEl = document.getElementById('dashboard-latest-books-header');
-      const isDesktopTwoPane = vw >= 1024 && rightPaneEl && rightPaneEl.offsetHeight > 0;
-
-      let rowsToShow = 3; // Default 3 rows on mobile/tablet
-      if (isDesktopTwoPane) {
-        const rightHeight = rightPaneEl.offsetHeight;
-        const headerHeight = leftHeaderEl ? leftHeaderEl.offsetHeight : 65;
-        const gridPaddingY = 32; // p-4 top + bottom
-        const rowGap = 14; // gap-3.5
-        const estimatedCardHeight = 90; // p-3 + h-16 cover + borders
-        const availableBodyHeight = Math.max(0, rightHeight - headerHeight - gridPaddingY);
-        rowsToShow = Math.max(2, Math.floor((availableBodyHeight + rowGap) / (estimatedCardHeight + rowGap)));
+      const key = getBookWishListKey(book);
+      const existingIdx = memberRecord.wishList.indexOf(key);
+      if (existingIdx >= 0) {
+        memberRecord.wishList.splice(existingIdx, 1);
+        showToast(`Removed "${book.title}" from your Wish List.`, 'info');
+      } else {
+        memberRecord.wishList.push(key);
+        showToast(`Added "${book.title}" to your Wish List.`, 'success');
       }
 
-      const maxCards = Math.min(catalogBooks.length, rowsToShow * cols);
-      const latestSlice = catalogBooks.slice(0, maxCards);
+      syncBookWishListButtonUI(book);
+      updateDashboardKpiCards();
 
-      gridEl.innerHTML = latestSlice.map(b => {
-        const catalogIdx = catalogBooks.indexOf(b);
-        const statusBadge = b.status === 'Available'
-          ? 'bg-emerald-50 text-emerald-700'
-          : b.status === 'Issued'
-            ? 'bg-blue-50 text-blue-700'
-            : 'bg-amber-50 text-amber-700';
-        const initials = (b.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-        const coverMarkup = b.coverUrl
-          ? `<div class="w-11 h-16 shrink-0 relative">
-               <img src="${b.coverUrl}" alt="${b.title}"
-                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
-                 class="w-11 h-16 object-cover rounded-lg border border-slate-200 bg-white shadow-2xs" />
-               <div class="hidden w-11 h-16 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-xs font-bold">${initials}</div>
-             </div>`
-          : `<div class="w-11 h-16 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-xs font-bold shrink-0">${initials}</div>`;
-
-        return `
-          <div onclick="openBookDetailsModal(${catalogIdx})"
-            class="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-emerald-50/40 hover:border-emerald-200 transition cursor-pointer flex items-start gap-3 group">
-            ${coverMarkup}
-            <div class="min-w-0 flex-1 space-y-1">
-              <p class="text-xs font-bold text-slate-900 group-hover:text-emerald-800 transition line-clamp-1">
-                ${b.title}
-              </p>
-              <p class="text-[11px] text-slate-500 truncate">${b.author}</p>
-              <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-white border border-slate-200 text-slate-700">${b.shelf}</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-medium ${statusBadge}">${b.status}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-    window.renderDashboardLatestBooks = renderDashboardLatestBooks;
-
-    // Re-adjust Latest Books rows when the window resizes
-    window.addEventListener('resize', () => {
-      const dashSec = document.getElementById('section-dashboard');
-      if (dashSec && !dashSec.classList.contains('hidden')) {
-        renderDashboardLatestBooks();
-      }
-    });
-
-    // Check URL on initial load in case user opened a scanned QR sticker link (?book=...)
-    setTimeout(() => {
-      if (typeof window.checkDeepLinkedBookParam === 'function') {
-        window.checkDeepLinkedBookParam();
-      }
-    }, 300);
-
-    function switchSection(sectionKey, title) {
-      const role = SYSTEM_ROLES[currentRoleKey];
-      if (role && !role.allowedSections.includes(sectionKey)) {
-        sectionKey = role.defaultSection.key;
-        title = role.defaultSection.title;
-      }
-
-      document.querySelectorAll('main > section').forEach(sec => {
-        sec.classList.add('hidden');
-      });
-
-      const targetSection = document.getElementById('section-' + sectionKey);
-      if (targetSection) {
-        targetSection.classList.remove('hidden');
-      }
-
-      document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.classList.remove('active', 'bg-emerald-50', 'text-emerald-800', 'font-semibold');
-        btn.classList.add('text-slate-600', 'font-medium', 'hover:bg-slate-100', 'hover:text-slate-900');
-      });
-
-      const activeNav = document.getElementById('nav-' + sectionKey);
-      if (activeNav) {
-        activeNav.classList.remove('text-slate-600', 'font-medium', 'hover:bg-slate-100', 'hover:text-slate-900');
-        activeNav.classList.add('active', 'bg-emerald-50', 'text-emerald-800', 'font-semibold');
-      }
-
-      const pageTitleEl = document.getElementById('page-title');
-      if (pageTitleEl && title) {
-        pageTitleEl.textContent = formatBrandCasing(title);
-      }
-
-      if (sectionKey === 'dashboard') {
-        updateDashboardKpiCards();
-        renderDashboardLatestBooks();
-        renderDashboardCirculationActivity();
-      } else if (sectionKey === 'catalog') {
-        searchCatalogBooks();
-      } else if (sectionKey === 'members') {
-        renderMembersTable();
-      } else if (sectionKey === 'admin-settings') {
-        syncStaffCategoriesUI();
-        renderLibrariansTable();
-        switchSettingsTab('librarian');
+      if (window.firebaseCloud) {
+        await window.firebaseCloud.saveMember(memberRecord).catch(err => console.warn(err));
       }
     }
 
