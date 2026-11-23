@@ -1007,14 +1007,14 @@
             <div class="mt-2.5 flex flex-wrap items-center gap-2">
               <label for="book-offline-cover-input"
                 class="px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 transition cursor-pointer shadow-2xs">
+            <p class="text-[11px] text-slate-500 mt-0.5">Auto-fetched on ISBN lookup, or upload an offline cover photo.</p>
+
+            <div class="mt-2.5 flex flex-wrap items-center gap-2">
+              <label for="book-offline-cover-input"
+                class="px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 transition cursor-pointer shadow-2xs">
                 Upload Offline Photo
               </label>
               <input type="file" id="book-offline-cover-input" accept="image/*" capture="environment" onchange="handleOfflineCoverSelected(event)" class="hidden" />
-
-              <button type="button" id="btn-open-4corner-crop" onclick="openFourCornerCropper()"
-                class="hidden px-3 py-1.5 rounded-xl text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
-                Crop 4 Corners
-              </button>
 
               <button type="button" id="btn-remove-book-cover" onclick="clearBookCoverPhoto()"
                 class="hidden px-2.5 py-1.5 rounded-xl text-[11px] font-medium text-rose-600 hover:bg-rose-50 transition">
@@ -1128,46 +1128,6 @@
           </button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Interactive 4-Corner Perspective Cover Cropper Modal -->
-  <div id="four-corner-crop-modal" class="hidden fixed inset-0 z-[65] flex items-center justify-center bg-slate-900/75 backdrop-blur-[2px] p-4">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-xl w-full p-5 space-y-4">
-      <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
-        <div>
-          <h4 class="text-sm font-bold text-slate-900">Crop &amp; Straighten 4 Corners</h4>
-          <p class="text-xs text-slate-500 mt-0.5">Drag the 4 green corner handles onto the corners of the book cover to cut out the background.</p>
-        </div>
-        <button type="button" onclick="closeFourCornerCropper()" aria-label="Close cropper"
-          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Interactive Canvas Stage -->
-      <div class="relative w-full bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center select-none touch-none" style="min-height: 300px; max-height: 60vh;">
-        <canvas id="four-corner-canvas" class="max-w-full max-h-[58vh] cursor-crosshair block"></canvas>
-      </div>
-
-      <div class="flex items-center justify-between gap-2 pt-1">
-        <button type="button" onclick="resetFourCornerHandles()"
-          class="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
-          Reset Corners
-        </button>
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="closeFourCornerCropper()"
-            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
-            Cancel
-          </button>
-          <button type="button" onclick="applyFourCornerCrop()"
-            class="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-            Apply &amp; Straighten Cover
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -1356,7 +1316,7 @@
       </div>
 
       <form id="edit-book-form" onsubmit="handleEditBookSubmit(event)" class="space-y-4">
-        <!-- Book Cover Photo Card (Upload, Fetch via ISBN, 4-Corner Crop & Delete Cross) -->
+        <!-- Book Cover Photo Card (Upload, Fetch via ISBN & Delete Cross) -->
         <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-4">
           <div class="relative shrink-0">
             <div id="edit-book-cover-preview-box" class="w-16 h-24 rounded-xl border border-slate-200 bg-white overflow-hidden flex items-center justify-center shadow-xs">
@@ -1399,11 +1359,6 @@
               <button type="button" id="btn-edit-fetch-isbn-cover" onclick="pullEditCoverFromIsbn()"
                 class="px-3 py-1.5 rounded-xl text-[11px] font-semibold text-blue-800 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition shadow-2xs">
                 Pull Cover via ISBN
-              </button>
-
-              <button type="button" id="btn-open-edit-4corner-crop" onclick="openEditFourCornerCropper()"
-                class="hidden px-3 py-1.5 rounded-xl text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
-                Crop 4 Corners
               </button>
             </div>
           </div>
@@ -2223,10 +2178,6 @@
     let barcodeMediaStream = null;
     let barcodeScanInterval = null;
     let currentBookCoverUrl = '';
-    let rawCoverSourceDataUrl = '';
-    let cropSourceImage = null;
-    let cropCorners = [];
-    let activeCornerIdx = -1;
     let catalogSortField = 'addedAt';
     let catalogSortDir = 'desc';
     let showOnlyMemberWishlist = false;
@@ -2539,123 +2490,26 @@
     let sameTitleCandidateIndex = -1;
     let editingBookIndex = -1;
     let editBookCoverUrl = '';
-    let editRawCoverSourceDataUrl = '';
-    let activeCropTarget = 'add'; // 'add' | 'edit'
 
-    window.applyBrandLogoUI = function (logoUrl) {
-      const cleanUrl = (logoUrl || '').trim();
-      const targets = [
-        { img: 'gate-brand-logo-img', fb: 'gate-brand-logo-fallback', box: 'gate-logo-box' },
-        { img: 'sidebar-brand-logo-img', fb: 'sidebar-brand-logo-fallback', box: 'sidebar-logo-box' },
-        { img: 'preview-gate-logo-img', fb: 'preview-gate-logo-fallback' },
-        { img: 'preview-sidebar-logo-img', fb: 'preview-sidebar-logo-fallback' }
-      ];
-
-      targets.forEach(({ img, fb, box }) => {
-        const imgEl = document.getElementById(img);
-        const fbEl = document.getElementById(fb);
-        const boxEl = box ? document.getElementById(box) : null;
-        if (!imgEl || !fbEl) return;
-
-        if (cleanUrl) {
-          imgEl.src = cleanUrl;
-          imgEl.classList.remove('hidden');
-          fbEl.classList.add('hidden');
-          if (boxEl) {
-            boxEl.classList.remove('bg-emerald-700');
-            boxEl.classList.add('bg-white', 'border', 'border-slate-200');
-          }
-        } else {
-          imgEl.src = '';
-          imgEl.classList.add('hidden');
-          fbEl.classList.remove('hidden');
-          if (boxEl) {
-            boxEl.classList.add('bg-emerald-700');
-            boxEl.classList.remove('bg-white', 'border', 'border-slate-200');
-          }
-        }
-      });
-
-      const removeBtn = document.getElementById('btn-remove-brand-logo');
-      if (removeBtn) removeBtn.classList.toggle('hidden', !cleanUrl);
-      const statusEl = document.getElementById('logo-file-status');
-      if (statusEl) {
-        statusEl.textContent = cleanUrl
-          ? 'Custom SPM NIWAS logo active on Login Screen & Top-Left Branding.'
-          : 'Recommended: Square transparent PNG or SVG (max 2 MB).';
-      }
-    };
-
-    function handleLogoFileSelected(event) {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      if (file.size > 2 * 1024 * 1024) {
-        showToast('Please select a logo image smaller than 2 MB.', 'warning');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        pendingBrandLogoDraft = e.target.result;
-        window.applyBrandLogoUI(pendingBrandLogoDraft);
-        const statusEl = document.getElementById('logo-file-status');
-        if (statusEl) statusEl.textContent = `Selected: "${file.name}" — Click "Save Logo" to publish.`;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function saveBrandLogo() {
-      if (currentRoleKey !== 'superadmin') {
-        showToast('Only Superadmin can update the SPM NIWAS logo.', 'warning');
-        return;
-      }
-      const saveBtn = document.getElementById('btn-save-brand-logo');
-      if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
-      }
-      try {
-        let savedUrl = pendingBrandLogoDraft || '';
-        if (window.firebaseCloud) {
-          const uploadedUrl = await window.firebaseCloud.saveBrandLogo(savedUrl);
-          if (uploadedUrl) savedUrl = uploadedUrl;
-        }
-        window.brandLogoUrl = savedUrl;
-        pendingBrandLogoDraft = savedUrl;
-        localStorage.setItem(BRAND_LOGO_STORAGE_KEY, savedUrl);
-        window.applyBrandLogoUI(savedUrl);
-        showToast('SPM NIWAS logo saved and applied to Login & Top-Left Branding!', 'success');
-      } catch (err) {
-        showToast('Could not save logo. Please try again.', 'error');
-      } finally {
-        if (saveBtn) {
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save Logo';
-        }
-      }
-    }
-
-    function promptRemoveBrandLogo() {
-      if (currentRoleKey !== 'superadmin') {
-        showToast('Only Superadmin can remove the logo.', 'warning');
-        return;
-      }
-      openSystemDialog({
-        variant: 'danger',
-        title: 'Remove SPM NIWAS Logo?',
-        message: 'This will restore the default library emblem on the Sign-In screen and top-left sidebar.',
-        confirmLabel: 'Remove Logo',
-        onConfirm: async () => {
-          pendingBrandLogoDraft = '';
-          window.brandLogoUrl = '';
-          localStorage.removeItem(BRAND_LOGO_STORAGE_KEY);
-          const input = document.getElementById('spm-logo-upload-input');
-          if (input) input.value = '';
-          window.applyBrandLogoUI('');
-          if (window.firebaseCloud) {
-            await window.firebaseCloud.saveBrandLogo('');
-          }
-          showToast('Default library emblem restored.', 'info');
-        }
+    function resizeCoverImageToDataUrl(file, maxWidth = 420, maxHeight = 630, quality = 0.85) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Could not read image file.'));
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onerror = () => resolve(e.target.result);
+          img.onload = function () {
+            const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(img.width * scale));
+            canvas.height = Math.max(1, Math.round(img.height * scale));
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
       });
     }
 
@@ -2673,6 +2527,82 @@
         }
       }
     };
+
+    window.applyBrandLogoUI = function (logoUrl) {
+      const cleanUrl = (logoUrl || '').trim();
+      const targets = [
+        { img: 'sidebar-brand-logo-img', fb: 'sidebar-brand-logo-fallback' },
+        { img: 'gate-brand-logo-img', fb: 'gate-brand-logo-fallback' }
+      ];
+      targets.forEach(({ img, fb }) => {
+        const imgEl = document.getElementById(img);
+        const fbEl = document.getElementById(fb);
+        if (!imgEl || !fbEl) return;
+        if (cleanUrl) {
+          imgEl.src = cleanUrl;
+          imgEl.classList.remove('hidden');
+          fbEl.classList.add('hidden');
+        } else {
+          imgEl.removeAttribute('src');
+          imgEl.classList.add('hidden');
+          fbEl.classList.remove('hidden');
+        }
+      });
+
+      const removeBtn = document.getElementById('btn-remove-brand-logo');
+      if (removeBtn) {
+        removeBtn.classList.toggle('hidden', !cleanUrl);
+      }
+    };
+
+    function handleLogoFileSelected(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const statusEl = document.getElementById('logo-file-status');
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        pendingBrandLogoDraft = e.target.result || '';
+        window.applyBrandLogoUI(pendingBrandLogoDraft);
+        if (statusEl) {
+          statusEl.textContent = `Selected "${file.name}". Click "Save Logo" to apply across SPM NIWAS Library.`;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function saveBrandLogo() {
+      if (currentRoleKey !== 'superadmin') {
+        showToast('Only Superadmin can update the SPM NIWAS Logo.', 'warning');
+        return;
+      }
+      let finalUrl = pendingBrandLogoDraft || '';
+      if (window.firebaseCloud) {
+        finalUrl = await window.firebaseCloud.saveBrandLogo(finalUrl).catch(() => finalUrl);
+      }
+      window.brandLogoUrl = finalUrl;
+      localStorage.setItem(BRAND_LOGO_STORAGE_KEY, finalUrl);
+      window.applyBrandLogoUI(finalUrl);
+      showToast('Saved SPM NIWAS official logo.', 'success');
+    }
+
+    function promptRemoveBrandLogo() {
+      if (currentRoleKey !== 'superadmin') return;
+      openSystemDialog({
+        title: 'Remove SPM NIWAS Logo',
+        message: 'Revert the sidebar and sign-in screen back to the default book emblem?',
+        confirmLabel: 'Remove Logo',
+        onConfirm: async () => {
+          pendingBrandLogoDraft = '';
+          window.brandLogoUrl = '';
+          localStorage.removeItem(BRAND_LOGO_STORAGE_KEY);
+          window.applyBrandLogoUI('');
+          if (window.firebaseCloud) {
+            await window.firebaseCloud.saveBrandLogo('').catch(() => null);
+          }
+          showToast('Removed custom SPM NIWAS logo.', 'info');
+        }
+      });
+    }
 
     (function initDesignViewControls() {
       window.syncDesignFloaterVisibility('');
@@ -3901,6 +3831,9 @@
         return;
       }
 
+      const reminderDateIso = getOffsetIsoDate(dueDate, -1);
+      const isDueTomorrow = dueDate === getOffsetIsoDate(getTodayIsoDate(), 1);
+
       const allCopies = ensureBookCopyList(book);
       const chosenCopyId = document.getElementById('circ-copy-select')?.value || '';
       const selectedCopy = (chosenCopyId && allCopies.find(c => c.copyId === chosenCopyId && c.status === 'Available'))
@@ -4087,9 +4020,6 @@
       document.getElementById('edit-book-procurement-comments').value = book.procurementComments || '';
       document.getElementById('edit-book-reason').value = '';
 
-      editRawCoverSourceDataUrl = '';
-      const editCropBtn = document.getElementById('btn-open-edit-4corner-crop');
-      if (editCropBtn) editCropBtn.classList.add('hidden');
       setEditBookCoverPreview(book.coverUrl || '', book.coverUrl ? 'Current Cover' : '');
 
       const modal = document.getElementById('edit-book-modal');
@@ -4128,44 +4058,22 @@
     }
 
     function clearEditBookCoverPhoto() {
-      editRawCoverSourceDataUrl = '';
       const fileInput = document.getElementById('edit-book-offline-cover-input');
       if (fileInput) fileInput.value = '';
-      const cropBtn = document.getElementById('btn-open-edit-4corner-crop');
-      if (cropBtn) cropBtn.classList.add('hidden');
       setEditBookCoverPreview('');
       showToast('Cover image cleared.', 'info');
     }
 
-    function handleEditOfflineCoverSelected(event) {
+    async function handleEditOfflineCoverSelected(event) {
       const file = event.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        editRawCoverSourceDataUrl = e.target.result;
-        setEditBookCoverPreview(editRawCoverSourceDataUrl, 'Uploaded Photo');
-        const cropBtn = document.getElementById('btn-open-edit-4corner-crop');
-        if (cropBtn) cropBtn.classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function openEditFourCornerCropper() {
-      if (!editRawCoverSourceDataUrl) return;
-      activeCropTarget = 'edit';
-      const modal = document.getElementById('four-corner-crop-modal');
-      const canvas = document.getElementById('four-corner-canvas');
-      if (!modal || !canvas) return;
-      modal.classList.remove('hidden');
-
-      cropSourceImage = new Image();
-      cropSourceImage.onload = function () {
-        const scale = Math.min(480 / cropSourceImage.width, 360 / cropSourceImage.height, 1);
-        canvas.width = Math.round(cropSourceImage.width * scale);
-        canvas.height = Math.round(cropSourceImage.height * scale);
-        resetFourCornerHandles();
-      };
-      cropSourceImage.src = editRawCoverSourceDataUrl;
+      try {
+        const compressedUrl = await resizeCoverImageToDataUrl(file);
+        setEditBookCoverPreview(compressedUrl, 'Uploaded Photo');
+        showToast('Cover photo attached. Click "Save Changes" to apply.', 'info');
+      } catch (err) {
+        showToast('Could not load selected image.', 'error');
+      }
     }
 
     async function pullEditCoverFromIsbn() {
@@ -4228,9 +4136,6 @@
         }
 
         if (foundCover) {
-          editRawCoverSourceDataUrl = '';
-          const cropBtn = document.getElementById('btn-open-edit-4corner-crop');
-          if (cropBtn) cropBtn.classList.add('hidden');
           setEditBookCoverPreview(foundCover, 'Online Cover');
           showToast('Cover image pulled from web!', 'success');
         } else {
@@ -4339,59 +4244,88 @@
       if (modal) modal.classList.add('hidden');
       editingBookIndex = -1;
       editBookCoverUrl = '';
-      editRawCoverSourceDataUrl = '';
     }
 
     async function handleEditBookSubmit(event) {
       event.preventDefault();
-      if (currentRoleKey !== 'librarian') return;
-      const book = catalogBooks[editingBookIndex];
-      if (!book) return;
-
-      const previousSnapshot = {
-        isbn: book.isbn || '',
-        title: book.title || '',
-        author: book.author || '',
-        publisher: book.publisher || '',
-        shelf: book.shelf || '',
-        edition: book.edition || '',
-        copies: book.copies || 1,
-        status: book.status || 'Available',
-        coverUrl: book.coverUrl || ''
-      };
-
-      book.isbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
-      book.status = document.getElementById('edit-book-status')?.value || 'Available';
-      book.title = (document.getElementById('edit-book-title')?.value || '').trim();
-      book.author = (document.getElementById('edit-book-author')?.value || '').trim();
-      book.publisher = (document.getElementById('edit-book-publisher')?.value || '').trim();
-      book.shelf = (document.getElementById('edit-book-shelf')?.value || '').trim();
-      book.edition = (document.getElementById('edit-book-edition')?.value || '').trim();
-      book.copies = Math.max(1, parseInt(document.getElementById('edit-book-copies')?.value || '1', 10));
-      book.procurementMode = document.getElementById('edit-book-procurement-mode')?.value || 'Purchased';
-      book.procurementComments = (document.getElementById('edit-book-procurement-comments')?.value || '').trim();
-      book.coverUrl = editBookCoverUrl || '';
-      const reason = (document.getElementById('edit-book-reason')?.value || '').trim();
-
-      ensureBookCopyList(book);
-
-      if (!Array.isArray(book.editLog)) book.editLog = [];
-      book.editLog.unshift({
-        editedBy: SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian',
-        editedAt: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        reason,
-        previousSnapshot
-      });
-
-      if (window.firebaseCloud) {
-        await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can edit book details.', 'warning');
+        return;
+      }
+      const targetIdx = editingBookIndex;
+      const book = catalogBooks[targetIdx];
+      if (!book) {
+        showToast('Book record not found. Please reopen Edit Book Details.', 'error');
+        return;
       }
 
-      closeEditBookModal();
-      searchCatalogBooks();
-      updateDashboardKpiCards();
-      renderDashboardLatestBooks();
-      showToast(`Saved updates for "${book.title}".`, 'success');
+      const submitBtn = event.target?.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+      }
+
+      try {
+        const previousSnapshot = {
+          isbn: book.isbn || '',
+          title: book.title || '',
+          author: book.author || '',
+          publisher: book.publisher || '',
+          shelf: book.shelf || '',
+          edition: book.edition || '',
+          copies: book.copies || 1,
+          status: book.status || 'Available',
+          coverUrl: book.coverUrl || ''
+        };
+
+        book.isbn = (document.getElementById('edit-book-isbn')?.value || '').trim();
+        book.status = document.getElementById('edit-book-status')?.value || 'Available';
+        book.title = (document.getElementById('edit-book-title')?.value || '').trim();
+        book.author = (document.getElementById('edit-book-author')?.value || '').trim();
+        book.publisher = (document.getElementById('edit-book-publisher')?.value || '').trim();
+        book.shelf = (document.getElementById('edit-book-shelf')?.value || '').trim();
+        book.edition = (document.getElementById('edit-book-edition')?.value || '').trim();
+        book.copies = Math.max(1, parseInt(document.getElementById('edit-book-copies')?.value || '1', 10));
+        book.procurementMode = document.getElementById('edit-book-procurement-mode')?.value || 'Purchased';
+        book.procurementComments = (document.getElementById('edit-book-procurement-comments')?.value || '').trim();
+        book.coverUrl = editBookCoverUrl || '';
+        const reason = (document.getElementById('edit-book-reason')?.value || '').trim();
+
+        ensureBookCopyList(book);
+
+        if (!Array.isArray(book.editLog)) book.editLog = [];
+        book.editLog.unshift({
+          editedBy: SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian',
+          editedAt: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          reason,
+          previousSnapshot
+        });
+
+        const updatedTitle = book.title;
+        if (window.firebaseCloud) {
+          await window.firebaseCloud.saveBook(book).catch(err => console.warn('Cloud save notice:', err));
+        }
+
+        closeEditBookModal();
+        searchCatalogBooks(false);
+        updateDashboardKpiCards();
+        renderDashboardLatestBooks();
+
+        const detailsModal = document.getElementById('book-details-modal');
+        if (detailsModal && !detailsModal.classList.contains('hidden') && activeDetailBookIndex === targetIdx) {
+          openBookDetailsModal(targetIdx);
+        }
+
+        showToast(`Saved updates for "${updatedTitle}".`, 'success');
+      } catch (err) {
+        console.error('Edit book save error:', err);
+        showToast('Could not save book changes. Please try again.', 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Save Changes';
+        }
+      }
     }
 
     function openBookEditLogModal(idx) {
@@ -5788,117 +5722,23 @@
     }
 
     function clearBookCoverPhoto() {
-      rawCoverSourceDataUrl = '';
       setBookCoverPreview('');
-      const cropBtn = document.getElementById('btn-open-4corner-crop');
-      if (cropBtn) cropBtn.classList.add('hidden');
     }
 
-    function handleOfflineCoverSelected(event) {
+    async function handleOfflineCoverSelected(event) {
       const file = event.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        rawCoverSourceDataUrl = e.target.result;
-        setBookCoverPreview(rawCoverSourceDataUrl, 'Offline Photo');
-        const cropBtn = document.getElementById('btn-open-4corner-crop');
-        if (cropBtn) cropBtn.classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedUrl = await resizeCoverImageToDataUrl(file);
+        setBookCoverPreview(compressedUrl, 'Offline Photo');
+      } catch (err) {
+        showToast('Could not load selected cover photo.', 'error');
+      }
     }
 
     function handleCoverPhotoUpload(event) {
       handleOfflineCoverSelected(event);
       showToast('Cover photo attached. Fill or verify Title, Author & Publisher.', 'info');
-    }
-
-    function openFourCornerCropper() {
-      if (!rawCoverSourceDataUrl) return;
-      activeCropTarget = 'add';
-      const modal = document.getElementById('four-corner-crop-modal');
-      const canvas = document.getElementById('four-corner-canvas');
-      if (!modal || !canvas) return;
-      modal.classList.remove('hidden');
-
-      cropSourceImage = new Image();
-      cropSourceImage.onload = function () {
-        const scale = Math.min(480 / cropSourceImage.width, 360 / cropSourceImage.height, 1);
-        canvas.width = Math.round(cropSourceImage.width * scale);
-        canvas.height = Math.round(cropSourceImage.height * scale);
-        resetFourCornerHandles();
-      };
-      cropSourceImage.src = rawCoverSourceDataUrl;
-    }
-
-    function resetFourCornerHandles() {
-      const canvas = document.getElementById('four-corner-canvas');
-      if (!canvas) return;
-      const padX = Math.round(canvas.width * 0.1);
-      const padY = Math.round(canvas.height * 0.1);
-      cropCorners = [
-        { x: padX, y: padY },
-        { x: canvas.width - padX, y: padY },
-        { x: canvas.width - padX, y: canvas.height - padY },
-        { x: padX, y: canvas.height - padY }
-      ];
-      drawFourCornerCanvas();
-    }
-
-    function drawFourCornerCanvas() {
-      const canvas = document.getElementById('four-corner-canvas');
-      if (!canvas || !cropSourceImage) return;
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(cropSourceImage, 0, 0, canvas.width, canvas.height);
-
-      if (cropCorners.length === 4) {
-        ctx.strokeStyle = '#10b981';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(cropCorners[0].x, cropCorners[0].y);
-        for (let i = 1; i < 4; i++) ctx.lineTo(cropCorners[i].x, cropCorners[i].y);
-        ctx.closePath();
-        ctx.stroke();
-
-        cropCorners.forEach(pt => {
-          ctx.fillStyle = '#047857';
-          ctx.beginPath();
-          ctx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        });
-      }
-    }
-
-    function applyFourCornerCrop() {
-      const canvas = document.getElementById('four-corner-canvas');
-      if (!canvas || !cropSourceImage || cropCorners.length !== 4) return;
-      const scaleX = cropSourceImage.width / canvas.width;
-      const scaleY = cropSourceImage.height / canvas.height;
-      const xs = cropCorners.map(p => p.x * scaleX);
-      const ys = cropCorners.map(p => p.y * scaleY);
-      const minX = Math.max(0, Math.min(...xs));
-      const minY = Math.max(0, Math.min(...ys));
-      const w = Math.max(20, Math.max(...xs) - minX);
-      const h = Math.max(20, Math.max(...ys) - minY);
-
-      const out = document.createElement('canvas');
-      out.width = Math.round(w);
-      out.height = Math.round(h);
-      out.getContext('2d').drawImage(cropSourceImage, minX, minY, w, h, 0, 0, out.width, out.height);
-      if (activeCropTarget === 'edit') {
-        setEditBookCoverPreview(out.toDataURL('image/jpeg', 0.9), 'Cropped Cover');
-      } else {
-        setBookCoverPreview(out.toDataURL('image/jpeg', 0.9), 'Cropped Cover');
-      }
-      closeFourCornerCropper();
-    }
-
-    function closeFourCornerCropper() {
-      const modal = document.getElementById('four-corner-crop-modal');
-      if (modal) modal.classList.add('hidden');
     }
 
     async function toggleBarcodeScanner() {
