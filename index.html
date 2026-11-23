@@ -2947,6 +2947,162 @@
       }
     }
     window.renderActiveCirculationLoans = renderActiveCirculationLoans;
+
+    function recalculateCirculationDueDate() {
+      const issueDateEl = document.getElementById('circ-issue-date');
+      const dueDateEl = document.getElementById('circ-due-date');
+      if (!issueDateEl || !dueDateEl) return;
+
+      const baseStr = issueDateEl.value || getTodayIsoDate();
+      const baseDate = new Date(`${baseStr}T00:00:00`);
+      if (Number.isNaN(baseDate.getTime())) return;
+
+      const loanDays = Number(window.defaultLoanDays) || 14;
+      baseDate.setDate(baseDate.getDate() + loanDays);
+      dueDateEl.value = baseDate.toISOString().slice(0, 10);
+    }
+
+    function renderCirculationBookSuggestions() {
+      const inputEl = document.getElementById('circ-book-search-input');
+      const boxEl = document.getElementById('circ-book-suggestions');
+      if (!inputEl || !boxEl) return;
+
+      const q = inputEl.value.trim().toLowerCase();
+      const matches = catalogBooks
+        .filter(b =>
+          !q ||
+          (b.title || '').toLowerCase().includes(q) ||
+          (b.author || '').toLowerCase().includes(q) ||
+          (b.shelf || '').toLowerCase().includes(q) ||
+          normalizeIsbn(b.isbn).toLowerCase().includes(q.replace(/[^0-9x]/g, '') || '__none__')
+        )
+        .slice(0, 8);
+
+      if (matches.length === 0) {
+        boxEl.innerHTML = `<div class="p-3.5 text-center text-xs text-slate-400">No matching books found in catalog.</div>`;
+        boxEl.classList.remove('hidden');
+        return;
+      }
+
+      boxEl.innerHTML = matches.map(b => {
+        const idx = catalogBooks.indexOf(b);
+        const avail = getBookAvailableCopies(b);
+        const total = Math.max(1, Number(b.copies) || 1);
+        const availBadge = avail > 0
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 shrink-0">${avail}/${total} avail</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 shrink-0">0/${total} avail</span>`;
+        return `
+          <button type="button" onclick="selectCirculationBook(${idx})"
+            class="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 transition flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-900 truncate">${b.title}</p>
+              <p class="text-[11px] text-slate-500 truncate">${b.author} · Shelf ${b.shelf || '—'}</p>
+            </div>
+            ${availBadge}
+          </button>
+        `;
+      }).join('');
+      boxEl.classList.remove('hidden');
+    }
+
+    function selectCirculationBook(idx) {
+      const book = catalogBooks[idx];
+      const boxEl = document.getElementById('circ-book-suggestions');
+      const inputEl = document.getElementById('circ-book-search-input');
+      if (boxEl) boxEl.classList.add('hidden');
+      if (!book) return;
+
+      selectedCirculationBookIdx = idx;
+      if (inputEl) inputEl.value = `${book.title} (Shelf ${book.shelf || '—'})`;
+      updateSelectedCirculationBookCard();
+    }
+
+    function clearCirculationBookSelection() {
+      selectedCirculationBookIdx = -1;
+      const inputEl = document.getElementById('circ-book-search-input');
+      if (inputEl) inputEl.value = '';
+      updateSelectedCirculationBookCard();
+    }
+
+    function updateSelectedCirculationBookCard() {
+      const card = document.getElementById('circ-selected-book-card');
+      const clearBtn = document.getElementById('btn-clear-circ-book');
+      const book = catalogBooks[selectedCirculationBookIdx];
+      if (!card) return;
+
+      if (!book) {
+        card.classList.add('hidden');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        return;
+      }
+
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      card.classList.remove('hidden');
+
+      const initials = (book.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+      const coverEl = document.getElementById('circ-selected-book-cover');
+      if (coverEl) {
+        coverEl.innerHTML = book.coverUrl
+          ? `<img src="${book.coverUrl}" alt="${book.title}" onerror="this.remove();" class="w-full h-full object-cover" />`
+          : initials;
+      }
+
+      document.getElementById('circ-selected-book-title').textContent = book.title;
+      document.getElementById('circ-selected-book-meta').textContent = `${book.author || 'Unknown'} · Shelf ${book.shelf || '—'} · ${book.isbn || 'No ISBN'}`;
+
+      const avail = getBookAvailableCopies(book);
+      const total = Math.max(1, Number(book.copies) || 1);
+      const badgeEl = document.getElementById('circ-selected-book-avail-badge');
+      if (badgeEl) {
+        badgeEl.textContent = avail > 0
+          ? `${avail} of ${total} ${total === 1 ? 'copy' : 'copies'} available`
+          : `0 of ${total} available (All copies issued)`;
+        badgeEl.className = avail > 0
+          ? 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700'
+          : 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700';
+      }
+    }
+
+    function renderCirculationMemberSuggestions() {
+      const inputEl = document.getElementById('circ-member-search-input');
+      const boxEl = document.getElementById('circ-member-suggestions');
+      if (!inputEl || !boxEl) return;
+
+      const q = inputEl.value.trim().toLowerCase();
+      const matches = registeredMembers
+        .filter(m =>
+          !q ||
+          (m.name || '').toLowerCase().includes(q) ||
+          (m.designation || '').toLowerCase().includes(q) ||
+          (m.category || '').toLowerCase().includes(q) ||
+          (m.email || '').toLowerCase().includes(q)
+        )
+        .slice(0, 8);
+
+      if (matches.length === 0) {
+        boxEl.innerHTML = `<div class="p-3.5 text-center text-xs text-slate-400">No matching SPM NIWAS members found.</div>`;
+        boxEl.classList.remove('hidden');
+        return;
+      }
+
+      boxEl.innerHTML = matches.map(m => {
+        const idx = registeredMembers.indexOf(m);
+        const activeCount = getMemberCirculationRecords(m.email).filter(r => r.status === 'Issued').length;
+        const limit = m.booksAllowed ?? defaultBooksAllowed;
+        return `
+          <button type="button" onclick="selectCirculationMember(${idx})"
+            class="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50/70 transition flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-xs font-semibold text-slate-900 truncate">${m.name}</p>
+              <p class="text-[11px] text-slate-500 truncate">${m.designation || 'Member'} · ${m.email}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 shrink-0">${activeCount}/${limit} books</span>
+          </button>
+        `;
+      }).join('');
+      boxEl.classList.remove('hidden');
+    }
+
     async function handleIssueBookSubmit(event) {
       event.preventDefault();
       if (currentRoleKey !== 'librarian') {
