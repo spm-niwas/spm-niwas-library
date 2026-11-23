@@ -3048,35 +3048,57 @@
         let foundCoverUrl = '';
         const variantsToQuery = getAllIsbnVariants(cleanIsbn);
 
-        // Query Open Library API across all ISBN-10/13 variants
+        // 1. Query Open Library Books API across all ISBN-10/13 variants
         for (const variant of variantsToQuery) {
-          if (foundTitle) break;
-          const olRes = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${variant}&format=json&jscmd=data`);
-          if (olRes.ok) {
-            const olData = await olRes.json();
-            const entry = olData[`ISBN:${variant}`];
-            if (entry) {
-              foundTitle = entry.title || '';
-              foundAuthor = Array.isArray(entry.authors) ? entry.authors.map(a => a.name).join(', ') : '';
-              foundPublisher = Array.isArray(entry.publishers) ? entry.publishers.map(p => p.name).join(', ') : '';
-              foundCoverUrl = entry.cover?.medium || entry.cover?.large || entry.cover?.small || '';
+          if (foundTitle && foundAuthor && foundPublisher && foundCoverUrl) break;
+          try {
+            const olRes = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${variant}&format=json&jscmd=data`);
+            if (olRes.ok) {
+              const olData = await olRes.json();
+              const entry = olData[`ISBN:${variant}`];
+              if (entry) {
+                if (!foundTitle && entry.title) foundTitle = entry.title;
+                if (!foundAuthor && Array.isArray(entry.authors)) foundAuthor = entry.authors.map(a => a.name).join(', ');
+                if (!foundPublisher && Array.isArray(entry.publishers)) foundPublisher = entry.publishers.map(p => p.name).join(', ');
+                if (!foundCoverUrl) foundCoverUrl = entry.cover?.medium || entry.cover?.large || entry.cover?.small || '';
+              }
             }
-          }
+          } catch (_) {}
         }
 
-        // Fallback to Google Books API across all ISBN-10/13 variants
+        // 2. Enrich any missing fields (Title, Author, Publisher, Cover) from Google Books API
         for (const variant of variantsToQuery) {
-          if (foundTitle) break;
-          const gbRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${variant}`);
-          if (gbRes.ok) {
-            const gbData = await gbRes.json();
-            const info = gbData.items?.[0]?.volumeInfo;
-            if (info) {
-              foundTitle = info.title || '';
-              foundAuthor = Array.isArray(info.authors) ? info.authors.join(', ') : '';
-              foundPublisher = info.publisher || '';
-              foundCoverUrl = (info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || '').replace(/^http:/, 'https:');
+          if (foundTitle && foundAuthor && foundPublisher && foundCoverUrl) break;
+          try {
+            const gbRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${variant}`);
+            if (gbRes.ok) {
+              const gbData = await gbRes.json();
+              const info = gbData.items?.[0]?.volumeInfo;
+              if (info) {
+                if (!foundTitle && info.title) foundTitle = info.title;
+                if (!foundAuthor && Array.isArray(info.authors)) foundAuthor = info.authors.join(', ');
+                if (!foundPublisher && info.publisher) foundPublisher = info.publisher;
+                if (!foundCoverUrl) {
+                  foundCoverUrl = (info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || '').replace(/^http:/, 'https:');
+                }
+              }
             }
+          } catch (_) {}
+        }
+
+        // 3. Final fallback to Open Library direct edition JSON (/isbn/{isbn}.json)
+        if (!foundTitle || !foundPublisher) {
+          for (const variant of variantsToQuery) {
+            try {
+              const edRes = await fetch(`https://openlibrary.org/isbn/${variant}.json`);
+              if (edRes.ok) {
+                const ed = await edRes.json();
+                if (!foundTitle && ed.title) foundTitle = ed.title;
+                if (!foundPublisher && Array.isArray(ed.publishers) && ed.publishers.length > 0) {
+                  foundPublisher = ed.publishers.join(', ');
+                }
+              }
+            } catch (_) {}
           }
         }
 
@@ -3090,10 +3112,10 @@
           handleBookIsbnOrTitleCheck();
           showToast(foundCoverUrl ? 'Book details & cover downloaded from ISBN directory!' : 'Book details fetched from ISBN directory!', 'success');
         } else {
-          showToast('ISBN not found online — upload a cover photo or enter details manually.');
+          showToast('ISBN not found online — upload a cover photo or enter details manually.', 'warning');
         }
       } catch (err) {
-        showToast('Could not reach ISBN directory — enter details manually or use Cover AI.');
+        showToast('Could not reach ISBN directory — enter details manually or use Cover AI.', 'warning');
       } finally {
         if (lookupBtn) {
           lookupBtn.disabled = false;
