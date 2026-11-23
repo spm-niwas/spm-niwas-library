@@ -270,7 +270,8 @@
               </div>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div id="kpi-card-4-box" onclick="if(currentRoleKey==='members'){ openDashboardWishlistPage(); }"
+              class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm transition">
               <p id="kpi-card-4-label" class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Members</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p id="kpi-total-members" class="text-2xl font-bold text-slate-900">0</p>
@@ -347,19 +348,35 @@
               class="exec-action px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm flex items-center justify-center gap-1.5 shrink-0">
               <span>+ Add Book</span>
             </button>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <a href="#catalog" id="btn-catalog-back-to-catalog" onclick="event.preventDefault(); closeMemberWishlistView();"
+                class="hidden px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition inline-flex items-center justify-center gap-1.5 shrink-0">
+                <span>&larr; Back to Catalog</span>
+              </a>
+
+              <a href="#my-wishlist" id="btn-catalog-my-wishlist" onclick="event.preventDefault(); openMemberWishlistView();"
+                class="hidden px-4 py-2 rounded-xl text-xs font-semibold text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition shadow-2xs inline-flex items-center justify-center gap-1.5 shrink-0">
+                <svg id="catalog-wishlist-btn-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+                <span>My Wishlist</span>
+                <span id="catalog-wishlist-count-badge" class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">0</span>
+              </a>
+            </div>
           </div>
 
-          <!-- Existing Books Search Results Container -->
-          <div id="catalog-results-card" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <!-- Catalog Table Container -->
+          <div id="catalog-main-list-container" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
               <div>
                 <h3 class="text-sm font-bold text-slate-900">Existing Books</h3>
                 <p id="catalog-results-subtitle" class="text-xs text-slate-400">Showing all existing books in SPM NIWAS Library</p>
               </div>
-              <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-2 shrink-0">
                 <button type="button" id="btn-reset-catalog-sort" onclick="resetCatalogSortToLatest()"
-                  class="hidden px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition">
-                  Sort: Latest Procured ↺
+                  class="hidden px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                  Sort: Latest Procured &#8634;
                 </button>
                 <span id="catalog-results-count" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">20 Books</span>
               </div>
@@ -367,44 +384,44 @@
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse">
                 <thead>
-                  <tr class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 select-none">
-                    <th class="py-3 px-4 w-14">Cover</th>
+                  <tr class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                    <th class="py-3 px-4">Cover</th>
                     <th class="py-3 px-4">
-                      <button type="button" onclick="toggleCatalogSort('isbn')" class="inline-flex items-center gap-1 hover:text-slate-900 transition uppercase">
-                        <span>ISBN</span><span id="sort-ind-isbn" class="text-[10px] text-slate-400">⇅</span>
+                      <button type="button" onclick="toggleCatalogSort('isbn')" class="inline-flex items-center gap-1 hover:text-slate-900 transition">
+                        <span>ISBN</span><span id="sort-ind-isbn" class="text-[10px] text-slate-400">&#8645;</span>
                       </button>
                     </th>
                     <th class="py-3 px-4">
-                      <button type="button" onclick="toggleCatalogSort('title')" class="inline-flex items-center gap-1 hover:text-slate-900 transition uppercase">
-                        <span>Title</span><span id="sort-ind-title" class="text-[10px] text-slate-400">⇅</span>
+                      <button type="button" onclick="toggleCatalogSort('title')" class="inline-flex items-center gap-1 hover:text-slate-900 transition">
+                        <span>Title</span><span id="sort-ind-title" class="text-[10px] text-slate-400">&#8645;</span>
                       </button>
                     </th>
                     <th class="py-3 px-4">
-                      <button type="button" onclick="toggleCatalogSort('author')" class="inline-flex items-center gap-1 hover:text-slate-900 transition uppercase">
-                        <span>Author</span><span id="sort-ind-author" class="text-[10px] text-slate-400">⇅</span>
+                      <button type="button" onclick="toggleCatalogSort('author')" class="inline-flex items-center gap-1 hover:text-slate-900 transition">
+                        <span>Author</span><span id="sort-ind-author" class="text-[10px] text-slate-400">&#8645;</span>
                       </button>
                     </th>
                     <th class="py-3 px-4">
-                      <button type="button" onclick="toggleCatalogSort('publisher')" class="inline-flex items-center gap-1 hover:text-slate-900 transition uppercase">
-                        <span>Publisher</span><span id="sort-ind-publisher" class="text-[10px] text-slate-400">⇅</span>
+                      <button type="button" onclick="toggleCatalogSort('publisher')" class="inline-flex items-center gap-1 hover:text-slate-900 transition">
+                        <span>Publisher</span><span id="sort-ind-publisher" class="text-[10px] text-slate-400">&#8645;</span>
                       </button>
                     </th>
                     <th class="py-3 px-4">
-                      <button type="button" onclick="toggleCatalogSort('shelf')" class="inline-flex items-center gap-1 hover:text-slate-900 transition uppercase">
-                        <span>Shelf ID</span><span id="sort-ind-shelf" class="text-[10px] text-slate-400">⇅</span>
+                      <button type="button" onclick="toggleCatalogSort('shelf')" class="inline-flex items-center gap-1 hover:text-slate-900 transition">
+                        <span>Shelf ID</span><span id="sort-ind-shelf" class="text-[10px] text-slate-400">&#8645;</span>
                       </button>
                     </th>
                     <th class="py-3 px-4 text-center">
-                      <button type="button" onclick="toggleCatalogSort('copies')" class="inline-flex items-center justify-center gap-1 hover:text-slate-900 transition uppercase">
-                        <span>Copies</span><span id="sort-ind-copies" class="text-[10px] text-slate-400">⇅</span>
+                      <button type="button" onclick="toggleCatalogSort('copies')" class="inline-flex items-center justify-center gap-1 hover:text-slate-900 transition">
+                        <span>Copies</span><span id="sort-ind-copies" class="text-[10px] text-slate-400">&#8645;</span>
                       </button>
                     </th>
                     <th class="py-3 px-4 text-right">
-                      <button type="button" onclick="toggleCatalogSort('status')" class="inline-flex items-center justify-end gap-1 hover:text-slate-900 transition uppercase">
-                        <span>Status</span><span id="sort-ind-status" class="text-[10px] text-slate-400">⇅</span>
+                      <button type="button" onclick="toggleCatalogSort('status')" class="inline-flex items-center justify-end gap-1 hover:text-slate-900 transition">
+                        <span>Status</span><span id="sort-ind-status" class="text-[10px] text-slate-400">&#8645;</span>
                       </button>
                     </th>
-                    <th class="catalog-edit-col py-3 px-4 text-right w-14">Edit</th>
+                    <th class="catalog-edit-col hidden py-3 px-4 text-right">Edit</th>
                   </tr>
                 </thead>
                 <tbody id="catalog-books-table-body" class="divide-y divide-slate-100 text-sm">
@@ -417,31 +434,48 @@
               <div id="catalog-pagination-controls" class="flex items-center gap-1.5"></div>
             </div>
           </div>
+
+          <!-- Member Bookmarked Wishlist Dedicated List Page -->
+          <div id="member-wishlist-page-container" class="hidden bg-white rounded-2xl border border-purple-200/80 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-purple-100 bg-purple-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-bold text-slate-900">My Wishlist</h3>
+                  <span id="wishlist-page-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">0 Books</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Books you have bookmarked in SPM NIWAS Library</p>
+              </div>
+            </div>
+
+            <div id="member-wishlist-list-body" class="divide-y divide-slate-100">
+              <!-- Populated dynamically with bookmarked books list -->
+            </div>
+          </div>
         </section>
 
         <!-- SECTION: CIRCULATION DESK -->
         <section id="section-circulation" class="hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
             <h3 class="text-base font-bold text-slate-900">Circulation Desk</h3>
-            <p class="text-xs text-slate-500 mt-1">Issue books to SPM NIWAS members, process returns, and track overdue loans.</p>
+            <p class="text-xs text-slate-500 mt-1">Issue and return library books for SPM NIWAS members.</p>
           </div>
         </section>
 
         <!-- SECTION: MEMBERS -->
         <section id="section-members" class="hidden space-y-6">
-          <!-- Top Search Bar & Add Member Action -->
+          <!-- Top Search Bar & Add Member Button -->
           <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <div class="relative flex-1 max-w-md">
               <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
               </svg>
               <input type="text" id="members-search-input" oninput="filterMembersDirectory()"
-                placeholder="Search members by name, designation, category, or email..."
+                placeholder="Search SPM NIWAS members by name, designation, or email..."
                 class="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
             </div>
 
             <button type="button" id="btn-open-add-member" onclick="openAddMemberModal()"
-              class="hidden px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm flex items-center justify-center gap-1.5 shrink-0">
+              class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm flex items-center justify-center gap-1.5 shrink-0">
               <span>+ Add Member</span>
             </button>
           </div>
@@ -1958,6 +1992,7 @@
     let activeCornerIdx = -1;
     let catalogSortField = 'addedAt';
     let catalogSortDir = 'desc';
+    let showOnlyMemberWishlist = false;
     const PAGE_SIZE_LIMIT = 25;
     let catalogCurrentPage = 1;
     let membersCurrentPage = 1;
@@ -2439,6 +2474,10 @@
       if (omniWrap) {
         omniWrap.classList.toggle('hidden', currentRoleKey !== 'librarian');
       }
+      if (currentRoleKey !== 'members') {
+        showOnlyMemberWishlist = false;
+      }
+      syncCatalogWishlistButtonUI();
       const openAddMemberBtn = document.getElementById('btn-open-add-member');
       if (openAddMemberBtn) {
         openAddMemberBtn.classList.toggle('hidden', !canManageMembers);
@@ -2639,7 +2678,12 @@
         updateDashboardKpiCards();
         renderDashboardCirculationActivity();
       } else if (sectionKey === 'catalog') {
-        searchCatalogBooks();
+        if (currentRoleKey === 'members' && showOnlyMemberWishlist) {
+          renderMemberWishlistPage();
+        } else {
+          closeMemberWishlistView(false);
+          searchCatalogBooks();
+        }
       } else if (sectionKey === 'members') {
         renderMembersTable();
       } else if (sectionKey === 'admin-settings') {
@@ -3098,6 +3142,21 @@
       const label4El = document.getElementById('kpi-card-4-label');
       const membersEl = document.getElementById('kpi-total-members');
       const badge4El = document.getElementById('kpi-card-4-badge');
+      const card4BoxEl = document.getElementById('kpi-card-4-box');
+
+      if (card4BoxEl) {
+        if (currentRoleKey === 'members') {
+          card4BoxEl.className = 'bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-purple-300 hover:bg-purple-50/20 shadow-sm transition cursor-pointer';
+          card4BoxEl.setAttribute('role', 'button');
+          card4BoxEl.setAttribute('tabindex', '0');
+          card4BoxEl.title = 'Open My Wishlist';
+        } else {
+          card4BoxEl.className = 'bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm transition';
+          card4BoxEl.removeAttribute('role');
+          card4BoxEl.removeAttribute('tabindex');
+          card4BoxEl.removeAttribute('title');
+        }
+      }
 
       if (currentRoleKey === 'members') {
         const activeRole = SYSTEM_ROLES.members || {};
@@ -3551,7 +3610,7 @@
       }
 
       const q = (searchInput?.value || '').trim().toLowerCase();
-      const filtered = q
+      let filtered = q
         ? catalogBooks.filter(b =>
             (b.title || '').toLowerCase().includes(q) ||
             (b.author || '').toLowerCase().includes(q) ||
@@ -3585,7 +3644,7 @@
           ? 'Sorted by latest procured first'
           : `Sorted by ${catalogSortField.toUpperCase()} (${catalogSortDir === 'asc' ? 'A→Z / Low→High' : 'Z→A / High→Low'})`;
         subtitleEl.textContent = q
-          ? `Showing ${filtered.length} matching ${filtered.length === 1 ? 'book' : 'books'} for "${searchInput.value.trim()}" · ${sortNote}`
+          ? `Showing ${filtered.length} matching ${filtered.length === 1 ? 'book' : 'books'} in SPM NIWAS Library for "${searchInput.value.trim()}" · ${sortNote}`
           : `Showing all existing books in SPM NIWAS Library · ${sortNote}`;
       }
 
@@ -4449,6 +4508,138 @@
       return registeredMembers.find(m => (m.email || '').toLowerCase() === memberEmail) || null;
     }
 
+    function syncCatalogWishlistButtonUI() {
+      const btn = document.getElementById('btn-catalog-my-wishlist');
+      const backLink = document.getElementById('btn-catalog-back-to-catalog');
+      const icon = document.getElementById('catalog-wishlist-btn-icon');
+      const badge = document.getElementById('catalog-wishlist-count-badge');
+      if (!btn) return;
+
+      const isMember = currentRoleKey === 'members';
+      btn.classList.toggle('hidden', !isMember);
+      if (backLink) {
+        backLink.classList.toggle('hidden', !(isMember && showOnlyMemberWishlist));
+      }
+      if (!isMember) return;
+
+      const memberRecord = getActiveMemberRecord();
+      const count = Array.isArray(memberRecord?.wishList) ? memberRecord.wishList.length : 0;
+      if (badge) badge.textContent = String(count);
+
+      if (showOnlyMemberWishlist) {
+        btn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-700 hover:bg-purple-800 border border-purple-700 transition shadow-sm inline-flex items-center justify-center gap-1.5 shrink-0';
+        if (icon) icon.setAttribute('fill', 'currentColor');
+        if (badge) badge.className = 'px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-purple-900/60 text-white';
+      } else {
+        btn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition shadow-2xs inline-flex items-center justify-center gap-1.5 shrink-0';
+        if (icon) icon.setAttribute('fill', 'none');
+        if (badge) badge.className = 'px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800';
+      }
+    }
+
+    function openMemberWishlistView() {
+      if (currentRoleKey !== 'members') return;
+      showOnlyMemberWishlist = true;
+      syncCatalogWishlistButtonUI();
+      const catalogContainer = document.getElementById('catalog-main-list-container');
+      const wishlistContainer = document.getElementById('member-wishlist-page-container');
+      if (catalogContainer) catalogContainer.classList.add('hidden');
+      if (wishlistContainer) wishlistContainer.classList.remove('hidden');
+      renderMemberWishlistPage();
+    }
+
+    function closeMemberWishlistView(refreshCatalog = true) {
+      showOnlyMemberWishlist = false;
+      syncCatalogWishlistButtonUI();
+      const catalogContainer = document.getElementById('catalog-main-list-container');
+      const wishlistContainer = document.getElementById('member-wishlist-page-container');
+      if (wishlistContainer) wishlistContainer.classList.add('hidden');
+      if (catalogContainer) catalogContainer.classList.remove('hidden');
+      if (refreshCatalog) searchCatalogBooks();
+    }
+
+    function openDashboardWishlistPage() {
+      if (currentRoleKey !== 'members') return;
+      showOnlyMemberWishlist = true;
+      switchSection('catalog', 'Catalog');
+    }
+
+    function renderMemberWishlistPage() {
+      const listBody = document.getElementById('member-wishlist-list-body');
+      const countBadge = document.getElementById('wishlist-page-count-badge');
+      if (!listBody) return;
+
+      const memberRecord = getActiveMemberRecord();
+      const wishKeys = Array.isArray(memberRecord?.wishList) ? memberRecord.wishList : [];
+      const bookmarkedBooks = catalogBooks.filter(b => wishKeys.includes(getBookWishListKey(b)));
+
+      if (countBadge) {
+        countBadge.textContent = `${bookmarkedBooks.length} ${bookmarkedBooks.length === 1 ? 'Book' : 'Books'}`;
+      }
+
+      if (bookmarkedBooks.length === 0) {
+        listBody.innerHTML = `
+          <div class="p-10 text-center space-y-3">
+            <p class="text-sm font-semibold text-slate-700">Your Wishlist is empty</p>
+            <p class="text-xs text-slate-400 max-w-md mx-auto">Click any book in the catalog and press <strong>Add to Wish List</strong> to bookmark it here.</p>
+            <div class="pt-1">
+              <button type="button" onclick="closeMemberWishlistView()"
+                class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
+                Browse Catalog
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      listBody.innerHTML = bookmarkedBooks.map(b => {
+        const realIdx = catalogBooks.indexOf(b);
+        const initials = (b.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        const statusBadge = b.status === 'Available'
+          ? 'bg-emerald-50 text-emerald-700'
+          : b.status === 'Issued'
+            ? 'bg-blue-50 text-blue-700'
+            : 'bg-amber-50 text-amber-700';
+        const editionBadge = b.edition
+          ? `<span class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/70">${b.edition}</span>`
+          : '';
+        const coverHtml = b.coverUrl
+          ? `<div class="w-11 h-16 shrink-0 relative">
+               <img src="${b.coverUrl}" alt="${b.title}"
+                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                 class="w-11 h-16 object-cover rounded-lg border border-slate-200 bg-white" />
+               <div class="hidden w-11 h-16 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-xs font-bold">${initials}</div>
+             </div>`
+          : `<div class="w-11 h-16 shrink-0 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-xs font-bold">${initials}</div>`;
+
+        return `
+          <div onclick="openBookDetailsModal(${realIdx})"
+            class="px-5 py-4 hover:bg-purple-50/30 transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5 min-w-0">
+              ${coverHtml}
+              <div class="min-w-0 space-y-1">
+                <p class="text-sm font-bold text-slate-900 leading-snug">${b.title}${editionBadge}</p>
+                <p class="text-xs font-medium text-slate-600">${b.author}${b.publisher ? ' · ' + b.publisher : ''}</p>
+                <div class="flex flex-wrap items-center gap-2 pt-0.5 text-[11px] text-slate-500">
+                  <span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700">Shelf ${b.shelf || '—'}</span>
+                  <span class="font-mono text-slate-400">ISBN: ${b.isbn || '—'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0" onclick="event.stopPropagation()">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge}">${b.status || 'Available'}</span>
+              <button type="button" onclick="toggleBookWishList(${realIdx})"
+                class="px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 transition">
+                Remove
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function syncBookWishListButtonUI(book) {
       const btn = document.getElementById('btn-detail-wishlist');
       const label = document.getElementById('detail-wishlist-label');
@@ -4505,7 +4696,11 @@
       }
 
       syncBookWishListButtonUI(book);
+      syncCatalogWishlistButtonUI();
       updateDashboardKpiCards();
+      if (showOnlyMemberWishlist) {
+        renderMemberWishlistPage();
+      }
 
       if (window.firebaseCloud) {
         await window.firebaseCloud.saveMember(memberRecord).catch(err => console.warn(err));
