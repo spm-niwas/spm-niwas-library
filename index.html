@@ -246,7 +246,8 @@
 
           <!-- KPI Metric Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div id="kpi-card-1-box" onclick="if(currentRoleKey==='members'){ openMemberLoanListPage('taken'); }"
+              class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm transition">
               <p id="kpi-card-1-label" class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Books</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p id="kpi-total-books" class="text-2xl font-bold text-slate-900">0</p>
@@ -254,7 +255,8 @@
               </div>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div id="kpi-card-2-box" onclick="if(currentRoleKey==='members'){ openMemberLoanListPage('with_me'); }"
+              class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm transition">
               <p id="kpi-card-2-label" class="text-xs font-medium text-slate-500 uppercase tracking-wider">New Books (last 30 days)</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p id="kpi-new-books-30d" class="text-2xl font-bold text-slate-900">0</p>
@@ -262,7 +264,8 @@
               </div>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div id="kpi-card-3-box" onclick="if(currentRoleKey==='members'){ openMemberLoanListPage('overdue'); }"
+              class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm transition">
               <p id="kpi-card-3-label" class="text-xs font-medium text-slate-500 uppercase tracking-wider">Overdue Books</p>
               <div class="mt-2 flex items-baseline justify-between">
                 <p id="kpi-overdue-books" class="text-2xl font-bold text-amber-600">0</p>
@@ -451,272 +454,149 @@
               <!-- Populated dynamically with bookmarked books list -->
             </div>
           </div>
+
+          <!-- Member Loan History / Active / Overdue Dedicated List Page -->
+          <div id="member-loans-page-container" class="hidden bg-white rounded-2xl border border-emerald-200/80 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-emerald-100 bg-emerald-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 id="member-loans-page-title" class="text-sm font-bold text-slate-900">Books Taken by Me</h3>
+                  <span id="member-loans-page-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">0 Books</span>
+                </div>
+                <p id="member-loans-page-subtitle" class="text-xs text-slate-500 mt-0.5">Your borrowing activity in SPM NIWAS Library</p>
+              </div>
+            </div>
+
+            <div id="member-loans-list-body" class="divide-y divide-slate-100">
+              <!-- Populated dynamically with member loan records -->
+            </div>
+          </div>
         </section>
 
         <!-- SECTION: CIRCULATION DESK -->
         <section id="section-circulation" class="hidden space-y-6">
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
-            <h3 class="text-base font-bold text-slate-900">Circulation Desk</h3>
-            <p class="text-xs text-slate-500 mt-1">Issue and return library books for SPM NIWAS members.</p>
-          </div>
-        </section>
-
-        <!-- SECTION: MEMBERS -->
-        <section id="section-members" class="hidden space-y-6">
-          <!-- Top Search Bar & Add Member Button -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div class="relative flex-1 max-w-md">
-              <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              <input type="text" id="members-search-input" oninput="filterMembersDirectory()"
-                placeholder="Search SPM NIWAS members by name, designation, or email..."
-                class="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
-            </div>
-
-            <button type="button" id="btn-open-add-member" onclick="openAddMemberModal()"
-              class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm flex items-center justify-center gap-1.5 shrink-0">
-              <span>+ Add Member</span>
-            </button>
-          </div>
-
-          <!-- SPM NIWAS Members Directory Table -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 class="text-sm font-bold text-slate-900">SPM NIWAS Members</h3>
-                <p class="text-xs text-slate-400">Registered staff &amp; resident borrowers</p>
-              </div>
-              <span id="directory-member-count" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Member</span>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                    <th class="py-3 px-5">Name</th>
-                    <th class="py-3 px-4">Designation</th>
-                    <th class="py-3 px-4">Category of Staff</th>
-                    <th class="py-3 px-4">Google Email</th>
-                    <th class="py-3 px-4 text-center">Books Allowed</th>
-                    <th class="member-action-col hidden py-3 px-5 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="directory-members-table-body" class="divide-y divide-slate-100 text-sm">
-                </tbody>
-              </table>
-            </div>
-            <!-- Auto Pagination Footer (Appears automatically when > 25 members) -->
-            <div id="members-pagination-bar" class="hidden px-5 py-3.5 border-t border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-              <span id="members-pagination-info" class="text-slate-500 font-medium">Showing 1–25 of 25 members</span>
-              <div id="members-pagination-controls" class="flex items-center gap-1.5"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SECTION: ADMIN SETTINGS (SUPERADMIN ONLY) -->
-        <section id="section-admin-settings" class="hidden space-y-6">
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-            <!-- Admin Settings Tabs Header -->
-            <div class="px-6 pt-4 border-b border-slate-200 flex items-center gap-6 overflow-x-auto">
-              <button type="button" onclick="switchSettingsTab('librarian')" id="settings-tab-librarian"
-                class="settings-tab pb-3.5 text-sm font-semibold text-emerald-800 border-b-2 border-emerald-700 transition whitespace-nowrap">
-                Add Librarian
-              </button>
-              <button type="button" onclick="switchSettingsTab('categories')" id="settings-tab-categories"
-                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
-                Staff Categories
-              </button>
-              <button type="button" onclick="switchSettingsTab('entitlement')" id="settings-tab-entitlement"
-                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
-                Book entitlement
-              </button>
-              <button type="button" onclick="switchSettingsTab('logo')" id="settings-tab-logo"
-                class="settings-tab pb-3.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition whitespace-nowrap">
-                Add Logo
-              </button>
-            </div>
-
-            <!-- Tab 1: Add Librarian -->
-            <div id="settings-panel-librarian" class="p-6">
-              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Add Librarian Form -->
-                <div class="lg:col-span-1 bg-slate-50/70 rounded-2xl border border-slate-200/80 p-5">
-                  <div class="mb-4">
-                    <h3 class="text-base font-bold text-slate-900">Add Librarian</h3>
-                    <p class="text-xs text-slate-500 mt-1">Authorize a Google account to manage desk &amp; catalog.</p>
-                  </div>
-
-                  <form id="add-librarian-form" onsubmit="handleAddLibrarian(event)" class="space-y-4">
-                    <div>
-                      <label for="librarian-name" class="block text-xs font-semibold text-slate-700 mb-1.5">Librarian Name</label>
-                      <input type="text" id="librarian-name" oninput="autoCapitalizeFirstLetter(this)" required
-                        placeholder="e.g. S. Mukherjee"
-                        class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
-                    </div>
-
-                    <div>
-                      <label for="librarian-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Google / Gmail Address</label>
-                      <input type="email" id="librarian-email" required
-                        placeholder="librarian@spmniwas.in"
-                        class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
-                      <p id="librarian-email-hint" class="text-[11px] text-slate-400 mt-1">Only @gmail.com, @googlemail.com, or Google Workspace domains allowed.</p>
-                    </div>
-
-                    <button type="submit"
-                      class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-                      + Add Librarian
-                    </button>
-                  </form>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Left Pane: Issue Book to Member -->
+            <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+              <div class="border-b border-slate-100 pb-4">
+                <div class="flex items-center justify-between gap-2">
+                  <h3 class="text-base font-bold text-slate-900">Issue Book to Member</h3>
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700">Desk Issue</span>
                 </div>
-
-                <!-- Authorized Librarians List -->
-                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
-                  <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                      <h3 class="text-sm font-bold text-slate-900">Authorized Librarians</h3>
-                      <p class="text-xs text-slate-400">Active staff with Librarian desk &amp; scanner permissions</p>
-                    </div>
-                    <span id="librarian-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">1 Active</span>
-                  </div>
-                  <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                      <thead>
-                        <tr class="bg-slate-50/70 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                          <th class="py-3 px-5">Name</th>
-                          <th class="py-3 px-4">Google Email</th>
-                          <th class="py-3 px-4">Provider</th>
-                          <th class="py-3 px-4">Status</th>
-                          <th class="py-3 px-5 text-right">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody id="librarians-table-body" class="divide-y divide-slate-100 text-sm">
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tab 2: Staff Categories -->
-            <div id="settings-panel-categories" class="hidden p-6 max-w-2xl space-y-4">
-              <div>
-                <h3 class="text-base font-bold text-slate-900">Staff Categories</h3>
-                <p class="text-xs text-slate-500 mt-1">
-                  Enter one staff category per line. All listed categories will appear in the Add Member dropdown.
-                </p>
+                <p class="text-xs text-slate-500 mt-1">Select an available catalog book and an eligible SPM NIWAS member.</p>
               </div>
 
-              <div>
-                <label for="staff-categories-textarea" class="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Staff Categories (one per line)
-                </label>
-                <textarea id="staff-categories-textarea" rows="8"
-                  placeholder="Officer&#10;Executive&#10;Clerical / Admin Staff&#10;Technical Staff&#10;Support Staff&#10;Resident / Family"
-                  class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition font-sans leading-relaxed"></textarea>
-                <p id="staff-categories-count" class="text-[11px] text-slate-400 mt-1.5">6 categories configured</p>
-              </div>
-
-              <div class="pt-1 flex items-center gap-3">
-                <button type="button" id="btn-save-staff-categories" onclick="saveStaffCategories()"
-                  class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-                  Save Categories
-                </button>
-              </div>
-            </div>
-
-            <!-- Tab 3: Book Entitlement -->
-            <div id="settings-panel-entitlement" class="hidden p-6 max-w-3xl space-y-5">
-              <div>
-                <h3 class="text-base font-bold text-slate-900">Book entitlement</h3>
-                <p class="text-xs text-slate-500 mt-1">
-                  Assign the maximum number of books allowed for each staff category added under Staff Categories.
-                </p>
-              </div>
-
-              <!-- Two-Pane Category Entitlement Grid -->
-              <div class="rounded-2xl border border-slate-200/80 overflow-hidden bg-white">
-                <div class="grid grid-cols-12 bg-slate-50/80 border-b border-slate-200/80 px-5 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  <div class="col-span-7 sm:col-span-8">Staff Categories</div>
-                  <div class="col-span-5 sm:col-span-4 text-right">Books Allowed</div>
-                </div>
-                <div id="entitlement-category-list" class="divide-y divide-slate-100">
-                  <!-- Populated dynamically from staffCategories -->
-                </div>
-              </div>
-
-              <div class="pt-1 flex items-center justify-between gap-3">
-                <p class="text-[11px] text-slate-400">Selecting a category in Add Member will automatically apply its entitlement.</p>
-                <button type="button" onclick="saveBookEntitlement()"
-                  class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm shrink-0">
-                  Save Entitlement
-                </button>
-              </div>
-            </div>
-
-            <!-- Tab 4: Add Logo -->
-            <div id="settings-panel-logo" class="hidden p-6 max-w-2xl space-y-5">
-              <div>
-                <h3 class="text-base font-bold text-slate-900">Add Logo</h3>
-                <p class="text-xs text-slate-500 mt-1">
-                  Upload the official SPM NIWAS logo (PNG, JPG, SVG, or WebP). It will appear on the Google Sign-In screen and top-left sidebar branding.
-                </p>
-              </div>
-
-              <!-- Live Preview Card (Sign-In Screen & Top-Left Sidebar) -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center text-center space-y-2.5">
-                  <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Login Screen Preview</span>
-                  <div class="w-16 h-16 rounded-2xl bg-emerald-700 text-white flex items-center justify-center shadow-sm overflow-hidden border border-slate-200">
-                    <img id="preview-gate-logo-img" src="" alt="Login Logo Preview" class="hidden w-full h-full object-contain bg-white p-1.5" />
-                    <svg id="preview-gate-logo-fallback" class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                    </svg>
-                  </div>
-                  <p class="text-xs font-bold text-slate-800">SPM NIWAS Library</p>
-                </div>
-
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-center space-y-2.5">
-                  <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 text-center">Top-Left Branding Preview</span>
-                  <div class="px-4 py-3 rounded-xl bg-white border border-slate-200/80 flex items-center gap-3 shadow-2xs mx-auto">
-                    <div class="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-sm shrink-0 overflow-hidden border border-slate-200">
-                      <img id="preview-sidebar-logo-img" src="" alt="Sidebar Logo Preview" class="hidden w-full h-full object-contain bg-white p-1" />
-                      <svg id="preview-sidebar-logo-fallback" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="text-sm font-bold text-slate-900 leading-tight">SPM NIWAS Library</p>
-                      <p class="text-[11px] text-slate-400">Books, books &amp; books!</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Upload Dropzone & Actions -->
-              <div class="p-5 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="space-y-1 text-center sm:text-left">
-                  <p class="text-xs font-bold text-slate-800">Upload SPM NIWAS Logo File</p>
-                  <p id="logo-file-status" class="text-[11px] text-slate-500">Recommended: Square transparent PNG or SVG (max 2 MB).</p>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                  <label for="spm-logo-upload-input"
-                    class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 transition cursor-pointer shadow-2xs">
-                    Choose Logo
+              <form id="issue-book-form" onsubmit="handleIssueBookSubmit(event)" class="space-y-4">
+                <!-- Step 1: Book Picker -->
+                <div class="relative" id="circ-book-picker-wrap">
+                  <label for="circ-book-search-input" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    1. Select Book (Title, ISBN, or Shelf ID) <span class="text-rose-600">*</span>
                   </label>
-                  <input type="file" id="spm-logo-upload-input" accept="image/*" onchange="handleLogoFileSelected(event)" class="hidden" />
+                  <div class="relative">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    <input type="text" id="circ-book-search-input" autocomplete="off"
+                      onfocus="renderCirculationBookSuggestions()"
+                      oninput="renderCirculationBookSuggestions()"
+                      placeholder="Search book title, author, ISBN, or shelf..."
+                      class="w-full pl-10 pr-8 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                    <button type="button" id="btn-clear-circ-book" onclick="clearCirculationBookSelection()"
+                      class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition" aria-label="Clear selected book">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div id="circ-book-suggestions"
+                    class="hidden absolute left-0 right-0 mt-1.5 bg-white rounded-2xl border border-slate-200 shadow-xl max-h-56 overflow-y-auto z-30 divide-y divide-slate-100">
+                  </div>
 
-                  <button type="button" id="btn-remove-brand-logo" onclick="promptRemoveBrandLogo()"
-                    class="hidden px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
-                    Remove
+                  <!-- Selected Book Live Availability Card -->
+                  <div id="circ-selected-book-card" class="hidden mt-2.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                    <div id="circ-selected-book-cover" class="w-10 h-14 rounded-lg bg-emerald-900 text-emerald-50 flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden border border-slate-200"></div>
+                    <div class="min-w-0 flex-1">
+                      <p id="circ-selected-book-title" class="text-xs font-bold text-slate-900 truncate">Book Title</p>
+                      <p id="circ-selected-book-meta" class="text-[11px] text-slate-500 truncate mt-0.5">Author · Shelf A-12</p>
+                      <div class="mt-1.5 flex items-center gap-2">
+                        <span id="circ-selected-book-avail-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700">Available</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Step 2: Member Picker -->
+                <div class="relative" id="circ-member-picker-wrap">
+                  <label for="circ-member-search-input" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    2. Select SPM NIWAS Member <span class="text-rose-600">*</span>
+                  </label>
+                  <div class="relative">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <input type="text" id="circ-member-search-input" autocomplete="off"
+                      onfocus="renderCirculationMemberSuggestions()"
+                      oninput="renderCirculationMemberSuggestions()"
+                      placeholder="Search member by name, designation, or email..."
+                      class="w-full pl-10 pr-8 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                    <button type="button" id="btn-clear-circ-member" onclick="clearCirculationMemberSelection()"
+                      class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition" aria-label="Clear selected member">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div id="circ-member-suggestions"
+                    class="hidden absolute left-0 right-0 mt-1.5 bg-white rounded-2xl border border-slate-200 shadow-xl max-h-56 overflow-y-auto z-30 divide-y divide-slate-100">
+                  </div>
+
+                  <!-- Selected Member Entitlement & Eligibility Card -->
+                  <div id="circ-selected-member-card" class="hidden mt-2.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <p id="circ-selected-member-name" class="text-xs font-bold text-slate-900 truncate">Member Name</p>
+                      <span id="circ-selected-member-quota-badge" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 shrink-0">0 of 3 issued</span>
+                    </div>
+                    <p id="circ-selected-member-meta" class="text-[11px] text-slate-500 truncate">Designation · member@spmniwas.in</p>
+                    <p id="circ-selected-member-warning" class="hidden text-[11px] font-semibold text-rose-600 pt-0.5"></p>
+                  </div>
+                </div>
+
+                <!-- Step 3: Loan Period Dates -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label for="circ-issue-date" class="block text-xs font-semibold text-slate-700 mb-1.5">Issue Date</label>
+                    <input type="date" id="circ-issue-date" onchange="recalculateCirculationDueDate()" required
+                      class="w-full px-3.5 py-2 text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                  </div>
+                  <div>
+                    <label for="circ-due-date" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Return Due Date <span id="circ-loan-days-hint" class="font-normal text-slate-400">(14 days)</span>
+                    </label>
+                    <input type="date" id="circ-due-date" required
+                      class="w-full px-3.5 py-2 text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+                  </div>
+                </div>
+
+                <div class="pt-2">
+                  <button type="submit" id="btn-confirm-issue-book"
+                    class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm flex items-center justify-center gap-2">
+                    <span>Confirm &amp; Issue Book</span>
                   </button>
                 </div>
-              </div>
+              </form>
+            </div>
 
-              <div class="pt-1 flex items-center justify-end gap-3">
-                <button type="button" id="btn-save-brand-logo" onclick="saveBrandLogo()"
-                  class="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
-                  Save Logo
-                </button>
+            <!-- Right Pane: Active Loans & Quick Return (Populated in Step 3) -->
+            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+              <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 class="text-base font-bold text-slate-900">Active Loans &amp; Quick Return</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Currently issued and overdue books across SPM NIWAS Library</p>
+                </div>
+                <span id="circ-active-loans-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 self-start sm:self-auto">0 Active</span>
+              </div>
+              <div id="circ-active-loans-body" class="p-6 text-xs text-slate-500">
+                Active loans table &amp; one-click return controls will be wired in Step 3.
               </div>
             </div>
           </div>
@@ -1199,6 +1079,15 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 14.625h2.25m2.25 0h2.25m-6.75 3.375h2.25m2.25 0h2.25m-6.75 2.25h6.75" />
             </svg>
             <span>Generate QR Cover Sticker</span>
+          </button>
+
+          <!-- Quick Issue Shortcut (Librarian Only when Copies Available) -->
+          <button type="button" id="btn-detail-quick-issue" onclick="issueBookFromDetails(activeDetailBookIndex)"
+            class="hidden w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition flex items-center justify-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+            </svg>
+            <span>Issue This Book</span>
           </button>
         </div>
 
@@ -1739,6 +1628,9 @@
         if (cfg.categoryEntitlements && typeof cfg.categoryEntitlements === 'object') {
           Object.assign(window.categoryEntitlements, cfg.categoryEntitlements);
         }
+        if (typeof cfg.defaultLoanDays === 'number' && cfg.defaultLoanDays >= 1) {
+          window.defaultLoanDays = cfg.defaultLoanDays;
+        }
         if (typeof cfg.brandLogoUrl === 'string') {
           window.brandLogoUrl = cfg.brandLogoUrl;
           localStorage.setItem('spm_niwas_brand_logo', cfg.brandLogoUrl);
@@ -1746,6 +1638,20 @@
         }
         if (typeof window.syncStaffCategoriesUI === 'function') window.syncStaffCategoriesUI();
       }, (err) => console.error('Settings sync error:', err));
+
+      // 6. Real-time Circulation Records Sync
+      onSnapshot(publicCol('circulation'), (snapshot) => {
+        if (snapshot.empty) return;
+        const records = [];
+        snapshot.forEach((docSnap) => {
+          records.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        window.circulationRecords.splice(0, window.circulationRecords.length, ...records);
+        if (typeof window.updateDashboardKpiCards === 'function') window.updateDashboardKpiCards();
+        if (typeof window.renderDashboardCirculationActivity === 'function') window.renderDashboardCirculationActivity();
+        if (typeof window.renderActiveCirculationLoans === 'function') window.renderActiveCirculationLoans();
+        if (typeof window.refreshActiveMemberSubView === 'function') window.refreshActiveMemberSubView();
+      }, (err) => console.error('Circulation sync error:', err));
     }
 
     // Expose cloud persistence helpers to main UI script
@@ -1800,21 +1706,32 @@
         await deleteDoc(publicDoc('librarians', email.trim().toLowerCase()));
       },
       async saveMember(memberObj) {
-        if (!firebaseUser) throw new Error('Not signed in to Firebase. Please sign in as librarian first.');
+        if (!firebaseUser) return;
         const cleanEmail = memberObj.email.trim().toLowerCase();
-        await setDoc(publicDoc('members', cleanEmail), { ...memberObj, email: cleanEmail });
+        await setDoc(publicDoc('members', cleanEmail), { ...memberObj, email: cleanEmail }, { merge: true });
       },
       async deleteMember(email) {
-        if (!firebaseUser) throw new Error('Not signed in to Firebase.');
+        if (!firebaseUser) return;
         await deleteDoc(publicDoc('members', email.trim().toLowerCase()));
       },
-      async saveLibraryConfig(categories, entitlements) {
+      async saveLibraryConfig(categories, entitlements, loanDays) {
         if (!firebaseUser) return;
-        await setDoc(publicDoc('settings', 'library_config'), {
+        const payload = {
           staffCategories: categories,
           categoryEntitlements: entitlements,
           updatedAt: Date.now()
-        }, { merge: true });
+        };
+        if (typeof loanDays === 'number' && loanDays >= 1) {
+          payload.defaultLoanDays = loanDays;
+        }
+        await setDoc(publicDoc('settings', 'library_config'), payload, { merge: true });
+      },
+      async saveCirculationRecord(recordObj) {
+        if (!firebaseUser) return;
+        const recId = recordObj.id || `CIRC_${Date.now()}`;
+        const cleanRecord = { ...recordObj, id: recId };
+        await setDoc(publicDoc('circulation', recId), cleanRecord, { merge: true });
+        return cleanRecord;
       },
       async saveBrandLogo(logoDataOrUrl) {
         if (!firebaseUser) return;
@@ -1993,6 +1910,124 @@
     let catalogSortField = 'addedAt';
     let catalogSortDir = 'desc';
     let showOnlyMemberWishlist = false;
+    let activeMemberCatalogSubView = null; // null | 'wishlist' | 'taken' | 'with_me' | 'overdue'
+    let selectedCirculationBookIdx = -1;
+    let selectedCirculationMemberIdx = -1;
+    let activeCirculationFilter = 'all'; // 'all' | 'issued' | 'overdue'
+    window.defaultLoanDays = 14;
+    window.circulationRecords = [
+      {
+        id: 'CIRC-1001',
+        bookTitle: 'The Discovery of India',
+        isbn: '978-0143031031',
+        shelf: 'A-12',
+        memberName: 'A. Sharma',
+        memberEmail: 'member@spmniwas.in',
+        issueDate: '2026-11-15',
+        dueDate: '2026-11-29',
+        returnedDate: '',
+        status: 'Issued',
+        updatedAt: 1763190000000
+      },
+      {
+        id: 'CIRC-1002',
+        bookTitle: 'Malgudi Days',
+        isbn: '978-8185986173',
+        shelf: 'C-09',
+        memberName: 'R. Nair',
+        memberEmail: 'rnair@spmniwas.in',
+        issueDate: '2026-11-05',
+        dueDate: '2026-11-19',
+        returnedDate: '',
+        status: 'Issued',
+        updatedAt: 1762326000000
+      },
+      {
+        id: 'CIRC-1003',
+        bookTitle: 'The God of Small Things',
+        isbn: '978-0679772675',
+        shelf: 'B-07',
+        memberName: 'P. Dasgupta',
+        memberEmail: 'pdasgupta@spmniwas.in',
+        issueDate: '2026-11-20',
+        dueDate: '2026-12-04',
+        returnedDate: '',
+        status: 'Issued',
+        updatedAt: 1763622000000
+      },
+      {
+        id: 'CIRC-1004',
+        bookTitle: 'Sapiens: A Brief History of Humankind',
+        isbn: '978-0062316097',
+        shelf: 'D-10',
+        memberName: 'K. Verma',
+        memberEmail: 'kverma@spmniwas.in',
+        issueDate: '2026-11-18',
+        dueDate: '2026-12-02',
+        returnedDate: '',
+        status: 'Issued',
+        updatedAt: 1763449200000
+      },
+      {
+        id: 'CIRC-1005',
+        bookTitle: 'Wings of Fire',
+        isbn: '978-8173711466',
+        shelf: 'B-04',
+        memberName: 'A. Sharma',
+        memberEmail: 'member@spmniwas.in',
+        issueDate: '2026-10-25',
+        dueDate: '2026-11-08',
+        returnedDate: '2026-11-12',
+        status: 'Returned',
+        updatedAt: 1762930800000
+      },
+      {
+        id: 'CIRC-1006',
+        bookTitle: 'Atomic Habits',
+        isbn: '978-0735211292',
+        shelf: 'E-01',
+        memberName: 'A. Sharma',
+        memberEmail: 'member@spmniwas.in',
+        issueDate: '2026-10-10',
+        dueDate: '2026-10-24',
+        returnedDate: '2026-10-28',
+        status: 'Returned',
+        updatedAt: 1761634800000
+      }
+    ];
+    const circulationRecords = window.circulationRecords;
+
+    function getTodayIsoDate() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function isLoanOverdue(record) {
+      if (!record || record.status !== 'Issued' || !record.dueDate) return false;
+      return record.dueDate < getTodayIsoDate();
+    }
+
+    function formatDisplayDate(isoStr) {
+      if (!isoStr) return '—';
+      const dt = new Date(`${isoStr}T00:00:00`);
+      if (Number.isNaN(dt.getTime())) return isoStr;
+      return dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function getMemberCirculationRecords(memberEmail) {
+      const cleanEmail = (memberEmail || '').trim().toLowerCase();
+      return circulationRecords
+        .filter(r => (r.memberEmail || '').trim().toLowerCase() === cleanEmail)
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }
+
+    window.refreshActiveMemberSubView = function () {
+      if (currentRoleKey !== 'members') return;
+      if (activeMemberCatalogSubView === 'wishlist') {
+        renderMemberWishlistPage();
+      } else if (['taken', 'with_me', 'overdue'].includes(activeMemberCatalogSubView)) {
+        renderMemberLoansListPage(activeMemberCatalogSubView);
+      }
+    };
     const PAGE_SIZE_LIMIT = 25;
     let catalogCurrentPage = 1;
     let membersCurrentPage = 1;
@@ -2287,6 +2322,10 @@
 
     function renderBookEntitlementPanes() {
       const listEl = document.getElementById('entitlement-category-list');
+      const loanDaysInput = document.getElementById('default-loan-days-input');
+      if (loanDaysInput) {
+        loanDaysInput.value = window.defaultLoanDays || 14;
+      }
       if (!listEl) return;
 
       if (staffCategories.length === 0) {
@@ -2382,6 +2421,13 @@
         showToast('Only Superadmin can modify Admin Settings.');
         return;
       }
+      const loanDaysInput = document.getElementById('default-loan-days-input');
+      const parsedLoanDays = parseInt(loanDaysInput?.value || '14', 10);
+      if (isNaN(parsedLoanDays) || parsedLoanDays < 1 || parsedLoanDays > 180) {
+        showToast('Please enter a valid default loan period between 1 and 180 days.');
+        return;
+      }
+
       const inputs = document.querySelectorAll('.entitlement-cat-input');
       let hasInvalid = false;
       const updatedMap = { ...categoryEntitlements };
@@ -2402,12 +2448,13 @@
         return;
       }
 
+      window.defaultLoanDays = parsedLoanDays;
       categoryEntitlements = updatedMap;
       window.categoryEntitlements = categoryEntitlements;
       if (window.firebaseCloud) {
-        window.firebaseCloud.saveLibraryConfig(staffCategories, categoryEntitlements);
+        window.firebaseCloud.saveLibraryConfig(staffCategories, categoryEntitlements, window.defaultLoanDays);
       }
-      showToast('Book entitlements saved for all categories.', 'success');
+      showToast(`Saved book entitlements & ${window.defaultLoanDays}-day loan period.`, 'success');
     }
 
     function handleMemberCategoryChange() {
@@ -2476,6 +2523,7 @@
       }
       if (currentRoleKey !== 'members') {
         showOnlyMemberWishlist = false;
+        activeMemberCatalogSubView = null;
       }
       syncCatalogWishlistButtonUI();
       const openAddMemberBtn = document.getElementById('btn-open-add-member');
@@ -2584,26 +2632,40 @@
           footerBtn.onclick = () => switchSection('catalog', 'Catalog');
         }
 
-        const myLoans = [
-          { title: 'The Discovery of India', action: 'Currently With You', due: 'Due in 6 days', badge: 'bg-blue-50 text-blue-700' },
-          { title: 'Wings of Fire', action: 'Returned', due: '12 Nov 2026', badge: 'bg-emerald-50 text-emerald-700' },
-          { title: 'Atomic Habits', action: 'Returned', due: '28 Oct 2026', badge: 'bg-emerald-50 text-emerald-700' },
-          { title: 'The Argumentative Indian', action: 'Returned', due: '09 Oct 2026', badge: 'bg-emerald-50 text-emerald-700' }
-        ];
+        const memberEmail = (SYSTEM_ROLES.members?.email || '').toLowerCase();
+        const myLoans = getMemberCirculationRecords(memberEmail).slice(0, 6);
 
-        listEl.innerHTML = myLoans.map(item => {
-          const bookIdx = catalogBooks.findIndex(b => (b.title || '').toLowerCase() === item.title.toLowerCase());
-          const clickAttr = bookIdx >= 0 ? `onclick="openBookDetailsModal(${bookIdx})"` : '';
-          return `
-            <div ${clickAttr} class="p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between gap-2.5 ${bookIdx >= 0 ? 'cursor-pointer hover:bg-emerald-50/40 transition' : ''}">
-              <div class="min-w-0">
-                <p class="text-xs font-semibold text-slate-900 truncate">${item.title}</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">${item.due}</p>
+        if (myLoans.length === 0) {
+          listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No books borrowed yet. Browse the catalog to explore titles!</p>`;
+        } else {
+          listEl.innerHTML = myLoans.map(item => {
+            const overdue = isLoanOverdue(item);
+            const actionLabel = item.status === 'Returned'
+              ? 'Returned'
+              : overdue
+                ? 'Overdue'
+                : 'With You';
+            const badgeClass = item.status === 'Returned'
+              ? 'bg-emerald-50 text-emerald-700'
+              : overdue
+                ? 'bg-amber-50 text-amber-700'
+                : 'bg-blue-50 text-blue-700';
+            const metaText = item.status === 'Returned'
+              ? `Returned ${formatDisplayDate(item.returnedDate)}`
+              : `Due ${formatDisplayDate(item.dueDate)}`;
+            const bookIdx = catalogBooks.findIndex(b => (b.title || '').toLowerCase() === (item.bookTitle || '').toLowerCase());
+            const clickAttr = bookIdx >= 0 ? `onclick="openBookDetailsModal(${bookIdx})"` : '';
+            return `
+              <div ${clickAttr} class="p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between gap-2.5 ${bookIdx >= 0 ? 'cursor-pointer hover:bg-emerald-50/40 transition' : ''}">
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold text-slate-900 truncate">${item.bookTitle}</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">${metaText}</p>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${badgeClass}">${actionLabel}</span>
               </div>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${item.badge}">${item.action}</span>
-            </div>
-          `;
-        }).join('');
+            `;
+          }).join('');
+        }
         requestAnimationFrame(() => renderDashboardLatestBooks());
         return;
       }
@@ -2620,27 +2682,41 @@
         footerBtn.classList.toggle('hidden', currentRoleKey === 'superadmin');
       }
 
-      const recentItems = [
-        { book: 'The Discovery of India', member: 'A. Sharma', status: 'Issued', meta: 'Due in 6 days', badge: 'bg-blue-50 text-blue-700' },
-        { book: 'Malgudi Days', member: 'R. Nair', status: 'Overdue', meta: 'Overdue by 3 days', badge: 'bg-amber-50 text-amber-700' },
-        { book: 'The God of Small Things', member: 'P. Dasgupta', status: 'Issued', meta: 'Due in 11 days', badge: 'bg-blue-50 text-blue-700' },
-        { book: 'Sapiens', member: 'K. Verma', status: 'Issued', meta: 'Due in 9 days', badge: 'bg-blue-50 text-blue-700' },
-        { book: 'Wings of Fire', member: 'S. Kulkarni', status: 'Returned', meta: 'Returned yesterday', badge: 'bg-emerald-50 text-emerald-700' }
-      ];
+      const recentItems = [...circulationRecords]
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+        .slice(0, 6);
 
-      listEl.innerHTML = recentItems.map(item => {
-        const bookIdx = catalogBooks.findIndex(b => (b.title || '').toLowerCase().includes(item.book.toLowerCase()));
-        const clickAttr = bookIdx >= 0 ? `onclick="openBookDetailsModal(${bookIdx})"` : '';
-        return `
-          <div ${clickAttr} class="p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between gap-2.5 ${bookIdx >= 0 ? 'cursor-pointer hover:bg-emerald-50/40 transition' : ''}">
-            <div class="min-w-0">
-              <p class="text-xs font-semibold text-slate-900 truncate">${item.book}</p>
-              <p class="text-[11px] text-slate-500 truncate mt-0.5">${item.member} · ${item.meta}</p>
+      if (recentItems.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No circulation activity recorded yet.</p>`;
+      } else {
+        listEl.innerHTML = recentItems.map(item => {
+          const overdue = isLoanOverdue(item);
+          const statusLabel = item.status === 'Returned'
+            ? 'Returned'
+            : overdue
+              ? 'Overdue'
+              : 'Issued';
+          const badgeClass = item.status === 'Returned'
+            ? 'bg-emerald-50 text-emerald-700'
+            : overdue
+              ? 'bg-amber-50 text-amber-700'
+              : 'bg-blue-50 text-blue-700';
+          const metaText = item.status === 'Returned'
+            ? `Returned ${formatDisplayDate(item.returnedDate)}`
+            : `Due ${formatDisplayDate(item.dueDate)}`;
+          const bookIdx = catalogBooks.findIndex(b => (b.title || '').toLowerCase().includes((item.bookTitle || '').toLowerCase()));
+          const clickAttr = bookIdx >= 0 ? `onclick="openBookDetailsModal(${bookIdx})"` : '';
+          return `
+            <div ${clickAttr} class="p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between gap-2.5 ${bookIdx >= 0 ? 'cursor-pointer hover:bg-emerald-50/40 transition' : ''}">
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-900 truncate">${item.bookTitle}</p>
+                <p class="text-[11px] text-slate-500 truncate mt-0.5">${item.memberName} · ${metaText}</p>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${badgeClass}">${statusLabel}</span>
             </div>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${item.badge}">${item.status}</span>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
 
       requestAnimationFrame(() => renderDashboardLatestBooks());
     }
@@ -2678,12 +2754,16 @@
         updateDashboardKpiCards();
         renderDashboardCirculationActivity();
       } else if (sectionKey === 'catalog') {
-        if (currentRoleKey === 'members' && showOnlyMemberWishlist) {
-          renderMemberWishlistPage();
+        if (currentRoleKey === 'members' && activeMemberCatalogSubView === 'wishlist') {
+          openMemberWishlistView();
+        } else if (currentRoleKey === 'members' && ['taken', 'with_me', 'overdue'].includes(activeMemberCatalogSubView)) {
+          renderMemberLoansListPage(activeMemberCatalogSubView);
         } else {
           closeMemberWishlistView(false);
           searchCatalogBooks();
         }
+      } else if (sectionKey === 'circulation') {
+        initCirculationDeskView();
       } else if (sectionKey === 'members') {
         renderMembersTable();
       } else if (sectionKey === 'admin-settings') {
@@ -2691,6 +2771,392 @@
       }
     }
     window.switchSection = switchSection;
+
+    function getBookAvailableCopies(book) {
+      if (!book) return 0;
+      const totalCopies = Math.max(1, Number(book.copies) || 1);
+      const activeLoansForBook = circulationRecords.filter(r =>
+        r.status === 'Issued' && (
+          (book.isbn && r.isbn && isSameBookIsbn(book.isbn, r.isbn)) ||
+          (r.bookTitle || '').trim().toLowerCase() === (book.title || '').trim().toLowerCase()
+        )
+      ).length;
+      if (activeLoansForBook > 0) {
+        return Math.max(0, totalCopies - activeLoansForBook);
+      }
+      return (book.status === 'Issued' || book.status === 'Overdue') && totalCopies === 1 ? 0 : totalCopies;
+    }
+
+    function initCirculationDeskView() {
+      const issueDateEl = document.getElementById('circ-issue-date');
+      const hintEl = document.getElementById('circ-loan-days-hint');
+      const loanDays = Number(window.defaultLoanDays) || 14;
+      if (issueDateEl && !issueDateEl.value) {
+        issueDateEl.value = getTodayIsoDate();
+      }
+      if (hintEl) {
+        hintEl.textContent = `(${loanDays} ${loanDays === 1 ? 'day' : 'days'})`;
+      }
+      recalculateCirculationDueDate();
+
+      const canIssue = currentRoleKey === 'librarian';
+      const issueForm = document.getElementById('issue-book-form');
+      if (issueForm) {
+        issueForm.querySelectorAll('input, button').forEach(ctrl => {
+          ctrl.disabled = !canIssue;
+          ctrl.classList.toggle('opacity-55', !canIssue);
+          ctrl.classList.toggle('cursor-not-allowed', !canIssue);
+        });
+      }
+      updateSelectedCirculationBookCard();
+      updateSelectedCirculationMemberCard();
+      renderActiveCirculationLoans();
+    }
+
+    function setCirculationLoansFilter(filterKey) {
+      activeCirculationFilter = filterKey;
+      renderActiveCirculationLoans();
+    }
+
+    function syncBookCatalogCirculationStatus(book) {
+      if (!book) return;
+      const activeForBook = circulationRecords.filter(r =>
+        r.status === 'Issued' && (
+          (book.isbn && r.isbn && isSameBookIsbn(book.isbn, r.isbn)) ||
+          (r.bookTitle || '').trim().toLowerCase() === (book.title || '').trim().toLowerCase()
+        )
+      );
+      const totalCopies = Math.max(1, Number(book.copies) || 1);
+      const availCopies = Math.max(0, totalCopies - activeForBook.length);
+      if (availCopies > 0) {
+        book.status = 'Available';
+      } else if (activeForBook.some(r => isLoanOverdue(r))) {
+        book.status = 'Overdue';
+      } else {
+        book.status = 'Issued';
+      }
+    }
+
+    function renderActiveCirculationLoans() {
+      const container = document.getElementById('circ-active-loans-body');
+      const badgeEl = document.getElementById('circ-active-loans-badge');
+      if (!container) return;
+
+      const allActive = circulationRecords
+        .filter(r => r.status === 'Issued')
+        .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
+      const overdueItems = allActive.filter(r => isLoanOverdue(r));
+      const onTimeItems = allActive.filter(r => !isLoanOverdue(r));
+
+      if (badgeEl) {
+        badgeEl.textContent = `${allActive.length} Active`;
+      }
+
+      const prevSearchVal = document.getElementById('circ-loans-search-input')?.value || '';
+      const q = prevSearchVal.trim().toLowerCase();
+
+      let filtered = activeCirculationFilter === 'overdue'
+        ? overdueItems
+        : activeCirculationFilter === 'issued'
+          ? onTimeItems
+          : allActive;
+
+      if (q) {
+        filtered = filtered.filter(r =>
+          (r.bookTitle || '').toLowerCase().includes(q) ||
+          (r.memberName || '').toLowerCase().includes(q) ||
+          (r.memberEmail || '').toLowerCase().includes(q) ||
+          (r.shelf || '').toLowerCase().includes(q) ||
+          (r.isbn || '').toLowerCase().includes(q)
+        );
+      }
+
+      const canReturn = currentRoleKey === 'librarian';
+      const tabClass = (key) => activeCirculationFilter === key
+        ? 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-700 text-white shadow-2xs transition'
+        : 'px-3 py-1.5 rounded-xl text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition';
+
+      const rowsHtml = filtered.length === 0
+        ? `<div class="py-10 px-4 text-center text-xs text-slate-400">
+             No matching active loans found.
+           </div>`
+        : `<div class="divide-y divide-slate-100">
+            ${filtered.map(loan => {
+              const overdue = isLoanOverdue(loan);
+              const dueBadgeCls = overdue
+                ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                : 'bg-blue-50 text-blue-700 border border-blue-200/70';
+              const dueLabel = overdue
+                ? `Overdue · Due ${formatDisplayDate(loan.dueDate)}`
+                : `Due ${formatDisplayDate(loan.dueDate)}`;
+              const returnActionHtml = canReturn
+                ? `<button type="button" onclick="markCirculationBookReturned('${loan.id}')"
+                     class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition shrink-0">
+                     Mark Returned
+                   </button>`
+                : '';
+              return `
+                <div class="py-3.5 px-5 hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="min-w-0 space-y-1">
+                    <div class="flex items-center gap-2">
+                      <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">${loan.bookTitle}</p>
+                      <span class="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0">Shelf ${loan.shelf || '—'}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 truncate">
+                      Borrower: <span class="font-semibold text-slate-800">${loan.memberName}</span>
+                      <span class="text-slate-400">(${loan.memberEmail})</span>
+                    </p>
+                    <div class="flex flex-wrap items-center gap-2 pt-0.5">
+                      <span class="text-[11px] text-slate-400">Issued: ${formatDisplayDate(loan.issueDate)}</span>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${dueBadgeCls}">${dueLabel}</span>
+                    </div>
+                  </div>
+                  ${returnActionHtml}
+                </div>
+              `;
+            }).join('')}
+          </div>`;
+
+      container.className = 'divide-y divide-slate-100';
+      container.innerHTML = `
+        <div class="p-4 bg-slate-50/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button type="button" onclick="setCirculationLoansFilter('all')" class="${tabClass('all')}">
+              All Active (${allActive.length})
+            </button>
+            <button type="button" onclick="setCirculationLoansFilter('issued')" class="${tabClass('issued')}">
+              On Time (${onTimeItems.length})
+            </button>
+            <button type="button" onclick="setCirculationLoansFilter('overdue')" class="${tabClass('overdue')}">
+              Overdue (${overdueItems.length})
+            </button>
+          </div>
+          <div class="relative sm:w-56">
+            <input type="text" id="circ-loans-search-input" value="${prevSearchVal.replace(/"/g, '&quot;')}"
+              oninput="renderActiveCirculationLoans()"
+              placeholder="Filter loans or member..."
+              class="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+          </div>
+        </div>
+        ${rowsHtml}
+      `;
+
+      const searchBox = document.getElementById('circ-loans-search-input');
+      if (searchBox && document.activeElement?.id === 'circ-loans-search-input') {
+        searchBox.focus();
+      }
+    }
+    window.renderActiveCirculationLoans = renderActiveCirculationLoans;
+    async function handleIssueBookSubmit(event) {
+      event.preventDefault();
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can issue books.', 'warning');
+        return;
+      }
+      const book = catalogBooks[selectedCirculationBookIdx];
+      const member = registeredMembers[selectedCirculationMemberIdx];
+      if (!book) {
+        showToast('Please select a book from the catalog first.', 'warning');
+        return;
+      }
+      if (!member) {
+        showToast('Please select an SPM NIWAS member first.', 'warning');
+        return;
+      }
+      if (getBookAvailableCopies(book) <= 0) {
+        showToast(`All copies of "${book.title}" are currently issued.`, 'warning');
+        return;
+      }
+      const myLoans = getMemberCirculationRecords(member.email);
+      const activeCount = myLoans.filter(r => r.status === 'Issued').length;
+      const overdueCount = myLoans.filter(r => isLoanOverdue(r)).length;
+      const limit = member.booksAllowed ?? defaultBooksAllowed;
+      if (overdueCount > 0) {
+        showToast(`Cannot issue: ${member.name} has ${overdueCount} overdue book(s).`, 'warning');
+        return;
+      }
+      if (activeCount >= limit) {
+        showToast(`Cannot issue: ${member.name} has reached the limit of ${limit} books.`, 'warning');
+        return;
+      }
+
+      const issueDate = document.getElementById('circ-issue-date')?.value || getTodayIsoDate();
+      const dueDate = document.getElementById('circ-due-date')?.value || getTodayIsoDate();
+      if (dueDate < issueDate) {
+        showToast('Return due date cannot be earlier than the issue date.', 'warning');
+        return;
+      }
+
+      const newLoan = {
+        id: `CIRC-${Date.now()}`,
+        bookTitle: book.title,
+        isbn: book.isbn || '',
+        shelf: book.shelf || '',
+        memberName: member.name,
+        memberEmail: member.email.toLowerCase(),
+        issueDate,
+        dueDate,
+        returnedDate: '',
+        status: 'Issued',
+        issuedBy: SYSTEM_ROLES[currentRoleKey]?.name || 'Librarian',
+        updatedAt: Date.now()
+      };
+
+      circulationRecords.unshift(newLoan);
+      syncBookCatalogCirculationStatus(book);
+
+      if (window.firebaseCloud) {
+        await window.firebaseCloud.saveCirculationRecord(newLoan).catch(err => console.warn(err));
+        await window.firebaseCloud.saveBook(book).catch(err => console.warn(err));
+      }
+
+      triggerLibraryEmail('book_issued', {
+        bookTitle: newLoan.bookTitle,
+        isbn: newLoan.isbn,
+        shelf: newLoan.shelf,
+        memberName: newLoan.memberName,
+        memberEmail: newLoan.memberEmail,
+        dueDate: formatDisplayDate(newLoan.dueDate)
+      });
+
+      clearCirculationBookSelection();
+      clearCirculationMemberSelection();
+      renderActiveCirculationLoans();
+      searchCatalogBooks(false);
+      updateDashboardKpiCards();
+      renderDashboardCirculationActivity();
+      showToast(`Issued "${newLoan.bookTitle}" to ${newLoan.memberName} (Due ${formatDisplayDate(newLoan.dueDate)}).`, 'success');
+    }
+
+    async function markCirculationBookReturned(loanId) {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can mark books as returned.', 'warning');
+        return;
+      }
+      const loan = circulationRecords.find(r => r.id === loanId);
+      if (!loan || loan.status === 'Returned') return;
+
+      loan.status = 'Returned';
+      loan.returnedDate = getTodayIsoDate();
+      loan.updatedAt = Date.now();
+
+      const matchedBook = catalogBooks.find(b =>
+        (loan.isbn && b.isbn && isSameBookIsbn(b.isbn, loan.isbn)) ||
+        (b.title || '').trim().toLowerCase() === (loan.bookTitle || '').trim().toLowerCase()
+      );
+      if (matchedBook) {
+        syncBookCatalogCirculationStatus(matchedBook);
+      }
+
+      if (window.firebaseCloud) {
+        await window.firebaseCloud.saveCirculationRecord(loan).catch(err => console.warn(err));
+        if (matchedBook) {
+          await window.firebaseCloud.saveBook(matchedBook).catch(err => console.warn(err));
+        }
+      }
+
+      triggerLibraryEmail('book_returned', {
+        bookTitle: loan.bookTitle,
+        memberName: loan.memberName,
+        memberEmail: loan.memberEmail
+      });
+
+      renderActiveCirculationLoans();
+      updateSelectedCirculationBookCard();
+      updateSelectedCirculationMemberCard();
+      searchCatalogBooks(false);
+      updateDashboardKpiCards();
+      renderDashboardCirculationActivity();
+      showToast(`Marked "${loan.bookTitle}" as returned by ${loan.memberName}.`, 'success');
+    }
+
+    function selectCirculationMember(idx) {
+      const member = registeredMembers[idx];
+      const boxEl = document.getElementById('circ-member-suggestions');
+      const inputEl = document.getElementById('circ-member-search-input');
+      if (boxEl) boxEl.classList.add('hidden');
+      if (!member) return;
+      selectedCirculationMemberIdx = idx;
+      if (inputEl) inputEl.value = `${member.name} (${member.email})`;
+      updateSelectedCirculationMemberCard();
+    }
+
+    function clearCirculationMemberSelection() {
+      selectedCirculationMemberIdx = -1;
+      const inputEl = document.getElementById('circ-member-search-input');
+      if (inputEl) inputEl.value = '';
+      updateSelectedCirculationMemberCard();
+    }
+
+    function updateSelectedCirculationMemberCard() {
+      const card = document.getElementById('circ-selected-member-card');
+      const clearBtn = document.getElementById('btn-clear-circ-member');
+      const member = registeredMembers[selectedCirculationMemberIdx];
+      if (!card) return;
+
+      if (!member) {
+        card.classList.add('hidden');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        return;
+      }
+
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      card.classList.remove('hidden');
+
+      const myLoans = getMemberCirculationRecords(member.email);
+      const activeCount = myLoans.filter(r => r.status === 'Issued').length;
+      const overdueCount = myLoans.filter(r => isLoanOverdue(r)).length;
+      const limit = member.booksAllowed ?? defaultBooksAllowed;
+      const quotaReached = activeCount >= limit;
+
+      document.getElementById('circ-selected-member-name').textContent = member.name;
+      document.getElementById('circ-selected-member-meta').textContent = `${member.designation || 'Member'} (${member.category || 'Standard'}) · ${member.email}`;
+
+      const quotaBadge = document.getElementById('circ-selected-member-quota-badge');
+      if (quotaBadge) {
+        quotaBadge.textContent = `${activeCount} of ${limit} books issued`;
+        quotaBadge.className = quotaReached
+          ? 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 shrink-0'
+          : 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 shrink-0';
+      }
+
+      const warnEl = document.getElementById('circ-selected-member-warning');
+      if (warnEl) {
+        if (overdueCount > 0) {
+          warnEl.textContent = `Blocked: Member currently has ${overdueCount} overdue ${overdueCount === 1 ? 'book' : 'books'}.`;
+          warnEl.classList.remove('hidden');
+        } else if (quotaReached) {
+          warnEl.textContent = `Blocked: Borrowing limit of ${limit} ${limit === 1 ? 'book' : 'books'} reached.`;
+          warnEl.classList.remove('hidden');
+        } else {
+          warnEl.classList.add('hidden');
+        }
+      }
+    }
+
+    function issueBookFromDetails(idx) {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can issue books.', 'warning');
+        return;
+      }
+      const book = catalogBooks[idx];
+      if (!book) return;
+      if (getBookAvailableCopies(book) <= 0) {
+        showToast(`All copies of "${book.title}" are currently issued.`, 'warning');
+        return;
+      }
+
+      closeBookDetailsModal();
+      switchSection('circulation', 'Circulation Desk');
+      selectCirculationBook(idx);
+
+      const memberInput = document.getElementById('circ-member-search-input');
+      if (memberInput) {
+        memberInput.focus();
+        renderCirculationMemberSuggestions();
+      }
+      showToast(`Selected "${book.title}" — choose an SPM NIWAS member to issue.`, 'info');
+    }
 
     function renderBookReviewsList(book) {
       const listEl = document.getElementById('detail-reviews-list');
@@ -3127,14 +3593,17 @@
     });
 
     function updateDashboardKpiCards() {
+      const card1BoxEl = document.getElementById('kpi-card-1-box');
       const label1El = document.getElementById('kpi-card-1-label');
       const totalEl = document.getElementById('kpi-total-books');
       const titlesBadgeEl = document.getElementById('kpi-total-titles-badge');
 
+      const card2BoxEl = document.getElementById('kpi-card-2-box');
       const label2El = document.getElementById('kpi-card-2-label');
       const newEl = document.getElementById('kpi-new-books-30d');
       const badge2El = document.getElementById('kpi-card-2-badge');
 
+      const card3BoxEl = document.getElementById('kpi-card-3-box');
       const label3El = document.getElementById('kpi-card-3-label');
       const overdueEl = document.getElementById('kpi-overdue-books');
       const badge3El = document.getElementById('kpi-card-3-badge');
@@ -3144,19 +3613,27 @@
       const badge4El = document.getElementById('kpi-card-4-badge');
       const card4BoxEl = document.getElementById('kpi-card-4-box');
 
-      if (card4BoxEl) {
+      const memberClickableBoxes = [
+        { el: card1BoxEl, title: 'View all books taken by me', hoverBorder: 'hover:border-emerald-300 hover:bg-emerald-50/20' },
+        { el: card2BoxEl, title: 'View books with me right now', hoverBorder: 'hover:border-blue-300 hover:bg-blue-50/20' },
+        { el: card3BoxEl, title: 'View overdue books', hoverBorder: 'hover:border-amber-300 hover:bg-amber-50/20' },
+        { el: card4BoxEl, title: 'Open My Wishlist', hoverBorder: 'hover:border-purple-300 hover:bg-purple-50/20' }
+      ];
+
+      memberClickableBoxes.forEach(({ el, title, hoverBorder }) => {
+        if (!el) return;
         if (currentRoleKey === 'members') {
-          card4BoxEl.className = 'bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-purple-300 hover:bg-purple-50/20 shadow-sm transition cursor-pointer';
-          card4BoxEl.setAttribute('role', 'button');
-          card4BoxEl.setAttribute('tabindex', '0');
-          card4BoxEl.title = 'Open My Wishlist';
+          el.className = `bg-white p-5 rounded-2xl border border-slate-200/80 ${hoverBorder} shadow-sm transition cursor-pointer`;
+          el.setAttribute('role', 'button');
+          el.setAttribute('tabindex', '0');
+          el.title = title;
         } else {
-          card4BoxEl.className = 'bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm transition';
-          card4BoxEl.removeAttribute('role');
-          card4BoxEl.removeAttribute('tabindex');
-          card4BoxEl.removeAttribute('title');
+          el.className = 'bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm transition';
+          el.removeAttribute('role');
+          el.removeAttribute('tabindex');
+          el.removeAttribute('title');
         }
-      }
+      });
 
       if (currentRoleKey === 'members') {
         const activeRole = SYSTEM_ROLES.members || {};
@@ -3165,9 +3642,10 @@
         const booksAllowed = memberRecord?.booksAllowed ?? defaultBooksAllowed;
         const wishlistCount = Array.isArray(memberRecord?.wishList) ? memberRecord.wishList.length : 0;
 
-        const booksTakenTotal = 4;
-        const booksWithMeNow = 1;
-        const myOverdueCount = 0;
+        const myRecords = getMemberCirculationRecords(memberEmail);
+        const booksTakenTotal = myRecords.length;
+        const booksWithMeNow = myRecords.filter(l => l.status === 'Issued').length;
+        const myOverdueCount = myRecords.filter(l => isLoanOverdue(l)).length;
 
         if (label1El) label1El.textContent = 'Books taken by me';
         if (totalEl) totalEl.textContent = String(booksTakenTotal);
@@ -3199,7 +3677,10 @@
       const totalTitles = catalogBooks.length;
       const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
       const newBooksCount = catalogBooks.filter(b => b.addedAt && b.addedAt >= thirtyDaysAgo).length;
-      const overdueCount = catalogBooks.filter(b => b.status === 'Overdue').length;
+      const overdueFromCirc = circulationRecords.filter(r => isLoanOverdue(r)).length;
+      const overdueCount = overdueFromCirc > 0
+        ? overdueFromCirc
+        : catalogBooks.filter(b => b.status === 'Overdue').length;
       const totalMembersCount = registeredMembers.length;
 
       if (label1El) label1El.textContent = 'Total Books';
@@ -4388,6 +4869,7 @@
       const editLogBtn = document.getElementById('btn-detail-edit-log');
       const editLogCount = document.getElementById('detail-edit-log-count');
       const qrStickerBtn = document.getElementById('btn-detail-qr-sticker');
+      const quickIssueBtn = document.getElementById('btn-detail-quick-issue');
       const wishlistBtn = document.getElementById('btn-detail-wishlist');
       const titleEl = document.getElementById('detail-book-title');
       const editionEl = document.getElementById('detail-book-edition');
@@ -4486,6 +4968,11 @@
         qrStickerBtn.classList.toggle('hidden', currentRoleKey !== 'librarian');
       }
 
+      if (quickIssueBtn) {
+        const canQuickIssue = currentRoleKey === 'librarian' && getBookAvailableCopies(book) > 0;
+        quickIssueBtn.classList.toggle('hidden', !canQuickIssue);
+      }
+
       if (wishlistBtn) {
         const isMemberView = currentRoleKey === 'members';
         wishlistBtn.classList.toggle('hidden', !isMemberView);
@@ -4518,7 +5005,7 @@
       const isMember = currentRoleKey === 'members';
       btn.classList.toggle('hidden', !isMember);
       if (backLink) {
-        backLink.classList.toggle('hidden', !(isMember && showOnlyMemberWishlist));
+        backLink.classList.toggle('hidden', !(isMember && Boolean(activeMemberCatalogSubView)));
       }
       if (!isMember) return;
 
@@ -4526,7 +5013,7 @@
       const count = Array.isArray(memberRecord?.wishList) ? memberRecord.wishList.length : 0;
       if (badge) badge.textContent = String(count);
 
-      if (showOnlyMemberWishlist) {
+      if (activeMemberCatalogSubView === 'wishlist') {
         btn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-700 hover:bg-purple-800 border border-purple-700 transition shadow-sm inline-flex items-center justify-center gap-1.5 shrink-0';
         if (icon) icon.setAttribute('fill', 'currentColor');
         if (badge) badge.className = 'px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-purple-900/60 text-white';
@@ -4540,20 +5027,26 @@
     function openMemberWishlistView() {
       if (currentRoleKey !== 'members') return;
       showOnlyMemberWishlist = true;
+      activeMemberCatalogSubView = 'wishlist';
       syncCatalogWishlistButtonUI();
       const catalogContainer = document.getElementById('catalog-main-list-container');
       const wishlistContainer = document.getElementById('member-wishlist-page-container');
+      const loansContainer = document.getElementById('member-loans-page-container');
       if (catalogContainer) catalogContainer.classList.add('hidden');
+      if (loansContainer) loansContainer.classList.add('hidden');
       if (wishlistContainer) wishlistContainer.classList.remove('hidden');
       renderMemberWishlistPage();
     }
 
     function closeMemberWishlistView(refreshCatalog = true) {
       showOnlyMemberWishlist = false;
+      activeMemberCatalogSubView = null;
       syncCatalogWishlistButtonUI();
       const catalogContainer = document.getElementById('catalog-main-list-container');
       const wishlistContainer = document.getElementById('member-wishlist-page-container');
+      const loansContainer = document.getElementById('member-loans-page-container');
       if (wishlistContainer) wishlistContainer.classList.add('hidden');
+      if (loansContainer) loansContainer.classList.add('hidden');
       if (catalogContainer) catalogContainer.classList.remove('hidden');
       if (refreshCatalog) searchCatalogBooks();
     }
@@ -4561,27 +5054,61 @@
     function openDashboardWishlistPage() {
       if (currentRoleKey !== 'members') return;
       showOnlyMemberWishlist = true;
+      activeMemberCatalogSubView = 'wishlist';
       switchSection('catalog', 'Catalog');
     }
 
-    function renderMemberWishlistPage() {
-      const listBody = document.getElementById('member-wishlist-list-body');
-      const countBadge = document.getElementById('wishlist-page-count-badge');
-      if (!listBody) return;
+    function openMemberLoanListPage(filterMode) {
+      if (currentRoleKey !== 'members') return;
+      showOnlyMemberWishlist = false;
+      activeMemberCatalogSubView = filterMode;
+      switchSection('catalog', 'Catalog');
+    }
 
-      const memberRecord = getActiveMemberRecord();
-      const wishKeys = Array.isArray(memberRecord?.wishList) ? memberRecord.wishList : [];
-      const bookmarkedBooks = catalogBooks.filter(b => wishKeys.includes(getBookWishListKey(b)));
+    function renderMemberLoansListPage(filterMode) {
+      activeMemberCatalogSubView = filterMode;
+      syncCatalogWishlistButtonUI();
+      const catalogContainer = document.getElementById('catalog-main-list-container');
+      const wishlistContainer = document.getElementById('member-wishlist-page-container');
+      const loansContainer = document.getElementById('member-loans-page-container');
+      const titleEl = document.getElementById('member-loans-page-title');
+      const subtitleEl = document.getElementById('member-loans-page-subtitle');
+      const countBadge = document.getElementById('member-loans-page-count-badge');
+      const listBody = document.getElementById('member-loans-list-body');
+      if (!loansContainer || !listBody) return;
 
-      if (countBadge) {
-        countBadge.textContent = `${bookmarkedBooks.length} ${bookmarkedBooks.length === 1 ? 'Book' : 'Books'}`;
+      if (catalogContainer) catalogContainer.classList.add('hidden');
+      if (wishlistContainer) wishlistContainer.classList.add('hidden');
+      loansContainer.classList.remove('hidden');
+
+      const memberEmail = (SYSTEM_ROLES.members?.email || '').toLowerCase();
+      const myRecords = getMemberCirculationRecords(memberEmail);
+
+      let items = myRecords;
+      let heading = 'Books Taken by Me';
+      let sub = 'Complete history of books borrowed from SPM NIWAS Library';
+      let emptyMsg = 'You have not borrowed any books yet.';
+
+      if (filterMode === 'with_me') {
+        items = myRecords.filter(l => l.status === 'Issued');
+        heading = 'Books With Me Right Now';
+        sub = 'Books currently issued to your SPM NIWAS Library account';
+        emptyMsg = 'You do not have any books issued to you right now.';
+      } else if (filterMode === 'overdue') {
+        items = myRecords.filter(l => isLoanOverdue(l));
+        heading = 'My Overdue Books';
+        sub = 'Books past their return due date requiring immediate return';
+        emptyMsg = 'Great news! You have zero overdue books.';
       }
 
-      if (bookmarkedBooks.length === 0) {
+      if (titleEl) titleEl.textContent = heading;
+      if (subtitleEl) subtitleEl.textContent = sub;
+      if (countBadge) countBadge.textContent = `${items.length} ${items.length === 1 ? 'Book' : 'Books'}`;
+
+      if (items.length === 0) {
         listBody.innerHTML = `
           <div class="p-10 text-center space-y-3">
-            <p class="text-sm font-semibold text-slate-700">Your Wishlist is empty</p>
-            <p class="text-xs text-slate-400 max-w-md mx-auto">Click any book in the catalog and press <strong>Add to Wish List</strong> to bookmark it here.</p>
+            <p class="text-sm font-semibold text-slate-700">${emptyMsg}</p>
             <div class="pt-1">
               <button type="button" onclick="closeMemberWishlistView()"
                 class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition shadow-sm">
@@ -4593,14 +5120,24 @@
         return;
       }
 
-      listBody.innerHTML = bookmarkedBooks.map(b => {
-        const realIdx = catalogBooks.indexOf(b);
-        const initials = (b.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-        const statusBadge = b.status === 'Available'
+      listBody.innerHTML = items.map(loan => {
+        const bookIdx = catalogBooks.findIndex(b => (b.title || '').toLowerCase() === (loan.bookTitle || '').toLowerCase());
+        const b = bookIdx >= 0 ? catalogBooks[bookIdx] : { title: loan.bookTitle, author: 'SPM NIWAS Collection', shelf: loan.shelf || '—', isbn: loan.isbn || '—' };
+        const overdue = isLoanOverdue(loan);
+        const statusLabel = loan.status === 'Returned'
+          ? 'Returned'
+          : overdue
+            ? 'Overdue'
+            : 'With Me';
+        const statusBadge = loan.status === 'Returned'
           ? 'bg-emerald-50 text-emerald-700'
-          : b.status === 'Issued'
-            ? 'bg-blue-50 text-blue-700'
-            : 'bg-amber-50 text-amber-700';
+          : overdue
+            ? 'bg-amber-50 text-amber-700'
+            : 'bg-blue-50 text-blue-700';
+        const dateDetail = loan.status === 'Returned'
+          ? `Returned on ${formatDisplayDate(loan.returnedDate)}`
+          : `Due on ${formatDisplayDate(loan.dueDate)}`;
+        const initials = (b.title || 'BK').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
         const editionBadge = b.edition
           ? `<span class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/70">${b.edition}</span>`
           : '';
@@ -4612,10 +5149,10 @@
                <div class="hidden w-11 h-16 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-xs font-bold">${initials}</div>
              </div>`
           : `<div class="w-11 h-16 shrink-0 rounded-lg bg-emerald-900/90 text-emerald-50 flex items-center justify-center text-xs font-bold">${initials}</div>`;
+        const clickAttr = bookIdx >= 0 ? `onclick="openBookDetailsModal(${bookIdx})"` : '';
 
         return `
-          <div onclick="openBookDetailsModal(${realIdx})"
-            class="px-5 py-4 hover:bg-purple-50/30 transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div ${clickAttr} class="px-5 py-4 hover:bg-emerald-50/35 transition ${bookIdx >= 0 ? 'cursor-pointer' : ''} flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-start gap-3.5 min-w-0">
               ${coverHtml}
               <div class="min-w-0 space-y-1">
@@ -4623,17 +5160,15 @@
                 <p class="text-xs font-medium text-slate-600">${b.author}${b.publisher ? ' · ' + b.publisher : ''}</p>
                 <div class="flex flex-wrap items-center gap-2 pt-0.5 text-[11px] text-slate-500">
                   <span class="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700">Shelf ${b.shelf || '—'}</span>
-                  <span class="font-mono text-slate-400">ISBN: ${b.isbn || '—'}</span>
+                  <span>Issued: ${formatDisplayDate(loan.issueDate)}</span>
+                  <span>·</span>
+                  <span class="font-medium text-slate-700">${dateDetail}</span>
                 </div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0" onclick="event.stopPropagation()">
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge}">${b.status || 'Available'}</span>
-              <button type="button" onclick="toggleBookWishList(${realIdx})"
-                class="px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 transition">
-                Remove
-              </button>
+            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge}">${statusLabel}</span>
             </div>
           </div>
         `;
@@ -4895,6 +5430,18 @@
           box.classList.add('hidden');
         }
       });
+
+      const circBookWrap = document.getElementById('circ-book-picker-wrap');
+      const circBookBox = document.getElementById('circ-book-suggestions');
+      if (circBookWrap && circBookBox && !circBookWrap.contains(event.target)) {
+        circBookBox.classList.add('hidden');
+      }
+
+      const circMemWrap = document.getElementById('circ-member-picker-wrap');
+      const circMemBox = document.getElementById('circ-member-suggestions');
+      if (circMemWrap && circMemBox && !circMemWrap.contains(event.target)) {
+        circMemBox.classList.add('hidden');
+      }
     });
   </script>
 </body>
