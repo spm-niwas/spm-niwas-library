@@ -883,29 +883,61 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="sm:col-span-2">
-            <label for="book-title-input" class="block text-xs font-semibold text-slate-700 mb-1.5">Book Title</label>
-            <input type="text" id="book-title-input" oninput="handleBookIsbnOrTitleCheck()" required
-              placeholder="e.g. The Discovery of India"
-              class="book-master-field w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+          <div class="sm:col-span-2 relative" id="book-title-search-wrap">
+            <label for="book-title-input" class="block text-xs font-semibold text-slate-700 mb-1.5">
+              Book Title <span class="text-rose-600">*</span>
+            </label>
+            <div class="relative">
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input type="text" id="book-title-input" autocomplete="off"
+                onfocus="showBookFieldSuggestions('title')"
+                oninput="handleBookIsbnOrTitleCheck(); showBookFieldSuggestions('title');" required
+                placeholder="Search or type book title (e.g. The Discovery of India)"
+                class="book-master-field w-full pl-8 pr-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+            </div>
+            <div id="book-title-suggestions" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-44 overflow-y-auto z-30 divide-y divide-slate-100"></div>
+          </div>
+
+          <div class="relative" id="book-author-search-wrap">
+            <label for="book-author-input" class="block text-xs font-semibold text-slate-700 mb-1.5">
+              Author(s) <span class="text-rose-600">*</span>
+            </label>
+            <div class="relative">
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input type="text" id="book-author-input" autocomplete="off"
+                onfocus="showBookFieldSuggestions('author')"
+                oninput="showBookFieldSuggestions('author')" required
+                placeholder="Search or type author (e.g. Jawaharlal Nehru)"
+                class="book-master-field w-full pl-8 pr-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+            </div>
+            <div id="book-author-suggestions" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-40 overflow-y-auto z-30 divide-y divide-slate-100"></div>
+          </div>
+
+          <div class="relative" id="book-publisher-search-wrap">
+            <label for="book-publisher-input" class="block text-xs font-semibold text-slate-700 mb-1.5">
+              Publisher <span class="text-rose-600">*</span>
+            </label>
+            <div class="relative">
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <input type="text" id="book-publisher-input" autocomplete="off"
+                onfocus="showBookFieldSuggestions('publisher')"
+                oninput="showBookFieldSuggestions('publisher')" required
+                placeholder="Search or type publisher (e.g. Penguin Books India)"
+                class="book-master-field w-full pl-8 pr-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
+            </div>
+            <div id="book-publisher-suggestions" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-40 overflow-y-auto z-30 divide-y divide-slate-100"></div>
           </div>
 
           <div>
-            <label for="book-author-input" class="block text-xs font-semibold text-slate-700 mb-1.5">Author(s)</label>
-            <input type="text" id="book-author-input" required
-              placeholder="e.g. Jawaharlal Nehru"
-              class="book-master-field w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
-          </div>
-
-          <div>
-            <label for="book-publisher-input" class="block text-xs font-semibold text-slate-700 mb-1.5">Publisher</label>
-            <input type="text" id="book-publisher-input"
-              placeholder="e.g. Penguin Books India"
-              class="book-master-field w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
-          </div>
-
-          <div>
-            <label for="book-shelf-input" class="block text-xs font-semibold text-slate-700 mb-1.5">Shelf ID / Location</label>
+            <label for="book-shelf-input" class="block text-xs font-semibold text-slate-700 mb-1.5">
+              Shelf ID / Location <span class="text-rose-600">*</span>
+            </label>
             <input type="text" id="book-shelf-input" required
               placeholder="e.g. A-12"
               class="w-full px-3.5 py-2 text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition" />
@@ -2631,7 +2663,101 @@
     function closeAddBookModal() {
       stopBarcodeScanner();
       closeProcurementCommentsDialog();
+      hideAllBookFieldSuggestions();
       document.getElementById('add-book-modal').classList.add('hidden');
+    }
+
+    function hideAllBookFieldSuggestions() {
+      ['title', 'author', 'publisher'].forEach(field => {
+        const box = document.getElementById(`book-${field}-suggestions`);
+        if (box) box.classList.add('hidden');
+      });
+    }
+
+    function showBookFieldSuggestions(field) {
+      const inputEl = document.getElementById(`book-${field}-input`);
+      const boxEl = document.getElementById(`book-${field}-suggestions`);
+      if (!inputEl || !boxEl || inputEl.readOnly) {
+        if (boxEl) boxEl.classList.add('hidden');
+        return;
+      }
+
+      ['title', 'author', 'publisher'].forEach(other => {
+        if (other !== field) {
+          const otherBox = document.getElementById(`book-${other}-suggestions`);
+          if (otherBox) otherBox.classList.add('hidden');
+        }
+      });
+
+      const query = inputEl.value.trim().toLowerCase();
+
+      if (field === 'title') {
+        const matchedBooks = catalogBooks
+          .filter(b => !query || b.title.toLowerCase().includes(query) || (b.author && b.author.toLowerCase().includes(query)))
+          .slice(0, 8);
+
+        if (matchedBooks.length === 0) {
+          boxEl.classList.add('hidden');
+          return;
+        }
+
+        boxEl.innerHTML = matchedBooks.map(b => {
+          const idx = catalogBooks.indexOf(b);
+          return `
+            <button type="button" onmousedown="selectSuggestedBookTitle(${idx})"
+              class="w-full px-3.5 py-2 text-left hover:bg-emerald-50 transition flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <p class="text-xs font-semibold text-slate-800 truncate">${b.title}</p>
+                <p class="text-[11px] text-slate-500 truncate">${b.author}${b.publisher && b.publisher !== '—' ? ' · ' + b.publisher : ''}</p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/70 shrink-0">
+                Shelf ${b.shelf} · +Add Copy
+              </span>
+            </button>
+          `;
+        }).join('');
+        boxEl.classList.remove('hidden');
+        return;
+      }
+
+      // Unique Authors or Publishers from existing catalog
+      const rawValues = catalogBooks
+        .map(b => (field === 'author' ? b.author : b.publisher))
+        .filter(v => v && v !== '—' && v.trim() !== '');
+      const uniqueValues = [...new Set(rawValues)]
+        .filter(v => !query || v.toLowerCase().includes(query))
+        .slice(0, 8);
+
+      if (uniqueValues.length === 0) {
+        boxEl.classList.add('hidden');
+        return;
+      }
+
+      boxEl.innerHTML = uniqueValues.map((val, i) => `
+        <button type="button" data-field="${field}" data-val="${val.replace(/"/g, '&quot;')}"
+          onmousedown="selectSuggestedBookMeta(this.getAttribute('data-field'), this.getAttribute('data-val'))"
+          class="w-full px-3.5 py-2 text-left text-xs text-slate-700 hover:bg-emerald-50 hover:text-emerald-900 transition truncate">
+          ${val}
+        </button>
+      `).join('');
+      boxEl.classList.remove('hidden');
+    }
+
+    function selectSuggestedBookTitle(catalogIdx) {
+      const book = catalogBooks[catalogIdx];
+      hideAllBookFieldSuggestions();
+      if (!book) return;
+      if (book.isbn && !book.isbn.startsWith('NO-ISBN-')) {
+        const isbnInput = document.getElementById('book-isbn-input');
+        if (isbnInput && !isbnInput.value.trim()) isbnInput.value = book.isbn;
+      }
+      activateDuplicateCopyMode(book);
+    }
+
+    function selectSuggestedBookMeta(field, value) {
+      const inputEl = document.getElementById(`book-${field}-input`);
+      if (inputEl) inputEl.value = value;
+      hideAllBookFieldSuggestions();
     }
 
     function setProcurementSelection(mode, comments = '') {
@@ -3486,8 +3612,8 @@
       const shelf = document.getElementById('book-shelf-input').value.trim().toUpperCase();
       const copies = parseInt(document.getElementById('book-copies-input').value, 10) || 1;
 
-      if (!title || !author || !shelf) {
-        showToast('Please enter Title, Author, and Shelf ID.', 'warning');
+      if (!title || !author || !publisher || !shelf) {
+        showToast('Please enter Book Title, Author, Publisher, and Shelf ID.', 'warning');
         return;
       }
 
@@ -4410,6 +4536,14 @@
       if (roleFloater && rolePanel && !roleFloater.contains(event.target)) {
         rolePanel.classList.add('hidden');
       }
+
+      ['title', 'author', 'publisher'].forEach(field => {
+        const wrap = document.getElementById(`book-${field}-search-wrap`);
+        const box = document.getElementById(`book-${field}-suggestions`);
+        if (wrap && box && !wrap.contains(event.target)) {
+          box.classList.add('hidden');
+        }
+      });
     });
   </script>
 </body>
