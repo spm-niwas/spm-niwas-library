@@ -1176,6 +1176,8 @@
       getAuth,
       GoogleAuthProvider,
       signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
       signInAnonymously,
       signInWithCustomToken,
       onAuthStateChanged,
@@ -1227,6 +1229,7 @@
 
     async function bootstrapFirebase() {
       try {
+        await getRedirectResult(auth).catch(() => null);
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
         } else if (!window.IS_PRODUCTION && !auth.currentUser) {
@@ -1399,8 +1402,16 @@
       async signInGoogle() {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
-        const cred = await signInWithPopup(auth, provider);
-        return cred.user;
+        try {
+          const cred = await signInWithPopup(auth, provider);
+          return cred.user;
+        } catch (err) {
+          if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request')) {
+            await signInWithRedirect(auth, provider);
+            return null;
+          }
+          throw err;
+        }
       },
       async signOutGoogle() {
         await signOut(auth);
@@ -3281,22 +3292,35 @@
         ],
         confirmLabel: 'Confirm & Add',
         onConfirm: async () => {
-          const newLib = { name: cleanName, email: cleanEmail, provider: validation.provider };
-          try {
-            if (window.firebaseCloud) {
-              await window.firebaseCloud.saveLibrarian(newLib);
-            }
-            if (!authorizedLibrarians.some(l => l.email.toLowerCase() === cleanEmail)) {
-              authorizedLibrarians.push(newLib);
-            }
-            renderLibrariansTable();
-            triggerLibraryEmail('librarian_added', newLib);
-            if (nameInput) nameInput.value = '';
-            if (emailInput) emailInput.value = '';
-            showToast(`Success: Librarian "${cleanName}" saved & notified!`, 'success');
-          } catch (err) {
-            console.error('Failed to save librarian to Firestore:', err);
-            showToast(`Cloud save failed (${err.message || 'Check Firestore Rules'}). Librarian was not saved.`, 'error');
+          if (isCopy && existingBookRef) {
+            existingBookRef.copies = (existingBookRef.copies || 1) + copies;
+            if (shelf) existingBookRef.shelf = shelf;
+            if (coverUrl) existingBookRef.coverUrl = coverUrl;
+            existingBookRef.status = 'Available';
+            if (window.firebaseCloud) await window.firebaseCloud.saveBook(existingBookRef);
+            closeAddBookModal();
+            searchCatalogBooks();
+            showToast(`Success: Added ${copies} ${copies === 1 ? 'copy' : 'copies'} of "${existingBookRef.title}"!`, 'success');
+          } else {
+            const newBook = {
+              isbn: isbn || 'NO-ISBN-' + Math.floor(1000 + Math.random() * 9000),
+              title,
+              author,
+              publisher: publisher || '—',
+              shelf,
+              copies,
+              coverUrl: coverUrl || '',
+              coverSource: coverUrl ? (rawCoverSourceDataUrl ? 'manual' : 'online') : '',
+              needsMetadataSync: !publisher || publisher === '—' || !coverUrl,
+              syncAttempts: 0,
+              status: 'Available'
+            };
+            catalogBooks.unshift(newBook);
+            if (window.firebaseCloud) await window.firebaseCloud.saveBook(newBook);
+            closeAddBookModal();
+            searchCatalogBooks();
+            updateCatalogSyncStatusUI();
+            showToast(`Success: "${title}" (${copies} ${copies === 1 ? 'copy' : 'copies'}) added to catalog!`, 'success');
           }
         }
       });
@@ -3326,10 +3350,7 @@
         confirmLabel: 'Confirm & Delete',
         onConfirm: async () => {
           const idx = authorizedLibrarians.findIndex(lib => lib.email.toLowerCase() === normalizedEmail);
-          if (idx === -1) {
-            showToast('Failed to delete librarian: record no longer exists.', 'error');
-            return;
-          }
+          if (idx === -1) return;
           const [removed] = authorizedLibrarians.splice(idx, 1);
           renderLibrariansTable();
           try {
@@ -3351,11 +3372,12 @@
       const countBadge = document.getElementById('librarian-count-badge');
       if (!tbody) return;
 
+      const canDelete = currentRoleKey === 'superadmin';
       if (authorizedLibrarians.length === 0) {
         tbody.innerHTML = `
           <tr>
             <td colspan="5" class="py-8 px-5 text-center text-xs text-slate-400">
-              No librarians added yet. Use the form on the left to add one.
+              No librarians added yet. Use the form on the left to authorize a Google account.
             </td>
           </tr>
         `;
@@ -3364,13 +3386,15 @@
           <tr class="hover:bg-slate-50/60">
             <td class="py-3.5 px-5 font-medium text-slate-900">${lib.name}</td>
             <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">${lib.email}</td>
-            <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-700">${lib.provider}</span></td>
+            <td class="py-3.5 px-4 text-slate-500 text-xs">${lib.provider || 'Google Account'}</td>
             <td class="py-3.5 px-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">Active</span></td>
             <td class="py-3.5 px-5 text-right">
-              <button type="button" onclick="promptDeleteLibrarian('${lib.email}')"
-                class="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
-                Delete
-              </button>
+              ${canDelete ? `
+                <button type="button" onclick="promptDeleteLibrarian('${lib.email}')"
+                  class="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 transition">
+                  Delete
+                </button>
+              ` : '<span class="text-xs text-slate-400">View Only</span>'}
             </td>
           </tr>
         `).join('');
@@ -3379,6 +3403,64 @@
       if (countBadge) {
         countBadge.textContent = `${authorizedLibrarians.length} Active`;
       }
+    }
+
+    function openAddMemberModal() {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can add members.', 'warning');
+        return;
+      }
+      const form = document.getElementById('add-member-form');
+      if (form) form.reset();
+      syncStaffCategoriesUI();
+      handleMemberCategoryChange();
+      document.getElementById('add-member-modal').classList.remove('hidden');
+    }
+
+    function closeAddMemberModal() {
+      const modal = document.getElementById('add-member-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function promptDeleteMember(email) {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can remove members.', 'warning');
+        return;
+      }
+      const normalizedEmail = (email || '').trim().toLowerCase();
+      const target = registeredMembers.find(m => m.email.toLowerCase() === normalizedEmail);
+      if (!target) {
+        showToast('Member record could not be found.', 'error');
+        return;
+      }
+
+      openSystemDialog({
+        variant: 'danger',
+        title: 'Confirm Delete Member',
+        message: 'Are you sure you want to remove this member from SPM NIWAS Library?',
+        summaryRows: [
+          { label: 'Name', value: target.name },
+          { label: 'Designation', value: target.designation },
+          { label: 'Google Email', value: target.email }
+        ],
+        confirmLabel: 'Confirm & Delete',
+        onConfirm: async () => {
+          const idx = registeredMembers.findIndex(m => m.email.toLowerCase() === normalizedEmail);
+          if (idx === -1) return;
+          const [removed] = registeredMembers.splice(idx, 1);
+          renderMembersTable();
+          try {
+            if (window.firebaseCloud) {
+              await window.firebaseCloud.deleteMember(removed.email);
+            }
+            showToast(`Success: Member "${removed.name}" has been deleted.`, 'success');
+          } catch (err) {
+            registeredMembers.splice(idx, 0, removed);
+            renderMembersTable();
+            showToast(`Failed to delete member "${removed.name}". Please try again.`, 'error');
+          }
+        }
+      });
     }
 
     function handleAddMember(event) {
@@ -3953,13 +4035,56 @@
     async function signInWithGoogleAccount() {
       const dropdown = document.getElementById('gear-dropdown');
       if (dropdown) dropdown.classList.add('hidden');
-      if (!window.firebaseCloud) return;
+
+      const gateBtn = document.getElementById('btn-gate-google-signin');
+      const errBox = document.getElementById('gate-error-box');
+      if (errBox) errBox.classList.add('hidden');
+
+      if (!window.firebaseCloud) {
+        const msg = 'Authentication service is still loading. Please wait 2 seconds and try again.';
+        if (errBox) { errBox.textContent = msg; errBox.classList.remove('hidden'); }
+        showToast(msg, 'error');
+        return;
+      }
+
+      if (gateBtn) {
+        gateBtn.disabled = true;
+        gateBtn.classList.add('opacity-70', 'cursor-wait');
+        const labelSpan = gateBtn.querySelector('span');
+        if (labelSpan) labelSpan.textContent = 'Connecting to Google...';
+      }
+
       try {
         const user = await window.firebaseCloud.signInGoogle();
-        window.updateAccountAuthButtons(true);
-        showToast(`Signed in as ${user.displayName || user.email}`, 'success');
+        if (user) {
+          window.updateAccountAuthButtons(true);
+          showToast(`Signed in as ${user.displayName || user.email}`, 'success');
+        }
       } catch (err) {
-        showToast('Google Sign-In cancelled or domain not authorized yet in Firebase Console.');
+        console.error('Google Sign-In error:', err);
+        let friendlyMsg = `Google Sign-In failed (${err.code || 'error'}): ${err.message || 'Please check Firebase Console settings.'}`;
+        if (err.code === 'auth/api-key-not-valid') {
+          friendlyMsg = 'Firebase API Key is invalid or still placeholder. Paste your real Firebase Web App config into index.html.';
+        } else if (err.code === 'auth/unauthorized-domain') {
+          friendlyMsg = `Domain "${window.location.hostname}" is not authorized. Add it under Firebase Console → Authentication → Settings → Authorized domains.`;
+        } else if (err.code === 'auth/operation-not-allowed') {
+          friendlyMsg = 'Google Sign-In provider is disabled. Enable it under Firebase Console → Authentication → Sign-in method → Google.';
+        } else if (err.code === 'auth/popup-closed-by-user') {
+          friendlyMsg = 'Sign-in popup was closed before completing login. Click "Sign in with Google" to try again.';
+        }
+
+        if (errBox) {
+          errBox.textContent = friendlyMsg;
+          errBox.classList.remove('hidden');
+        }
+        showToast(friendlyMsg, 'error');
+      } finally {
+        if (gateBtn) {
+          gateBtn.disabled = false;
+          gateBtn.classList.remove('opacity-70', 'cursor-wait');
+          const labelSpan = gateBtn.querySelector('span');
+          if (labelSpan) labelSpan.textContent = 'Sign in with Google';
+        }
       }
     }
 
