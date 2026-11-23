@@ -87,7 +87,7 @@
             Dashboard
           </button>
 
-          <button onclick="switchSection('members', 'SPM NIWAS Members')" id="nav-members"
+          <button onclick="switchSection('catalog', 'Catalog')" id="nav-catalog"
             class="nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors whitespace-nowrap">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -1139,17 +1139,17 @@
       <div class="px-3 py-1.5 flex items-center justify-between border-b border-slate-800">
         <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Design View · Role Switcher</span>
       </div>
-      <button onclick="setActiveRole('superadmin')" id="role-btn-superadmin"
+      <button onclick="setActiveRole('superadmin', true)" id="role-btn-superadmin"
         class="role-switch-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition">
         <span>Superadmin</span>
         <span class="text-[10px] text-slate-400">director@spmniwas.in</span>
       </button>
-      <button onclick="setActiveRole('librarian')" id="role-btn-librarian"
+      <button onclick="setActiveRole('librarian', true)" id="role-btn-librarian"
         class="role-switch-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white transition">
         <span>Librarian</span>
         <span class="text-[10px] opacity-80">Desk + Scanner</span>
       </button>
-      <button onclick="setActiveRole('members')" id="role-btn-members"
+      <button onclick="setActiveRole('members', true)" id="role-btn-members"
         class="role-switch-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 transition">
         <span>Members</span>
         <span class="text-[10px] text-slate-400">Resident</span>
@@ -1183,11 +1183,11 @@
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
       getFirestore,
+      collection,
       doc,
       getDoc,
       setDoc,
       deleteDoc,
-      collection,
       onSnapshot,
       getDocs,
       query,
@@ -1200,24 +1200,27 @@
       getDownloadURL
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0zxQBxgkVYKGZld_SeDIsGKS5uie7CEM",
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyA-SPM-NIWAS-LIBRARY-KEY",
       authDomain: "spm-niwas-library.firebaseapp.com",
       projectId: "spm-niwas-library",
       storageBucket: "spm-niwas-library.firebasestorage.app",
-      messagingSenderId: "944780341466",
-      appId: "1:944780341466:web:00685f01b70ca76a1bf5e3",
-      measurementId: "G-8VTXKD26XZ"
+      messagingSenderId: "849201746321",
+      appId: "1:849201746321:web:9f3c2e1b8a7d6c5e4f3a2b"
     };
 
+    const firebaseConfig = typeof __firebase_config !== 'undefined'
+      ? JSON.parse(__firebase_config)
+      : DEFAULT_FIREBASE_CONFIG;
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'spm-niwas-library';
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'spm-niwas-library';
 
-    const publicCol = (name) => collection(db, 'artifacts', appId, 'public', 'data', name);
-    const publicDoc = (name, id) => doc(db, 'artifacts', appId, 'public', 'data', name, id);
+    const publicCol = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
+    const publicDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
 
     let firebaseUser = null;
     let listenersAttached = false;
@@ -1230,7 +1233,7 @@
           await signInAnonymously(auth);
         }
       } catch (err) {
-        console.warn('Firebase initial auth fallback:', err.message);
+        console.warn('Firebase auth init notice:', err.message);
       }
     }
 
@@ -3376,6 +3379,80 @@
       if (countBadge) {
         countBadge.textContent = `${authorizedLibrarians.length} Active`;
       }
+    }
+
+    function openAddMemberModal() {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Add Member is available only in Librarian mode.', 'warning');
+        return;
+      }
+      const form = document.getElementById('add-member-form');
+      if (form) form.reset();
+      const hintEl = document.getElementById('member-email-hint');
+      if (hintEl) {
+        hintEl.textContent = 'Only @gmail.com, @googlemail.com, or Google Workspace domains allowed.';
+        hintEl.classList.remove('text-rose-600', 'font-medium');
+        hintEl.classList.add('text-slate-400');
+      }
+      const previewEl = document.getElementById('member-entitlement-preview');
+      if (previewEl) {
+        previewEl.textContent = 'Book entitlement is assigned automatically based on category.';
+      }
+      syncStaffCategoriesUI();
+      const modal = document.getElementById('add-member-modal');
+      if (modal) modal.classList.remove('hidden');
+      const nameInput = document.getElementById('member-name');
+      if (nameInput) nameInput.focus();
+    }
+
+    function closeAddMemberModal() {
+      const modal = document.getElementById('add-member-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function promptDeleteMember(email) {
+      if (currentRoleKey !== 'librarian') {
+        showToast('Only Librarian can remove members.', 'warning');
+        return;
+      }
+      const normalizedEmail = (email || '').trim().toLowerCase();
+      const target = registeredMembers.find(m => m.email.toLowerCase() === normalizedEmail);
+      if (!target) {
+        showToast('Member record could not be found.', 'error');
+        return;
+      }
+
+      openSystemDialog({
+        variant: 'danger',
+        title: 'Confirm Delete Member',
+        message: 'Are you sure you want to remove this member from SPM NIWAS Library?',
+        summaryRows: [
+          { label: 'Name', value: target.name },
+          { label: 'Designation', value: target.designation },
+          { label: 'Staff Category', value: target.category },
+          { label: 'Google Email', value: target.email }
+        ],
+        confirmLabel: 'Confirm & Delete',
+        onConfirm: async () => {
+          const idx = registeredMembers.findIndex(m => m.email.toLowerCase() === normalizedEmail);
+          if (idx === -1) {
+            showToast('Failed to delete member: record no longer exists.', 'error');
+            return;
+          }
+          const [removed] = registeredMembers.splice(idx, 1);
+          renderMembersTable();
+          try {
+            if (window.firebaseCloud) {
+              await window.firebaseCloud.deleteMember(removed.email);
+            }
+            showToast(`Success: Member "${removed.name}" has been deleted.`, 'success');
+          } catch (err) {
+            registeredMembers.splice(idx, 0, removed);
+            renderMembersTable();
+            showToast(`Failed to delete member "${removed.name}". Please try again.`, 'error');
+          }
+        }
+      });
     }
 
     function handleAddMember(event) {
