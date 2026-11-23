@@ -1176,8 +1176,6 @@
       getAuth,
       GoogleAuthProvider,
       signInWithPopup,
-      signInWithRedirect,
-      getRedirectResult,
       signInAnonymously,
       signInWithCustomToken,
       onAuthStateChanged,
@@ -1229,7 +1227,6 @@
 
     async function bootstrapFirebase() {
       try {
-        await getRedirectResult(auth).catch(() => null);
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
         } else if (!window.IS_PRODUCTION && !auth.currentUser) {
@@ -1402,16 +1399,8 @@
       async signInGoogle() {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
-        try {
-          const cred = await signInWithPopup(auth, provider);
-          return cred.user;
-        } catch (err) {
-          if (err && err.code === 'auth/popup-blocked') {
-            await signInWithRedirect(auth, provider);
-            return null;
-          }
-          throw err;
-        }
+        const cred = await signInWithPopup(auth, provider);
+        return cred.user;
       },
       async signOutGoogle() {
         await signOut(auth);
@@ -3392,80 +3381,6 @@
       }
     }
 
-    function openAddMemberModal() {
-      if (currentRoleKey !== 'librarian') {
-        showToast('Add Member is available only in Librarian mode.', 'warning');
-        return;
-      }
-      const form = document.getElementById('add-member-form');
-      if (form) form.reset();
-      const hintEl = document.getElementById('member-email-hint');
-      if (hintEl) {
-        hintEl.textContent = 'Only @gmail.com, @googlemail.com, or Google Workspace domains allowed.';
-        hintEl.classList.remove('text-rose-600', 'font-medium');
-        hintEl.classList.add('text-slate-400');
-      }
-      const previewEl = document.getElementById('member-entitlement-preview');
-      if (previewEl) {
-        previewEl.textContent = 'Book entitlement is assigned automatically based on category.';
-      }
-      syncStaffCategoriesUI();
-      const modal = document.getElementById('add-member-modal');
-      if (modal) modal.classList.remove('hidden');
-      const nameInput = document.getElementById('member-name');
-      if (nameInput) nameInput.focus();
-    }
-
-    function closeAddMemberModal() {
-      const modal = document.getElementById('add-member-modal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function promptDeleteMember(email) {
-      if (currentRoleKey !== 'librarian') {
-        showToast('Only Librarian can remove members.', 'warning');
-        return;
-      }
-      const normalizedEmail = (email || '').trim().toLowerCase();
-      const target = registeredMembers.find(m => m.email.toLowerCase() === normalizedEmail);
-      if (!target) {
-        showToast('Member record could not be found.', 'error');
-        return;
-      }
-
-      openSystemDialog({
-        variant: 'danger',
-        title: 'Confirm Delete Member',
-        message: 'Are you sure you want to remove this member from SPM NIWAS Library?',
-        summaryRows: [
-          { label: 'Name', value: target.name },
-          { label: 'Designation', value: target.designation },
-          { label: 'Staff Category', value: target.category },
-          { label: 'Google Email', value: target.email }
-        ],
-        confirmLabel: 'Confirm & Delete',
-        onConfirm: async () => {
-          const idx = registeredMembers.findIndex(m => m.email.toLowerCase() === normalizedEmail);
-          if (idx === -1) {
-            showToast('Failed to delete member: record no longer exists.', 'error');
-            return;
-          }
-          const [removed] = registeredMembers.splice(idx, 1);
-          renderMembersTable();
-          try {
-            if (window.firebaseCloud) {
-              await window.firebaseCloud.deleteMember(removed.email);
-            }
-            showToast(`Success: Member "${removed.name}" has been deleted.`, 'success');
-          } catch (err) {
-            registeredMembers.splice(idx, 0, removed);
-            renderMembersTable();
-            showToast(`Failed to delete member "${removed.name}". Please try again.`, 'error');
-          }
-        }
-      });
-    }
-
     function handleAddMember(event) {
       event.preventDefault();
       if (currentRoleKey !== 'librarian') {
@@ -4038,60 +3953,13 @@
     async function signInWithGoogleAccount() {
       const dropdown = document.getElementById('gear-dropdown');
       if (dropdown) dropdown.classList.add('hidden');
-
-      const gateBtn = document.getElementById('btn-gate-google-signin');
-      const gateErrBox = document.getElementById('gate-error-box');
-      if (gateErrBox) gateErrBox.classList.add('hidden');
-      if (gateBtn) {
-        gateBtn.disabled = true;
-        gateBtn.classList.add('opacity-70', 'cursor-wait');
-      }
-
-      if (!window.firebaseCloud) {
-        const msg = 'Firebase Authentication is still initializing. Please refresh and try again.';
-        if (gateErrBox) {
-          gateErrBox.textContent = msg;
-          gateErrBox.classList.remove('hidden');
-        }
-        showToast(msg, 'error');
-        if (gateBtn) {
-          gateBtn.disabled = false;
-          gateBtn.classList.remove('opacity-70', 'cursor-wait');
-        }
-        return;
-      }
-
+      if (!window.firebaseCloud) return;
       try {
         const user = await window.firebaseCloud.signInGoogle();
-        if (user) {
-          window.updateAccountAuthButtons(true);
-          showToast(`Signed in as ${user.displayName || user.email}`, 'success');
-        }
+        window.updateAccountAuthButtons(true);
+        showToast(`Signed in as ${user.displayName || user.email}`, 'success');
       } catch (err) {
-        console.error('Google Sign-In error:', err);
-        let friendlyMsg = 'Google Sign-In failed. Please try again.';
-        if (err?.code === 'auth/unauthorized-domain') {
-          friendlyMsg = `Domain "${window.location.hostname}" is not authorized in Firebase Console → Authentication → Settings → Authorized domains.`;
-        } else if (err?.code === 'auth/api-key-not-valid' || String(err?.message).includes('api-key-not-valid')) {
-          friendlyMsg = 'Firebase Web API Key is missing or invalid in index.html. Copy your real firebaseConfig from Firebase Console → Project Settings.';
-        } else if (err?.code === 'auth/operation-not-allowed') {
-          friendlyMsg = 'Google Sign-In provider is disabled. Enable Google in Firebase Console → Authentication → Sign-in method.';
-        } else if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
-          friendlyMsg = 'Sign-in popup was closed before completing login.';
-        } else if (err?.message) {
-          friendlyMsg = `Sign-In Error (${err.code || 'auth'}): ${err.message}`;
-        }
-
-        if (gateErrBox) {
-          gateErrBox.textContent = friendlyMsg;
-          gateErrBox.classList.remove('hidden');
-        }
-        showToast(friendlyMsg, 'error');
-      } finally {
-        if (gateBtn) {
-          gateBtn.disabled = false;
-          gateBtn.classList.remove('opacity-70', 'cursor-wait');
-        }
+        showToast('Google Sign-In cancelled or domain not authorized yet in Firebase Console.');
       }
     }
 
